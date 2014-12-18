@@ -17,7 +17,7 @@
 BASEDIR = ../../..
 
 include $(BASEDIR)/etc/buildsys/config.mk
-include $(BASEDIR)/src/plugins/gazebo/gazebo.mk
+include $(BUILDSYSDIR)/gazebo.mk
 include $(BUILDSYSDIR)/protobuf.mk
 
 GAZEBO_LIBDIR = $(LIBDIR)/gazebo

@@ -28,7 +28,7 @@
 #include <gazebo/transport/transport.hh>
 #include "simDevice.h"
 #include "infraredPuckSensor.h"
-#include "../../msgs/Float.pb.h"
+#include <gazsim_msgs/Float.pb.h>
 
 using namespace gazebo;
 

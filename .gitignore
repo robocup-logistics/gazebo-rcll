@@ -1,6 +1,8 @@
 # Generic globs
 /core*
 *~
+.deps_*
+.objs_*
 
 # Generated protobuf files
 *.pb.h
@@ -14,3 +16,9 @@
 # Vim files
 .*.swp
 .*.swo
+
+# Specific paths, _ variants for cross compilation environments
+/lib/
+/lib_*/
+/plugins/
+/plugins_*

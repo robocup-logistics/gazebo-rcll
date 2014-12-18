@@ -24,21 +24,20 @@ ifeq ($(HAVE_PROTOBUF),1)
   ifneq ($(PROTOBUF_all),)
     $(foreach P,$(PROTOBUF_all),							\
 	$(if $(filter-out %_msgs,$P),						\
-	$(eval LDFLAGS_protobuf_lib$P     = $(LDFLAGS_PROTOBUF) -lfawkesutils)	\
-	$(eval OBJS_protobuf_lib$P        = $P_ctor.o $P.pb.o)			\
+	$(eval LDFLAGS_protobuf_lib$P     = $(LDFLAGS_PROTOBUF))	\
+	$(eval OBJS_protobuf_lib$P        = $P.pb.o)			\
 	$(eval HDRS_interfaces_lib$P      = $P.pb.h)				\
 	$(eval INST_LIB_SUBDIR_protobuf_lib$P   = $(FFLIBSUBDIR))		\
 	$(eval INST_HDRS_SUBDIR_protobuf_lib$P  = protobuf)			\
 	$(eval OBJS_all                  += $$(OBJS_protobuf_lib$P))		\
-	$(eval PROTOBUF_CTORS            += $(SRCDIR)/$P_ctor.cpp)		\
 	$(eval PROTOBUF_SRCS             += $(SRCDIR)/$P.pb.cpp)		\
 	$(eval PROTOBUF_HDRS             += $(SRCDIR)/$P.pb.h)			\
 	$(eval PROTOBUF_LIBS             += $(PROTOBUF_LIBDIR)/lib$P.$(SOEXT))	\
 	$(eval LIBS_all                  += $(PROTOBUF_LIBDIR)/lib$P.$(SOEXT))	\
 	$(eval CLEAN_FILES               += $P.pb.h $P.pb.cpp)			\
 	, \
-	$(eval LDFLAGS_protobuf_lib$P     = $(LDFLAGS_PROTOBUF) -lfawkesutils)	\
-	$(eval OBJS_protobuf_lib$P        = $P_ctor.o $(MSGS_$P:%=%.pb.o))	\
+	$(eval LDFLAGS_protobuf_lib$P     = $(LDFLAGS_PROTOBUF))	\
+	$(eval OBJS_protobuf_lib$P        = $(MSGS_$P:%=%.pb.o))	\
 	$(eval HDRS_interfaces_lib$P      = $(MSGS_$P:%=%.pb.h))		\
 	$(eval INST_LIB_SUBDIR_protobuf_lib$P   = $(FFLIBSUBDIR))		\
 	$(eval INST_HDRS_SUBDIR_protobuf_lib$P  = protobuf)			\
@@ -54,26 +53,26 @@ ifeq ($(HAVE_PROTOBUF),1)
   )
   endif
 
-define PROTOBUF_LIB_CTOR =
-#include <utils/system/dynamic_module/module.h>
-void pb_prevent_unloading(void) __attribute__((constructor));
-void pb_prevent_unloading(void)
-{
-  fawkes::Module m(LIBDIR"/protobuf/@LIBNAME@.$(SOEXT)",
-                   fawkes::Module::MODULE_BIND_LAZY | fawkes::Module::MODULE_NODELETE);
-  m.open();
-}
-endef
-export PROTOBUF_LIB_CTOR
+# define PROTOBUF_LIB_CTOR =
+# #include <utils/system/dynamic_module/module.h>
+# void pb_prevent_unloading(void) __attribute__((constructor));
+# void pb_prevent_unloading(void)
+# {
+#   fawkes::Module m(LIBDIR"/protobuf/@LIBNAME@.$(SOEXT)",
+#                    fawkes::Module::MODULE_BIND_LAZY | fawkes::Module::MODULE_NODELETE);
+#   m.open();
+# }
+# endef
+# export PROTOBUF_LIB_CTOR
 
 ifeq ($(OBJSSUBMAKE),1)
 
 $(PROTOBUF_SRCS): $(SRCDIR)/%.pb.cpp: $(SRCDIR)/$(OBJDIR)/%.pb.touch
 $(PROTOBUF_HDRS): $(SRCDIR)/%.pb.h: $(SRCDIR)/$(OBJDIR)/%.pb.touch
 
-%_ctor.o:
-	$(SILENT)echo "$$PROTOBUF_LIB_CTOR" | sed -e 's/@LIBNAME@/lib$*/' | \
-		$(CC) -x c++ -o $@ $(CFLAGS_BASE)$(addprefix -I,$(INCDIRS)) -c -
+# %_ctor.o:
+# 	$(SILENT)echo "$$PROTOBUF_LIB_CTOR" | sed -e 's/@LIBNAME@/lib$*/' | \
+# 		$(CC) -x c++ -o $@ $(CFLAGS_BASE)$(addprefix -I,$(INCDIRS)) -c -
 
 $(SRCDIR)/$(OBJDIR)/%.pb.touch: $(SRCDIR)/%.proto
 	$(SILENTSYMB) echo "$(INDENT_PRINT)--> Generating $* (Protobuf Message)"

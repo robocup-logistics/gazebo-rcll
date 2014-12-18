@@ -17,7 +17,7 @@
 BASEDIR = ../../..
 
 include $(BASEDIR)/etc/buildsys/config.mk
-include $(BASEDIR)/fawkes/src/plugins/gazebo/gazebo.mk
+include $(BUILDSYSDIR)/gazebo.mk
 include $(BUILDSYSDIR)/protobuf.mk
 
 LIBS_gazebo_libllsf =	gazsim_msgs llsf_msgs

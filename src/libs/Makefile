@@ -16,7 +16,7 @@
 BASEDIR = ../..
 include $(BASEDIR)/etc/buildsys/config.mk
 
-SUBDIRS = gazebo_msgs llsf_msgs
+SUBDIRS = gazsim_msgs llsf_msgs
 
 
 include $(BUILDSYSDIR)/rules.mk
