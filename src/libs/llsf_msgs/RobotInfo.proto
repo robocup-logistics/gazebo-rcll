@@ -1,0 +1,96 @@
+
+/***************************************************************************
+ *  RobotInfo.proto - Robot information
+ *
+ *  Created: Fri Feb 22 11:20:18 2013
+ *  Copyright  2013  Tim Niemueller [www.niemueller.de]
+ ****************************************************************************/
+
+/*  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ * - Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ * - Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in
+ *   the documentation and/or other materials provided with the
+ *   distribution.
+ * - Neither the name of the authors nor the names of its contributors
+ *   may be used to endorse or promote products derived from this
+ *   software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package llsf_msgs;
+
+import "Time.proto";
+import "Pose2D.proto";
+import "Team.proto";
+
+option java_package = "org.robocup_logistics.llsf_msgs";
+option java_outer_classname = "RobotInfoProtos";
+
+enum RobotState {
+  ACTIVE       = 1;
+  MAINTENANCE  = 2;
+  DISQUALIFIED = 3;
+}
+
+message Robot {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 31;
+  }
+
+  // Name, team, and number of the robot
+  // as it was announced by the robot in
+  // the BeaconSignal message.
+  required string name = 1;
+  required string team = 2;
+  required Team   team_color = 12;
+  required uint32 number = 7;
+  // Host from where the BeaconSignal
+  // was received
+  required string host = 3;
+  // Timestamp in UTC when a BeaconSignal
+  // was received last from this robot
+  required Time   last_seen = 4;
+
+  // Pose information (reported by robot)
+  optional Pose2D pose = 6;
+  // Pose information (reported by vision)
+  optional Pose2D vision_pose = 11;
+
+  // Current state of this robot
+  optional RobotState state = 8;
+
+  // Time in seconds remaining in current
+  // maintenance cycle, negative if overdue
+  optional float  maintenance_time_remaining = 9 [default = 0.0];
+  // number of times maintenance
+  // has been performed, including current
+  optional uint32 maintenance_cycles = 10;
+}
+
+message RobotInfo {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 30;
+  }
+
+  // List of all known robots
+  repeated Robot robots = 1;
+}

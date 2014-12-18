@@ -1,0 +1,19 @@
+/***************************************************************************
+ * PreparedForProduction.proto - Announce msg that the robot has prepared for production
+ *
+ *  Created: Mon Mar 24 16:53:51 2014
+ *  Copyright  2014  Frederik Zwilling
+ ****************************************************************************/
+
+package llsf_msgs;
+
+message PreparedForProduction {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 1344;
+  }
+
+  required string peer_name = 1;
+  required string waiting_point = 2;
+}
+

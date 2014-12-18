@@ -1,0 +1,16 @@
+# Generic globs
+/core*
+*~
+
+# Generated protobuf files
+*.pb.h
+*.pb.cpp
+
+# Eclipse project files, some are using it...
+.cproject
+.project
+.settings
+
+# Vim files
+.*.swp
+.*.swo
