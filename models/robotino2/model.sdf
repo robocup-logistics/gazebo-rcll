@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="robotino2">
+    <include>
+      <name>robotino2</name>
+      <uri>model://carologistics-robotino</uri>
+    </include>
+  </model>
+</sdf>

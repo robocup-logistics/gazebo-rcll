@@ -1,0 +1,117 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="robotino">
+    <static>false</static>
+    <link name="body">
+      <pose>0 0 0.001 0 0 0 </pose>
+      <gravity>true</gravity>
+      <inertial>
+        <mass>5000</mass>
+        <pose>0 0 0.015 0 0 0</pose>
+        <inertia><ixx>1.0</ixx><ixy>0.0</ixy><ixz>0.0</ixz><iyy>1.0</iyy><iyz>0.0</iyz><izz>1.0</izz></inertia>
+      </inertial>
+      <visual name='body-visual'>
+	<pose>0.01 0 0.00 0 0 1.570795</pose>
+	<geometry>
+	  <mesh>
+	    <uri>model://robotino/meshes/RobotinoBody.dae</uri>
+	    <scale>0.01 0.01 0.01</scale>
+	  </mesh>
+	</geometry>
+	<cast_shadows>false</cast_shadows>
+      </visual>
+      <collision name='body-collision'>
+        <pose>0 0 0.025 0 0 0</pose>
+        <geometry>
+          <cylinder>
+	    <length>0.05</length>
+	    <radius>0.175</radius>
+	  </cylinder>
+        </geometry>
+	<surface>
+	  <friction>
+	    <ode>
+	      <mu>0.2</mu>
+              <mu2>0.2</mu2>
+              <slip1>0.8</slip1>
+              <slip2>0.8</slip2>
+	    </ode>
+	  </friction>
+	</surface>
+      </collision>
+      <collision name='chasis-collision-for-laser'>
+        <pose>-0.05 0 0.17 0 0 0</pose>
+        <geometry>
+          <cylinder>
+	    <length>0.08</length>
+	    <radius>0.12</radius>
+	  </cylinder>
+        </geometry>
+      </collision>
+      <visual name='wheel0-visual'>
+        <pose>-0.12 0 0.04 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://robotino/meshes/RobotinoWheel.dae</uri>
+	    <scale>0.01 0.01 0.01</scale>
+	  </mesh>
+        </geometry>
+      </visual>
+      <visual name='wheel1-visual'>
+        <pose>0.06 -0.104 0.045 0 0 -1.047</pose>
+        <geometry>
+          <mesh>
+            <uri>model://robotino/meshes/RobotinoWheel.dae</uri>
+	    <scale>0.01 0.01 0.01</scale>
+	  </mesh>
+        </geometry>
+      </visual>
+      <visual name='wheel2-visual'>
+        <pose>0.06 0.104 0.045 0 0 1.047</pose>
+        <geometry>
+          <mesh>
+            <uri>model://robotino/meshes/RobotinoWheel.dae</uri>
+	    <scale>0.01 0.01 0.01</scale>
+	  </mesh>
+        </geometry>
+      </visual>
+    </link>
+
+    <include>
+      <uri>model://hokuyo</uri>
+      <pose>0.085 0 0.15 0 0 0</pose> <!-- 0.085 0 0.15 0 0 0 -->
+    </include>
+    <include>
+      <uri>model://webcam</uri>
+      <pose>0.045 0 0.22 0 0 0</pose>
+    </include>
+
+    <joint name="hokuyo_joint" type="revolute">
+      <child>hokuyo::link</child>
+      <parent>body</parent>
+      <pose>0.085 0 0.03 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="webcam_sensor_joint" type="revolute">
+      <child>webcam::link</child>
+      <parent>body</parent>
+      <pose>0.04 0 0.02 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+    <plugin name="Motor" filename="libmotor.so"/>
+    <plugin name="Gyro" filename="libgyro.so"/>
+    <plugin name="GPS" filename="libgps.so"/>
+  </model>
+</sdf>

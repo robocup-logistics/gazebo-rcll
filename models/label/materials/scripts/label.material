@@ -1,0 +1,135 @@
+material label/robotino1
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture label1cyan.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material label/robotino2
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture label2cyan.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material label/robotino3
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture label3cyan.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material label/robotino4
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture label1magenta.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material label/robotino5
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture label2magenta.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material label/robotino6
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture label3magenta.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material label/arrowup
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture arrowup.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material label/arrowredup
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture arrowredup.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}

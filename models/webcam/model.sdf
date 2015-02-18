@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="webcam">
+    <static>true</static>
+    <link name="link">
+      <gravity>false</gravity>
+      <inertial>
+        <mass>0.02</mass>
+      </inertial>
+      <visual name="visual">
+	<pose>0 0 0 0 1.6 0</pose>
+        <geometry>
+          <cylinder>
+	    <length>0.02</length>
+	    <radius>0.03</radius>
+	  </cylinder>
+        </geometry>
+	<cast_shadows>false</cast_shadows>
+	<material>
+	  <ambient>0.0 0.0 0.0 0.1</ambient>
+	  <diffuse>0.0 0.0 0.0 0.11</diffuse>
+	</material>
+      </visual>
+      <sensor name="webcam_sensor" type="camera">
+        <pose>0 0 0 0 0 0</pose>
+        <always_on>1</always_on>
+        <update_rate>2.0</update_rate>
+        <visualize>false</visualize>
+	<camera name="front_webcam">
+	  <horizontal_fov>1.08</horizontal_fov>
+	  <image>
+	    <width>320</width>
+	    <height>240</height>
+	    <format>R8G8B8</format>
+	  </image>
+	</camera>
+      </sensor>
+      <!-- There is no plugin for the camera because you can access the shared memory pointer for the camera directly -->
+    </link>
+  </model>
+</sdf>

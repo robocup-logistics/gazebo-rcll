@@ -1,0 +1,284 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="LLSF">
+
+    <physics type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+
+    <gui>
+      <camera name="user camera">
+	<pose>1.6 -2 9.0 0 1.1 1.56</pose>
+      </camera>
+    </gui>
+
+    <!-- Ground Plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Field  -->
+    <include>
+      <uri>model://llsf_field_2014</uri>
+    </include>
+
+    <!-- Robotinos  -->
+    <include>
+      <name>robotino1</name>
+      <uri>model://carologistics-robotino</uri>
+      <pose>4.4 0.3 0 0 0 1.57</pose>
+    </include>
+    <include>
+      <name>robotino2</name>
+      <uri>model://carologistics-robotino</uri>
+      <pose>3.45 0.3 0 0 0 1.57</pose>
+    </include>
+    <include>
+      <name>robotino3</name>
+      <uri>model://carologistics-robotino</uri>
+      <pose>2.5 0.3 0 0 0 1.57</pose>
+    </include>
+
+    <!-- Light -->
+    <light name="light" type="point">
+      <cast_shadows>false</cast_shadows>
+      <pose>-12 3 1 0 0 0</pose>
+      <diffuse>127 127 127 255</diffuse>
+      <specular>25 25 25 255</specular>
+      <attenuation>
+	<range>20.0</range>
+	<linear>0.01</linear>
+	<constant>0.7</constant>
+	<quadratic>0.00</quadratic>
+      </attenuation>
+    </light>
+
+    <!-- Pucks  -->
+    <include>
+      <name>Puck0</name>
+      <uri>model://puck</uri>
+      <pose>1.17 0.37 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck1</name>
+      <uri>model://puck</uri>
+      <pose>1.29 0.37 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck2</name>
+      <uri>model://puck</uri>
+      <pose>1.41 0.37 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck3</name>
+      <uri>model://puck</uri>
+      <pose>1.53 0.37 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck4</name>
+      <uri>model://puck</uri>
+      <pose>1.65 0.37 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck5</name>
+      <uri>model://puck</uri>
+      <pose>1.77 0.37 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck6</name>
+      <uri>model://puck</uri>
+      <pose>1.89 0.37 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck7</name>
+      <uri>model://puck</uri>
+      <pose>2.01 0.37 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck8</name>
+      <uri>model://puck</uri>
+      <pose>1.17 0.2 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck9</name>
+      <uri>model://puck</uri>
+      <pose>1.29 0.2 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck10</name>
+      <uri>model://puck</uri>
+      <pose>1.41 0.2 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck11</name>
+      <uri>model://puck</uri>
+      <pose>1.53 0.2 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck12</name>
+      <uri>model://puck</uri>
+      <pose>1.65 0.2 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck13</name>
+      <uri>model://puck</uri>
+      <pose>1.77 0.2 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck14</name>
+      <uri>model://puck</uri>
+      <pose>1.89 0.2 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck15</name>
+      <uri>model://puck</uri>
+      <pose>2.01 0.2 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck16</name>
+      <uri>model://puck</uri>
+      <pose>1.29 0.07 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck17</name>
+      <uri>model://puck</uri>
+      <pose>1.17 0.07 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck18</name>
+      <uri>model://puck</uri>
+      <pose>2.13 0.37 0.03 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck19</name>
+      <uri>model://puck</uri>
+      <pose>2.13 0.2 0.03 0 0 0</pose>
+    </include>
+    <!-- <include> -->
+    <!--   <name>Puck20</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>1.41 0.07 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck21</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>1.1 -1 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck22</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.17 0.37 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck23</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.29 0.37 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck24</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.41 0.37 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck25</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.53 0.37 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck26</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.65 0.37 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck27</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.77 0.37 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck28</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.89 0.37 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck29</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-2.01 0.37 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck30</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.17 0.2 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck31</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.29 0.2 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck32</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.41 0.2 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck33</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.53 0.2 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck34</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.65 0.2 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck35</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.77 0.2 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck36</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.89 0.2 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck37</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-2.01 0.2 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck38</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.29 0.07 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck39</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.17 0.07 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck40</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-2.13 0.37 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck41</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-2.13 0.2 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck42</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1 -1 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>Puck43</name> -->
+    <!--   <uri>model://puck</uri> -->
+    <!--   <pose>-1.1 -1 0.03 0 0 0</pose> -->
+    <!-- </include> -->
+    <plugin name="world" filename="libllsf.so" />
+  </world>
+</sdf>

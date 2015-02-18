@@ -1,0 +1,262 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="llsf_field">
+    <static>true</static>
+    <link name="field_link">
+      <visual name='visual'>
+	<pose>0 0 0.02 0 0 0</pose>
+	<geometry>
+	  <mesh>
+	    <uri>model://llsf_field_2014/llsf_field_2014.dae</uri>
+	    <scale>1.0 1.0 1.0</scale>
+	  </mesh>
+	</geometry>
+	<cast_shadows>false</cast_shadows>
+      </visual>
+      <collision name="collision_ground">
+	<pose>0 2.8 0.01 0 0 0 </pose>
+        <geometry>
+          <box>
+            <size>11.2 5.6 0.02</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100</mu>
+              <mu2>50</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <collision name="collision0">
+        <pose>5.6 2.8 0.25 0 0 0 </pose>
+	<geometry>
+          <box>
+            <size>0.02 5.6 0.5</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100</mu>
+              <mu2>50</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <collision name="collision1">
+        <pose>0 5.6 0.25 0 0 0 </pose>
+	<geometry>
+          <box>
+            <size>11.2 0.02 0.5</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100</mu>
+              <mu2>50</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <collision name="collision2">
+        <pose>0 0 0.25 0 0 0 </pose>
+	<geometry>
+          <box>
+            <size>11.2 0.02 0.5</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100</mu>
+              <mu2>50</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <collision name="collision3">
+        <pose>-5.6 2.8 0.25 0 0 0 </pose>
+	<geometry>
+          <box>
+            <size>0.02 5.6 0.5</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>100</mu>
+              <mu2>50</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+    </link>
+
+
+    <!-- Machines  -->
+
+    <include>
+      <name>M1</name>
+      <uri>model://machine</uri>
+      <pose>0.56 1.68 0.02 0 0 -1.57</pose>
+    </include>
+    <include>
+      <name>M2</name>
+      <uri>model://machine</uri>
+      <pose>0.56 2.80 0.02 0 0 1.57</pose>
+    </include>
+    <include>
+      <name>M3</name>
+      <uri>model://machine</uri>
+      <pose>1.68 1.68 0.02 0 0 0</pose>
+    </include>
+    <include>
+      <name>M4</name>
+      <uri>model://machine</uri>
+      <pose>1.68 2.8 0.02 0 0 3.14</pose>
+    </include>
+    <include>
+      <name>M5</name>
+      <uri>model://machine</uri>
+      <pose>1.68 3.92 0.02 0 0 3.14</pose>
+    </include>
+    <include>
+      <name>M6</name>
+      <uri>model://machine</uri>
+      <pose>2.8 1.68 0.02 0 0 1.57</pose>
+    </include>
+    <include>
+      <name>M7</name>
+      <uri>model://machine</uri>
+      <pose>2.8 3.92 0.02 0 0 -1.57</pose>
+    </include>
+    <include>
+      <name>M8</name>
+      <uri>model://machine</uri>
+      <pose>2.8 5.04 0.02 0 0 3.14</pose>
+    </include>
+    <include>
+      <name>M9</name>
+      <uri>model://machine</uri>
+      <pose>3.92 1.68 0.02 0 0 0</pose>
+    </include>
+    <include>
+      <name>M10</name>
+      <uri>model://machine</uri>
+      <pose>3.92 2.8 0.02 0 0 1.57</pose>
+    </include>
+    <include>
+      <name>M11</name>
+      <uri>model://machine</uri>
+      <pose>3.92 5.04 0.02 0 0 -1.57</pose>
+    </include>
+    <include>
+      <name>M12</name>
+      <uri>model://machine</uri>
+      <pose>5.04 5.04 0.02 0 0 -1.57</pose>
+    </include>
+    <include>
+      <name>D1</name>
+      <uri>model://machine</uri>
+      <pose>5.34 2.45 0.02 0 0 3.14</pose>
+    </include>
+    <include>
+      <name>D2</name>
+      <uri>model://machine</uri>
+      <pose>5.34 2.8 0.02 0 0 3.14</pose>
+    </include>
+    <include>
+      <name>D3</name>
+      <uri>model://machine</uri>
+      <pose>5.34 3.15 0.02 0 0 3.14</pose>
+    </include>
+    <include>
+      <name>M13</name>
+      <uri>model://machine</uri>
+      <pose>-0.56 1.68 0.02 0 0 -1.57</pose>
+    </include>
+    <include>
+      <name>M14</name>
+      <uri>model://machine</uri>
+      <pose>-0.56 2.80 0.02 0 0 1.57</pose>
+    </include>
+    <include>
+      <name>M15</name>
+      <uri>model://machine</uri>
+      <pose>-1.68 1.68 0.02 0 0 3.14</pose>
+    </include>
+    <include>
+      <name>M16</name>
+      <uri>model://machine</uri>
+      <pose>-1.68 2.8 0.02 0 0 0</pose>
+    </include>
+    <include>
+      <name>M17</name>
+      <uri>model://machine</uri>
+      <pose>-1.68 3.92 0.02 0 0 0</pose>
+    </include>
+    <include>
+      <name>M18</name>
+      <uri>model://machine</uri>
+      <pose>-2.8 1.68 0.02 0 0 1.57</pose>
+    </include>
+    <include>
+      <name>M19</name>
+      <uri>model://machine</uri>
+      <pose>-2.8 3.92 0.02 0 0 -1.57</pose>
+    </include>
+    <include>
+      <name>M20</name>
+      <uri>model://machine</uri>
+      <pose>-2.8 5.04 0.02 0 0 0</pose>
+    </include>
+    <include>
+      <name>M21</name>
+      <uri>model://machine</uri>
+      <pose>-3.92 1.68 0.02 0 0 3.14</pose>
+    </include>
+    <include>
+      <name>M22</name>
+      <uri>model://machine</uri>
+      <pose>-3.92 2.8 0.02 0 0 1.57</pose>
+    </include>
+    <include>
+      <name>M23</name>
+      <uri>model://machine</uri>
+      <pose>-3.92 5.04 0.02 0 0 -1.57</pose>
+    </include>
+    <include>
+      <name>M24</name>
+      <uri>model://machine</uri>
+      <pose>-5.04 5.04 0.02 0 0 -1.57</pose>
+    </include>
+    <include>
+      <name>D4</name>
+      <uri>model://machine</uri>
+      <pose>-5.34 2.45 0.02 0 0 0</pose>
+    </include>
+    <include>
+      <name>D5</name>
+      <uri>model://machine</uri>
+      <pose>-5.34 2.8 0.02 0 0 0</pose>
+    </include>
+    <include>
+      <name>D6</name>
+      <uri>model://machine</uri>
+      <pose>-5.34 3.15 0.02 0 0 0</pose>
+    </include>
+    <include>
+      <name>R1</name>
+      <uri>model://machine</uri>
+      <pose>0.56 5.04 0.02 0 0 0</pose>
+    </include>
+    <include>
+      <name>R2</name>
+      <uri>model://machine</uri>
+      <pose>-0.56 5.04 0.02 0 0 3.14</pose>
+    </include>
+  </model>
+</sdf>

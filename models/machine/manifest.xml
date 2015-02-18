@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<model>
+  <name>Machine</name>
+  <version>1.0</version>
+  <sdf version="1.2">model.sdf</sdf>
+
+  <author>
+    <name>Frederik Zwilling</name>
+    <email>frederik.zwilling@gmail.com</email>
+  </author>
+
+  <description>
+    A machine of the RoboCup Logistic League
+  </description>
+</model>

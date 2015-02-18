@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="LLSF">
+
+    <physics type="ode">
+      <max_step_size>0.00125</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+
+    <gui>
+      <camera name="user camera">
+	<pose>1.6 -2 9.0 0 1.1 1.56</pose>
+      </camera>
+    </gui>
+
+    <!-- Ground Plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Field  -->
+    <include>
+      <uri>model://llsf_field_2015</uri>
+    </include>
+
+    <!-- World Plugin -->
+    <!-- <plugin name="world" filename="libllsf.so" /> -->
+
+
+    <!-- Robotinos  -->
+    <!-- Team Cyan -->
+    <!-- <include> -->
+    <!--   <name>robotino1</name> -->
+    <!--   <uri>model://carologistics-robotino</uri> -->
+    <!--   <pose>4.4 0.3 0 0 0 1.57</pose> -->
+    <!-- </include> -->
+    <!-- Team Magenta -->
+    
+    <!-- Light -->
+    <light name="light" type="point">
+      <cast_shadows>false</cast_shadows>
+      <pose>-12 3 1 0 0 0</pose>
+      <diffuse>127 127 127 255</diffuse>
+      <specular>25 25 25 255</specular>
+      <attenuation>
+	<range>20.0</range>
+	<linear>0.01</linear>
+	<constant>0.7</constant>
+	<quadratic>0.00</quadratic>
+      </attenuation>
+    </light>
+
+    <!-- Pucks  -->
+    <!-- Team Cyan -->
+    <!-- Team Magenta -->
+  </world>
+</sdf>

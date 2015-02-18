@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="robotino_gripper_adapter">
+    <link name="plate">
+        <pose>0.0 0 0 1.570796 0 0</pose>
+        <inertial>
+            <inertia>
+                <ixx>0.01</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.01</iyy>
+                <iyz>0</iyz>
+                <izz>0.01</izz>
+            </inertia>
+            <mass>0.5</mass>
+        </inertial>
+      <visual name="visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://robotino_gripper_adapter/meshes/robotino_gripper_plate.dae</uri>
+          </mesh>
+        </geometry>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+      <collision name="collision">
+        <pose>0.0 0.0575 0.012 0 0 0</pose>
+        <geometry>
+		    <box>
+                 <size>0.15 0.115 0.024</size>
+		    </box>
+        </geometry>
+      </collision>
+    </link>
+
+   
+    <link name="block">
+        <pose>0.0 0.024 0.08 1.570796 0 3.1415</pose>
+        <inertial>
+            <inertia>
+                <ixx>0.01</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.01</iyy>
+                <iyz>0</iyz>
+                <izz>0.01</izz>
+            </inertia>
+            <mass>0.5</mass>
+        </inertial>
+      <visual name="visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://robotino_gripper_adapter/meshes/robotino_gripper_block.dae</uri>
+          </mesh>
+        </geometry>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+      <collision name="collision">
+        <pose>0.0 0 -0.012 0 0 0</pose>
+        <geometry>
+		    <box>
+                 <size>0.065 0.06 0.024</size>
+		    </box>
+        </geometry>
+      </collision>
+    </link>
+
+
+    <joint name="plate_block_joint" type="revolute">
+        <child>block</child>
+        <parent>plate</parent>
+        <axis>
+            <limit>
+                <lower>0</lower>
+                <upper>0</upper>
+            </limit>
+            <xyz>1 0 0</xyz>
+        </axis>
+    </joint>
+
+  </model>
+</sdf>

@@ -1,0 +1,146 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="LLSF">
+
+    <physics type="ode">
+      <max_step_size>0.0015</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>750</real_time_update_rate>
+    </physics>
+
+
+    <!-- Ground Plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+<!-- Field  -->
+    <include>
+      <uri>model://llsf_field_2013</uri>
+    </include>
+
+<!-- Robotinos  -->
+    <include>
+      <name>robotino1</name>
+      <uri>model://carologistics-robotino</uri>
+      <pose>0.4 0.5 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>robotino2</name>
+      <uri>model://carologistics-robotino</uri>
+      <pose>0.4 1.2 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>robotino3</name>
+      <uri>model://carologistics-robotino</uri>
+      <pose>0.4 1.9 0 0 0 0</pose>
+    </include>
+
+<!-- Pucks  -->
+
+    <include>
+      <name>Puck0</name>
+      <uri>model://puck</uri>
+      <pose>0.37 2.35 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck1</name>
+      <uri>model://puck</uri>
+      <pose>0.37 2.50 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck2</name>
+      <uri>model://puck</uri>
+      <pose>0.37 2.65 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck3</name>
+      <uri>model://puck</uri>
+      <pose>0.37 2.80 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck4</name>
+      <uri>model://puck</uri>
+      <pose>0.37 2.95 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck5</name>
+      <uri>model://puck</uri>
+      <pose>0.37 3.10 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck6</name>
+      <uri>model://puck</uri>
+      <pose>0.37 3.25 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck7</name>
+      <uri>model://puck</uri>
+      <pose>0.2 2.35 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck8</name>
+      <uri>model://puck</uri>
+      <pose>0.2 2.50 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck9</name>
+      <uri>model://puck</uri>
+      <pose>0.2 2.65 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck10</name>
+      <uri>model://puck</uri>
+      <pose>0.2 2.80 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck11</name>
+      <uri>model://puck</uri>
+      <pose>0.2 2.95 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck12</name>
+      <uri>model://puck</uri>
+      <pose>0.2 3.10 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck13</name>
+      <uri>model://puck</uri>
+      <pose>0.2 3.25 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck14</name>
+      <uri>model://puck</uri>
+      <pose>0.07 2.35 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck15</name>
+      <uri>model://puck</uri>
+      <pose>0.07 2.50 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck16</name>
+      <uri>model://puck</uri>
+      <pose>0.07 2.65 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck17</name>
+      <uri>model://puck</uri>
+      <pose>0.07 2.80 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck18</name>
+      <uri>model://puck</uri>
+      <pose>0.07 2.95 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>Puck19</name>
+      <uri>model://puck</uri>
+      <pose>0.07 3.10 0 0 0 0</pose>
+    </include>
+    <plugin name="world" filename="libllsf.so" />
+  </world>
+</sdf>

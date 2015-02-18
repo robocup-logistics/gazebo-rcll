@@ -1,0 +1,149 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="robotino_gripper">
+	<static>false</static>
+    <link name="body">
+        <pose>0.0 -0.0435 -0.025 0 0 0</pose>
+        <inertial>
+            <inertia>
+                <ixx>0.01</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.01</iyy>
+                <iyz>0</iyz>
+                <izz>0.01</izz>
+            </inertia>
+            <mass>0.5</mass>
+        </inertial>
+      <visual name="visual">
+        <pose>0 0.04 -0.175 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://robotino_gripper/meshes/robotino_gripper_base.dae</uri>
+          </mesh>
+        </geometry>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+      <collision name="collision">
+        
+        <geometry>
+		    <box>
+                 <size>0.08 0.08 0.08</size>
+		    </box>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="finger-left">
+        <pose>-0.0005 0.0 0.0 0 0 0</pose>
+        <inertial>
+            <inertia>
+                <ixx>0.01</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.01</iyy>
+                <iyz>0</iyz>
+                <izz>0.01</izz>
+            </inertia>
+            <mass>0.1</mass>
+        </inertial>
+      <visual name="visual">
+        <pose>0.013 -0.004 -0.20 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://robotino_gripper/meshes/robotino_gripper_finger.dae</uri>
+          </mesh>
+        </geometry>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+
+        <collision name="collision">
+        	<pose>-0.014 0.006 0 0 0 0</pose>
+            <geometry>
+                <box>
+                    <size>0.028 0.008 0.01</size>
+                </box>
+            </geometry>
+        </collision>
+        <collision name="collision">
+        	<pose>-0.023 0.021 0 0 0 0</pose>
+            <geometry>
+                <box>
+                    <size>0.01 0.036 0.01</size>
+                </box>
+            </geometry>
+        </collision>
+    </link>
+
+
+    <link name="finger-right">
+        <pose>0.0005 0.0 0.0 0 3.1415 0</pose>
+        <inertial>
+            <inertia>
+                <ixx>0.01</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.01</iyy>
+                <iyz>0</iyz>
+                <izz>0.01</izz>
+            </inertia>
+            <mass>0.1</mass>
+        </inertial>
+      <visual name="visual">
+        <pose>0.013 -0.004 -0.20 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://robotino_gripper/meshes/robotino_gripper_finger.dae</uri>
+          </mesh>
+        </geometry>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+
+        <collision name="collision">
+        	<pose>-0.014 0.006 0 0 0 0</pose>
+            <geometry>
+                <box>
+                    <size>0.028 0.008 0.01</size>
+                </box>
+            </geometry>
+        </collision>
+        <collision name="collision">
+        	<pose>-0.023 0.021 0 0 0 0</pose>
+            <geometry>
+                <box>
+                    <size>0.01 0.036 0.01</size>
+                </box>
+            </geometry>
+        </collision>
+    </link>
+
+
+
+    <joint name="left_finger_move" type="prismatic">
+        <child>finger-left</child>
+        <parent>body</parent>
+        <axis>
+            <limit>
+                <lower>0</lower>
+                <upper>0.004</upper>
+            </limit>
+            <xyz>1 0 0</xyz>
+        </axis>
+    </joint>
+
+
+
+    <joint name="right_finger_move" type="prismatic">
+        <child>finger-right</child>
+        <parent>body</parent>
+        <axis>
+            <limit>
+                <lower>0</lower>
+                <upper>0.004</upper>
+            </limit>
+            <xyz>1 0 0</xyz>
+        </axis>
+    </joint>
+
+  </model>
+</sdf>

@@ -1,0 +1,12 @@
+<package>
+  <description brief="robotino_description">
+This package includes the xacro files and meshes for Robotino.
+  </description>
+  <author>indorewala@servicerobotics.eu</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/robotino_description</url>
+
+</package>
+
+

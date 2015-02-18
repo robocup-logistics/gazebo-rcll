@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+
+	<model name="robotino_bbu">
+
+    <include>
+      <uri>model://robotino3</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://robotino_gripper_adapter</uri>
+      <pose>0 -0.15 0.805 0 0 3.1415</pose>
+    </include>
+
+    <joint name="robotino_gripper_adapter_joint" type="revolute">
+      <parent>robotino3::body</parent>
+      <child>robotino_gripper_adapter::plate</child>
+      <axis>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <include>
+      <uri>model://robotino_gripper</uri>
+      <pose>0 -0.255 0.925 0 0 3.1415</pose>
+    </include>
+
+    <joint name="robotino_gripper_joint" type="revolute">
+      <parent>robotino_gripper_adapter::block</parent>
+      <child>robotino_gripper::body</child>
+      <axis>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+
+	<include>
+      <uri>model://hokuyo</uri>
+      <pose>0.0 -0.15 0.235 0 0 -1.570796</pose>
+    </include>
+
+    <joint name="hokuyo_joint" type="revolute">
+      <parent>robotino3::body</parent>
+      <child>hokuyo::link</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+
+  </model>
+</sdf>

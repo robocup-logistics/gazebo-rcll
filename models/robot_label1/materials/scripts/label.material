@@ -1,0 +1,53 @@
+material robot_label/robotino1
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+	  scene_blend alpha_blend
+      texture_unit
+      {
+        texture num1.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material robot_label/robotino2
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+	  scene_blend alpha_blend
+      texture_unit
+      {
+        texture num2.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material robot_label/robotino3
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+	  scene_blend alpha_blend
+      texture_unit
+      {
+        texture num3.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
