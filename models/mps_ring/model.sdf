@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
   <model name="mps_ring">
-    <static>false</static>
+    <static>true</static>
     <link name="body">
-      <pose>0 0 0.445 0 0 0</pose>
-      <gravity>true</gravity>
+      <gravity>false</gravity>
       <inertial>
+	<pose>0 0 0.445 0 0 0</pose>
         <mass>30</mass>
         <inertia>
 	  <!-- according to http://en.wikipedia.org/wiki/List_of_moments_of_inertia for a solid box of width: 0.35, height:0.7, depth: 0.7, mass m=30 -->
@@ -18,7 +18,7 @@
         </inertia>
       </inertial>
       <visual name="body-visual">
-      	<pose>.172 .35 -0.445 0 0 0</pose>
+	<pose>-0.35 .172 0 0 0 1.57</pose>
         <geometry>
           <mesh>
             <uri>model://mps_ring/meshes/mps_ring.dae</uri>
@@ -26,13 +26,73 @@
         </geometry>
         <cast_shadows>false</cast_shadows>
       </visual>
-      <collision name="body-collision">
+      
+      <!-- Collision Elements: -->
+      <collision name="collision_conveyor_belt">
+        <pose>0.025 0 0.88 0 0 0 </pose>
         <geometry>
-		    <box>
-		      <size>.35 .70 .91</size>
-		    </box>
+	  <box>
+	    <size>0.03 0.35 0.04</size>
+          </box>
         </geometry>
+      </collision>
+      <collision name="collision_conveyor_belt_border_west">
+        <pose>0 0 0.9 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.01 0.35 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_conveyor_belt_border_east">
+        <pose>0.05 0 0.9 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.01 0.35 0.02</size>
+          </box>
+        </geometry>
+      </collision>
 
+      <!-- Box -->
+      <collision name="collision_base_box_ground">
+        <pose>0 0 0.06 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.35 0.01</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_base_box_wall_south">
+        <pose>0 -0.175 0.42 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.01 0.72</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_base_box_wall_north">
+        <pose>0 0.175 0.42 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.01 0.72</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_base_box_wall_west">
+        <pose>-0.345 0 0.42 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.01 0.35 0.72</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_base_box_top">
+        <pose>0 0 0.78 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.35 0.01</size>
+          </box>
+        </geometry>
       </collision>
     </link>
   </model>
