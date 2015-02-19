@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<sdf version="1.5">
+<sdf version="1.4">
   <model name="robotino3">
     <static>false</static>
     <link name="body">
@@ -75,8 +75,8 @@
       </collision>
     </link>
 	
-    <!--plugin name="Motor" filename="libmotor.so"/>
+    <plugin name="Motor" filename="libmotor.so"/>
     <plugin name="Gyro" filename="libgyro.so"/>
-    <!--plugin name="GPS" filename="libgps.so"/-->
+    <plugin name="GPS" filename="libgps.so"/>
   </model>
 </sdf>
