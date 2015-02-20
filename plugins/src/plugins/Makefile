@@ -16,7 +16,7 @@
 BASEDIR = ../..
 include $(BASEDIR)/etc/buildsys/config.mk
 
-SUBDIRS	= gyro motor llsf localization carologistics-robotino
+SUBDIRS	= gyro motor llsf localization carologistics-robotino odometry
 
 include $(BUILDSYSDIR)/rules.mk
 
