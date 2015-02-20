@@ -25,7 +25,7 @@
 		</include>
 
 		<include>
-		  <uri>model://robotino_bbu2</uri>
+		  <uri>model://robotino_bbu3</uri>
       	  <pose>-5.5 -0.5 0 0 0 3.1415</pose>
 		</include>
 
