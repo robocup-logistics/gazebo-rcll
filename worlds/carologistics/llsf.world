@@ -1,0 +1,112 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="LLSF">
+
+    <!-- Physics, to determine the simulation speed (step size and update rate) -->
+    <physics type="ode">
+      <max_step_size>0.00125</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+
+    <gui>
+      <camera name="user camera">
+	<pose>1.6 -2 9.0 0 1.1 1.56</pose>
+      </camera>
+    </gui>
+
+    <!-- Ground Plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Field  -->
+    <include>
+      <uri>model://logistics_league_field</uri>
+    </include>
+
+    <!-- World Plugin -->
+    <!-- <plugin name="world" filename="libllsf.so" /> -->
+
+
+    <!-- Robotinos  -->
+    <!-- Team Cyan -->
+    <!-- <include> -->
+    <!--   <name>robotino1</name> -->
+    <!--   <uri>model://carologistics-robotino</uri> -->
+    <!--   	  <pose>3.5 -3 0 0 0 3.1415</pose> -->
+    <!-- </include> -->
+    <!-- Team Magenta -->
+    
+    <!-- Light -->
+    <light name="light" type="point">
+      <cast_shadows>false</cast_shadows>
+      <pose>-12 3 1 0 0 0</pose>
+      <diffuse>127 127 127 255</diffuse>
+      <specular>25 25 25 255</specular>
+      <attenuation>
+	<range>20.0</range>
+	<linear>0.01</linear>
+	<constant>0.7</constant>
+	<quadratic>0.00</quadratic>
+      </attenuation>
+    </light>
+
+    <!-- Machines (should later be spawned by a world plugin according to the refbox) -->
+    <include>
+      <uri>model://mps_base</uri>
+      <pose>-5 2.4 0 0 0 0.43</pose>
+    </include>
+    <include>
+      <uri>model://mps_base</uri>
+      <pose>5 2.4 0 0 0 -0.43</pose>
+    </include>
+    <include>
+      <uri>model://mps_cap</uri>
+      <pose>-1 3 0 0 0 2.4</pose>
+    </include>
+    <include>
+      <uri>model://mps_cap</uri>
+      <pose>1 3 0 0 0 -2.4</pose>
+    </include>
+    <include>
+      <uri>model://mps_cap</uri>
+      <pose>-3.2 0 0 0 0 1.57</pose>
+    </include>
+    <include>
+      <uri>model://mps_cap</uri>
+      <pose>3.2 0 0 0 0 -1.57</pose>
+    </include>
+    <include>
+      <uri>model://mps_ring</uri>
+      <pose>1 0 0 0 0 3.1</pose>
+    </include>
+    <include>
+      <uri>model://mps_ring</uri>
+      <pose>-1 0 0 0 0 -3.1</pose>
+    </include>
+    <include>
+      <uri>model://mps_ring</uri>
+      <pose>4.8 1 0 0 0 0.8</pose>
+    </include>
+    <include>
+      <uri>model://mps_ring</uri>
+      <pose>-4.8 1 0 0 0 -0.8</pose>
+    </include>
+    <include>
+      <uri>model://mps_delivery</uri>
+      <pose>4.5 -2 0 0 0 0.75</pose>
+    </include>
+    <include>
+      <uri>model://mps_delivery</uri>
+      <pose>-4.5 -2 0 0 0 -0.75</pose>
+    </include>
+
+    <!-- Pucks  -->
+    <!-- Team Cyan -->
+    <!-- Team Magenta -->
+  </world>
+</sdf>
