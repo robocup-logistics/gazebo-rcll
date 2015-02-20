@@ -60,5 +60,7 @@
       </axis>
     </joint>
 
+    <plugin name="Odometry" filename="libodometry.so"/>
+
   </model>
 </sdf>
