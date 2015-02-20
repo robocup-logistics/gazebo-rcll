@@ -3,7 +3,7 @@
   <model name="robotino1">
     <include>
       <name>robotino1</name>
-      <uri>model://carologistics-robotino</uri>
+      <uri>model://carologistics-robotino-3</uri>
     </include>
   </model>
 </sdf>

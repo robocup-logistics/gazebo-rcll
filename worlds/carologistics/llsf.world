@@ -34,10 +34,20 @@
 
     <!-- Robotinos  -->
     <!-- Team Cyan -->
+    <include>
+      <name>robotino1</name>
+      <uri>model://robotino-nr-1</uri>
+      <pose>3.5 -0.5 0 0 0 1.57</pose>
+    </include>
     <!-- <include> -->
-    <!--   <name>robotino1</name> -->
-    <!--   <uri>model://carologistics-robotino</uri> -->
-    <!--   	  <pose>3.5 -3 0 0 0 3.1415</pose> -->
+    <!--   <name>robotino2</name> -->
+    <!--   <uri>model://robotino-nr-2</uri> -->
+    <!--   <pose>4.5 -0.5 0 0 0 1.57</pose> -->
+    <!-- </include> -->
+    <!-- <include> -->
+    <!--   <name>robotino3</name> -->
+    <!--   <uri>model://robotino-nr-3</uri> -->
+    <!--   <pose>5.5 -0.5 0 0 0 1.57</pose> -->
     <!-- </include> -->
     <!-- Team Magenta -->
     
