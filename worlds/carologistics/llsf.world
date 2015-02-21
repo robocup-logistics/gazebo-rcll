@@ -125,12 +125,12 @@
     <include>
       <name>puck_0</name>
       <uri>model://workpiece_base</uri>
-      <pose>0.97 2.5 0 0 0 0</pose>
+      <pose>0.97 2.5 0.92 0 0 0</pose>
     </include>
     <include>
       <name>puck_1</name>
       <uri>model://workpiece_base</uri>
-      <pose>0.97 2.6 0 0 0 0</pose>
+      <pose>0.97 2.6 0.92 0 0 0</pose>
     </include>
     <!-- Team Cyan -->
     <!-- Team Magenta -->

@@ -107,6 +107,12 @@
       </collision>
     </link>
 
+    <include>
+      <name>light_signals</name>
+      <uri>model://light_signals</uri>
+      <pose>-0.2905 -0.113 0.915 0 0 0</pose>
+    </include>
+
     <!-- Plugin to control the MPS and detect workpieces -->
     <plugin name="MPS" filename="libmps.so"/>
   </model>
