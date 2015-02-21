@@ -40,5 +40,8 @@
 	</material>
       </visual>
     </link>
+
+    <!-- GPS plugin to let others know where this base is -->
+    <plugin name="GPS" filename="libgps.so"/>
   </model>
 </sdf>

@@ -122,6 +122,16 @@
       <pose>-4.5 0.5 0 0 0 -0.75</pose>
     </include>
     <!-- Pucks  -->
+    <include>
+      <name>puck_0</name>
+      <uri>model://workpiece_base</uri>
+      <pose>0.97 2.5 0 0 0 0</pose>
+    </include>
+    <include>
+      <name>puck_1</name>
+      <uri>model://workpiece_base</uri>
+      <pose>0.97 2.6 0 0 0 0</pose>
+    </include>
     <!-- Team Cyan -->
     <!-- Team Magenta -->
   </world>

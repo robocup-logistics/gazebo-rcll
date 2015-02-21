@@ -55,10 +55,15 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 
   //Create the communication Node for communication with fawkes
   this->node_ = transport::NodePtr(new transport::Node());
-  //the namespace is set to the model name!
-  this->node_->Init(model_->GetWorld()->GetName()+"/"+name_);
-}
+  //the namespace is set to the world name!
+  this->node_->Init(model_->GetWorld()->GetName());
 
+  //subscribe for puck locations
+  for(int i = 0; i < NUMBER_PUCKS; i++)
+  {
+    this->puck_subs_[i] = this->node_->Subscribe(std::string("~/puck_") + std::to_string(i) + "/gazsim/gps/" , &Mps::on_puck_msg, this);
+  }
+}
 
 /** Called by the world update start event
  */
@@ -70,4 +75,13 @@ void Mps::OnUpdate(const common::UpdateInfo & /*_info*/)
  */
 void Mps::Reset()
 {
+}
+
+
+/** Functions for recieving puck locations Messages
+ * @param msg message
+ */ 
+void Mps::on_puck_msg(ConstPosePtr &msg)
+{
+  //printf("Got Msg from %s!!!", msg->name().c_str());
 }

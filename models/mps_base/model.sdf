@@ -93,6 +93,9 @@
           </box>
         </geometry>
       </collision>
-    </link>    
+    </link>
+
+    <!-- Plugin to control the MPS and detect workpieces -->
+    <plugin name="MPS" filename="libmps.so"/>
   </model>
 </sdf>

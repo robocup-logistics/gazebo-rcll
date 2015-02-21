@@ -27,8 +27,8 @@ OBJS_gazebo_libmps = mps.o
 
 OBJS_all    = $(OBJS_gazebo_libmps)
 
-ifeq ($(HAVE_GAZEBO)$(HAVE_PROTOBUF),11)
-  CFLAGS  += $(CFLAGS_GAZEBO) $(CFLAGS_PROTOBUF)
+ifeq ($(HAVE_GAZEBO)$(HAVE_PROTOBUF)$(HAVE_CPP11),111)
+  CFLAGS  += $(CFLAGS_GAZEBO) $(CFLAGS_PROTOBUF) $(CFLAGS_CPP11)
   LDFLAGS += $(LDFLAGS_GAZEBO) $(LDFLAGS_PROTOBUF) -lm $(call boost-libs-ldflags,system) -lboost_system
 
   LIBS_all = $(LIBDIR)/gazebo/libmps.so
@@ -38,6 +38,9 @@ else
   endif
   ifneq ($(HAVE_PROTOBUF),1)
     WARN_TARGETS += warning_protobuf
+  endif
+  ifneq ($(HAVE_CPP11),1)
+    WARN_TARGETS += warning_cpp11
   endif
 endif
 
@@ -50,6 +53,8 @@ warning_gazebo:
 warning_protobuf:
 	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-mps Plugin$(TNORMAL) " \
 		"(protobuf[-devel] not installed)"
+warning_cpp11:
+	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting image viewing support$(TNORMAL) (C++11 not supported)"
 endif
 
 include $(BUILDSYSDIR)/base.mk

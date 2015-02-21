@@ -27,6 +27,8 @@
 #include <list>
 #include <string.h>
 
+#define NUMBER_PUCKS 20
+
 namespace gazebo
 {
   /**
@@ -54,6 +56,12 @@ namespace gazebo
     ///name of the mps and the communication channel
     std::string name_;
 
-    //Mps Stuff:
+    // Mps Stuff:
+    
+    /// Subscriber to get puck positions
+    transport::SubscriberPtr puck_subs_[NUMBER_PUCKS];
+
+    /// Handler for puck positions
+    void on_puck_msg(ConstPosePtr &msg);
   };
 }
