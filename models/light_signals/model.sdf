@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="light_signal">
+    <!-- The center is the bottom of the green light -->
+    <pose>0 0 0.915 0 0 0 </pose>
+    <static>true</static>
+    <link name="link">
+      <visual name="redon">
+        <pose>0 0 0.085 0 0 0 </pose>
+	<cast_shadows>false</cast_shadows>
+        <geometry>
+          <cylinder>
+	    <radius>0.0195</radius>
+	    <length>0.034</length>
+          </cylinder>
+        </geometry>
+	<material>
+	  <ambient>0.8 0 0 0.8</ambient>
+	  <diffuse>0.8 0.0 0.0 0.8</diffuse>
+	  <emissive>1.0 0.3 0.3 1.0</emissive>
+	</material>
+      </visual>
+      <visual name="yellowon">
+        <pose>0 0 0.051 0 0 0 </pose>
+	<cast_shadows>false</cast_shadows>
+        <geometry>
+          <cylinder>
+	    <radius>0.0195</radius>
+	    <length>0.034</length>
+          </cylinder>
+        </geometry>
+	<material>
+	  <ambient>0.9 0.7 0 0.8</ambient>
+	  <diffuse>0.9 0.7 0.0 0.8</diffuse>
+	  <emissive>1.0 0.9 0.3 1.0</emissive>
+	</material>
+      </visual>
+      <visual name="greenon">
+        <pose>0 0 0.017 0 0 0 </pose>
+	<cast_shadows>false</cast_shadows>
+        <geometry>
+          <cylinder>
+	    <radius>0.0195</radius>
+	    <length>0.034</length>
+          </cylinder>
+        </geometry>
+	<material>
+	  <ambient>0.0 0.8 0 0.8</ambient>
+	  <diffuse>0.0 0.8 0.0 0.8</diffuse>
+	  <emissive>0.3 1.0 0.3 1.0</emissive>
+	</material>
+     </visual>
+    </link>
+
+    <!-- Plugin to control the light signal -->
+    <plugin name="MPS" filename="liblight_control.so"/>
+  </model>
+</sdf>

@@ -94,6 +94,7 @@ void Gps::send_position()
   {
     //build message
     msgs::Pose posMsg;
+    posMsg.set_name(this->name_);
     posMsg.mutable_position()->set_x(this->model_->GetWorldPose().pos.x);
     posMsg.mutable_position()->set_y(this->model_->GetWorldPose().pos.y);
     posMsg.mutable_position()->set_z(this->model_->GetWorldPose().pos.z);

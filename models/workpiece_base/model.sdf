@@ -1,9 +1,9 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
   <model name="workpiece_base">
+    <pose>0 0 0.915 0 0 0 </pose>
     <static>false</static>
     <link name="cylinder">
-      <pose>0 0 0.915 0 0 0 </pose>
       <gravity>true</gravity>
       <inertial>
         <mass>50</mass>
@@ -40,5 +40,8 @@
 	</material>
       </visual>
     </link>
+
+    <!-- GPS plugin to let others know where this base is -->
+    <plugin name="GPS" filename="libgps.so"/>
   </model>
 </sdf>
