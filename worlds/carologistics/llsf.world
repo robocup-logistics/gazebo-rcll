@@ -67,60 +67,73 @@
 
     <!-- Machines (should later be spawned by a world plugin according to the refbox) -->
     <include>
+      <name>CBS</name>
       <uri>model://mps_base</uri>
       <pose>-5 4.9 0 0 0 0.43</pose>
     </include>
     <include>
+      <name>MBS</name>
       <uri>model://mps_base</uri>
       <pose>5 4.9 0 0 0 -0.43</pose>
     </include>
 
     <include>
+      <name>CCS1</name>
       <uri>model://mps_cap</uri>
       <pose>-1 5.5 0 0 0 2.4</pose>
     </include>
     <include>
+      <name>MCS1</name>
       <uri>model://mps_cap</uri>
       <pose>1 5.5 0 0 0 -2.4</pose>
     </include>
 
     <include>
+      <name>CCS2</name>
       <uri>model://mps_cap</uri>
       <pose>-3.2 2.5 0 0 0 1.57</pose>
     </include>
     <include>
+      <name>MCS2</name>
       <uri>model://mps_cap</uri>
       <pose>3.2 2.5 0 0 0 -1.57</pose>
     </include>
 
 
     <include>
+      <name>CRS1</name>
       <uri>model://mps_ring</uri>
       <pose>1 2.5 0 0 0 3.1</pose>
     </include>
     <include>
+      <name>MRS1</name>
       <uri>model://mps_ring</uri>
       <pose>-1 2.5 0 0 0 -3.1</pose>
     </include>
 
     <include>
+      <name>CRS2</name>
       <uri>model://mps_ring</uri>
       <pose>4.8 3.5 0 0 0 0.8</pose>
     </include>
     <include>
+      <name>MRS2</name>
       <uri>model://mps_ring</uri>
       <pose>-4.8 3.5 0 0 0 -0.8</pose>
     </include>
 
 
     <include>
+      <name>CDS1</name>
       <uri>model://mps_delivery</uri>
       <pose>4.5 0.5 0 0 0 0.75</pose>
     </include>
     <include>
+      <name>MDS1</name>
       <uri>model://mps_delivery</uri>
       <pose>-4.5 0.5 0 0 0 -0.75</pose>
     </include>
+
     <!-- Pucks  -->
     <include>
       <name>puck_0</name>

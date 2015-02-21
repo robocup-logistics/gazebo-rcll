@@ -51,5 +51,8 @@
 	</material>
      </visual>
     </link>
+
+    <!-- Plugin to control the light signal -->
+    <plugin name="MPS" filename="liblight_control.so"/>
   </model>
 </sdf>
