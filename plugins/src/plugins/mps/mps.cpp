@@ -63,6 +63,23 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   {
     this->puck_subs_[i] = this->node_->Subscribe(std::string("~/puck_") + std::to_string(i) + "/gazsim/gps/" , &Mps::on_puck_msg, this);
   }
+
+  //compute locations of input and output (not sure about the sides jet)
+  double mps_x = this->model_->GetWorldPose().pos.x;
+  double mps_y = this->model_->GetWorldPose().pos.y;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  input_x_ = mps_x
+    + BELT_OFFSET_SIDE  * cos(mps_ori)
+    + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+  input_y_ = mps_y
+    + BELT_OFFSET_SIDE  * sin(mps_ori)
+    - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+  output_x_ = mps_x
+    + BELT_OFFSET_SIDE  * cos(mps_ori)
+    - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+  output_y_ = mps_y
+    + BELT_OFFSET_SIDE  * sin(mps_ori)
+    + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
 }
 
 /** Called by the world update start event
@@ -84,4 +101,16 @@ void Mps::Reset()
 void Mps::on_puck_msg(ConstPosePtr &msg)
 {
   //printf("Got Msg from %s!!!", msg->name().c_str());
+
+  //check if the puck is in the input area
+  double dist = sqrt((msg->position().x() - input_x_) * (msg->position().x() - input_x_)
+		     + (msg->position().y() - input_y_) * (msg->position().y() - input_y_)
+		     + (msg->position().z() - BELT_HEIGHT) * (msg->position().z() - BELT_HEIGHT));
+  if(dist < DETECT_TOLERANCE)
+  {
+    printf("Workpiece %s was inserted into %s.\n Telepoting it into output!\n", msg->name().c_str(), name_.c_str());
+    //teleport puck to output
+    model_->GetWorld()->GetEntity(msg->name())->SetWorldPose(math::Pose(output_x_, output_y_, BELT_HEIGHT, 0, 0, 0));
+  }
+  
 }

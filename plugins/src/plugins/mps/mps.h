@@ -27,7 +27,18 @@
 #include <list>
 #include <string.h>
 
+//amount of pucks to listen for
 #define NUMBER_PUCKS 20
+//how far is the center of the belt hsifted from the machine center
+#define BELT_OFFSET_SIDE 0.025
+//radius of the area where a workpiece is detected by the machine
+#define DETECT_TOLERANCE 0.03
+//radius of a workpiece
+#define PUCK_SIZE 0.02
+//length of the belt to calculate pos of input/output area
+#define BELT_LENGTH 0.35
+//Height of the belt
+#define BELT_HEIGHT 0.92
 
 namespace gazebo
 {
@@ -63,5 +74,8 @@ namespace gazebo
 
     /// Handler for puck positions
     void on_puck_msg(ConstPosePtr &msg);
+
+    ///centers of input and output areas (global)
+    float input_x_, input_y_, output_x_, output_y_;
   };
 }
