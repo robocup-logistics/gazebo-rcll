@@ -1,6 +1,8 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
   <model name="robotino_bbu1">
+
+
     <include>
       <name>robotino_bbu1</name>
       <uri>model://robotino_bbu</uri>

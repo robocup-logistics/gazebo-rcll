@@ -44,13 +44,13 @@
 
 
 	<include>
-      <uri>model://hokuyo</uri>
+      <uri>model://hokuyo_noisy</uri>
       <pose>0.0 -0.15 0.235 0 0 -1.570796</pose>
     </include>
 
     <joint name="hokuyo_joint" type="revolute">
       <parent>robotino3::body</parent>
-      <child>hokuyo::link</child>
+      <child>hokuyo::laser_link</child>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -61,6 +61,11 @@
     </joint>
 
     <plugin name="Odometry" filename="libodometry.so"/>
+
+
+	<!--plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+		<robotNamespace>/robotino_bbu1</robotNamespace>
+	</plugin-->
 
   </model>
 </sdf>
