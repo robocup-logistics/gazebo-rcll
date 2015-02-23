@@ -99,10 +99,14 @@ void Odometry::Reset()
  */
 void Odometry::on_set_odometry_msg(ConstVector3dPtr &msg)
 {
-    estimate_x = msg->x();
-    estimate_y = msg->y();
-    estimate_omega = msg->z();
-    last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
+	//std::cout << "Got new odometry: " << msg->x() << "|" << msg->y() << "|" << msg->z() << std::endl;
+	{
+		boost::mutex::scoped_lock lock(readingsMutex);
+		estimate_x = msg->x();
+		estimate_y = msg->y();
+		estimate_omega = msg->z();
+		last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
+	}
 }
 
 
@@ -131,13 +135,16 @@ void Odometry::send_position()
     float ty = vecX * sn + vecY * cs;
 
     // now update robot's position
-    estimate_x += tx* elapsedSeconds;
-    estimate_y += ty* elapsedSeconds;
-    estimate_omega += angularVel.z* elapsedSeconds;
-    if (estimate_omega < -M_PI)
-        estimate_omega = 2*M_PI - estimate_omega;
-    else if (estimate_omega > M_PI)
-        estimate_omega = -2*M_PI + estimate_omega;
+	{
+		boost::mutex::scoped_lock lock(readingsMutex);
+		estimate_x += tx * elapsedSeconds;
+		estimate_y += ty * elapsedSeconds;
+		estimate_omega += angularVel.z * elapsedSeconds;
+		if (estimate_omega < -M_PI)
+			estimate_omega = 2 * M_PI - estimate_omega;
+		else if (estimate_omega > M_PI)
+			estimate_omega = -2 * M_PI + estimate_omega;
+	}
 
     if(odometry_pub_->HasConnections())
     {

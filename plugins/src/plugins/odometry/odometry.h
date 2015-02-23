@@ -27,6 +27,8 @@
 #include <list>
 #include <string.h>
 
+#include <boost/thread/mutex.hpp>
+
 namespace gazebo
 {
     /**
@@ -58,6 +60,9 @@ namespace gazebo
         double last_sent_time_;
 
         //Odometry Stuff:
+
+		///Mutex for thread safe estimate update
+		boost::mutex readingsMutex;
 
         ///Estimated positions
         float estimate_x;
