@@ -57,10 +57,11 @@
           <topicName>laser</topicName>
           <frameName>laser_link</frameName>
         </plugin-->
-		<plugin name="laser" filename="libgazebo_ros_laser.so">
+		<!--plugin name="laser" filename="libgazebo_ros_laser.so">
 			<topicName>laser</topicName>
 			<frameName>laser_link</frameName>
-		</plugin> 
+			<robotNamespace>robot_ns_$(robotNS)</robotNamespace>
+		</plugin--> 
         <always_on>1</always_on>
         <update_rate>30</update_rate>
       </sensor>

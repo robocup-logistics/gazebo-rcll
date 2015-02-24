@@ -1,7 +1,12 @@
 <?xml version="1.0"?>
 <sdf version="1.4">
-	<world name="Logistics League Field">
-
+	<world name="bbu_2015">
+	 <!-- Physics, to determine the simulation speed (step size and update rate) -->
+		<physics type="ode">
+			<max_step_size>0.00125</max_step_size>
+			<real_time_factor>1</real_time_factor>
+			<real_time_update_rate>1000</real_time_update_rate>
+		</physics>
 		
 		<!-- A global light source -->
 		<include>
@@ -10,9 +15,10 @@
 
 		<include>
 		  <uri>model://logistics_league_field</uri>
+      	  <pose>0 2.5 0 0 0 0</pose>
 		</include>
 
-
+		<!--
 		<include>
 		  <uri>model://robotino_bbu1</uri>
       	  <pose>-3.5 -0.5 0 0 0 3.1415</pose>
@@ -27,7 +33,7 @@
 		<include>
 		  <uri>model://robotino_bbu3</uri>
       	  <pose>-5.5 -0.5 0 0 0 3.1415</pose>
-		</include>
+		</include>-->
 
 		<include>
 		  <uri>model://mps_base</uri>
