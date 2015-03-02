@@ -42,6 +42,13 @@
 
 namespace gazebo
 {
+  typedef enum MachineType{
+    Base,
+    Cap,
+    Ring,
+    Delivery,
+    Unknown,
+  } MachineType;
   /**
    * Plugin to control a simulated MPS
    * @author Frederik Zwilling
@@ -77,5 +84,7 @@ namespace gazebo
 
     ///centers of input and output areas (global)
     float input_x_, input_y_, output_x_, output_y_;
+    // the type of this mps
+    MachineType machine_type_;
   };
 }
