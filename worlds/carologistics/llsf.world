@@ -35,7 +35,6 @@
     <!-- Robotinos  -->
     <!-- Team Cyan -->
     <include>
-      <name>robotino1</name>
       <uri>model://robotino-nr-1</uri>
       <pose>3.5 -0.5 0 0 0 1.57</pose>
     </include>
@@ -147,5 +146,8 @@
     </include>
     <!-- Team Cyan -->
     <!-- Team Magenta -->
+
+    <!-- Plugins for the world -->
+    <plugin name="timesync" filename="libtimesync.so" />
   </world>
 </sdf>
