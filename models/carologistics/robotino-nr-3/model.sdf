@@ -2,7 +2,6 @@
 <sdf version="1.4">
   <model name="robotino3">
     <include>
-      <name>robotino3</name>
       <uri>model://carologistics-robotino-3</uri>
     </include>
   </model>
