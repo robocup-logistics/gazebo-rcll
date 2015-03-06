@@ -57,6 +57,17 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   world_ = _world;
   
+  //create publisher and subscriber for connection with gazebo node
+  machine_info_pub_ = node_->Advertise<llsf_msgs::MachineInfo>(TOPIC_MACHINE_INFO);
+  game_state_pub_ = node_->Advertise<llsf_msgs::GameState>(TOPIC_GAME_STATE);
+  // puck_info_pub_ = gazebo_world_node->Advertise<llsf_msgs::PuckInfo>(config->get_string("/gazsim/topics/puck-info"));
+  // place_puck_under_machine_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/place-puck-under-machine"), &GazsimLLSFRbCommThread::on_puck_place_msg, this);
+  // remove_puck_under_machine_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/remove-puck-under-machine"), &GazsimLLSFRbCommThread::on_puck_remove_msg, this);
+  // time_sync_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/time"), &GazsimLLSFRbCommThread::on_time_sync_msg, this);
+  // set_game_state_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/set-game-state"), &GazsimLLSFRbCommThread::on_set_game_state_msg, this);
+  // set_game_phase_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/set-game-phase"), &GazsimLLSFRbCommThread::on_set_game_phase_msg, this);
+  // set_team_name_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/set-team-name"), &GazsimLLSFRbCommThread::on_set_team_name_msg, this);  
+
   //connect update function
   update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&LlsfRefboxCommPlugin::Update, this));
   printf("LLSF-refbox-connection-Plugin loaded!\n");
@@ -114,22 +125,20 @@ void
 LlsfRefboxCommPlugin::client_msg(uint16_t comp_id, uint16_t msg_type,
 			     std::shared_ptr<google::protobuf::Message> msg)
 {
-  printf("LLSF-refbox-comm: Got Message from refbox: %s\n", msg->GetTypeName().c_str());
+  //printf("LLSF-refbox-comm: Got Message from refbox: %s\n", msg->GetTypeName().c_str());
   
-  // //Filter wanted messages
-  // if(msg->GetTypeName() == "llsf_msgs.MachineInfo")
-  // {
-  //   //logger->log_info(name(), "Sending MachineInfo to gazebo");
-  //   machine_info_pub_->Publish(*msg);
-  //   return;
-  // }
+  //Filter wanted messages
+  if(msg->GetTypeName() == "llsf_msgs.MachineInfo")
+  {
+    machine_info_pub_->Publish(*msg);
+    return;
+  }
   
-  // if(msg->GetTypeName() == "llsf_msgs.GameState")
-  // {
-  //   //logger->log_info(name(), "Sending GameState to gazebo");
-  //   game_state_pub_->Publish(*msg);
-  //   return;
-  // }
+  if(msg->GetTypeName() == "llsf_msgs.GameState")
+  {
+    game_state_pub_->Publish(*msg);
+    return;
+  }
   
   // if(msg->GetTypeName() == "llsf_msgs.PuckInfo")
   // {

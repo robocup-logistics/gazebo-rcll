@@ -46,7 +46,8 @@ typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePt
 #define REFBOX_HOST "127.0.0.1"
 #define REFBOX_PORT 4444
 #define RECONNECT_INTERVAL 2 //in s
-
+#define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
+#define TOPIC_GAME_STATE "~/LLSFRbSim/GameState/"
 
 namespace protobuf_comm {
   class ProtobufStreamClient;
