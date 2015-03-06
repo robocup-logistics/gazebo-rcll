@@ -148,6 +148,7 @@
     <!-- Team Magenta -->
 
     <!-- Plugins for the world -->
+    <plugin name="llsf_refbox_comm" filename="libllsf_refbox_comm.so" />
     <plugin name="timesync" filename="libtimesync.so" />
   </world>
 </sdf>

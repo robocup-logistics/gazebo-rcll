@@ -20,7 +20,36 @@
 
 
 #include <gazebo/gazebo.hh>
+#include <protobuf_comm/client.h>
+#include <protobuf_comm/message_register.h>
 
+#include <llsf_msgs/MachineInfo.pb.h>
+#include <llsf_msgs/MachineCommands.pb.h>
+#include <llsf_msgs/SimTimeSync.pb.h>
+#include <llsf_msgs/PuckInfo.pb.h>
+#include <llsf_msgs/GameState.pb.h>
+#include <llsf_msgs/GameInfo.pb.h>
+#include <gazsim_msgs/SimTime.pb.h>
+
+//typedefs for sending the messages over the gazebo node
+typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
+typedef const boost::shared_ptr<llsf_msgs::PlacePuckUnderMachine const> ConstPlacePuckUnderMachinePtr;
+typedef const boost::shared_ptr<llsf_msgs::RemovePuckFromMachine const> ConstRemovePuckFromMachinePtr;
+typedef const boost::shared_ptr<gazsim_msgs::SimTime const> ConstSimTimePtr;
+typedef const boost::shared_ptr<llsf_msgs::SetGameState const> ConstSetGameStatePtr;
+typedef const boost::shared_ptr<llsf_msgs::SetGamePhase const> ConstSetGamePhasePtr;
+typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePtr;
+
+
+//config values
+#define PROTO_DIR "/plugins/src/libs/llsf_msgs"
+#define REFBOX_HOST "127.0.0.1"
+#define REFBOX_PORT 4444
+
+
+namespace protobuf_comm {
+  class ProtobufStreamClient;
+}
 
 namespace gazebo
 {
@@ -38,6 +67,13 @@ namespace gazebo
 
     virtual void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf);
 
+    ///on refbox connection established
+    void client_connected();
+    ///on refbox connection lost
+    void client_disconnected(const boost::system::error_code &error);
+    ///on message from the refbox
+    void client_msg(uint16_t comp_id, uint16_t msg_type,
+		    std::shared_ptr<google::protobuf::Message> msg);
 
   private:
     ///update function
@@ -46,8 +82,35 @@ namespace gazebo
 
     ///Node for communication
     transport::NodePtr node_;
-    
     physics::WorldPtr world_;
+
+    protobuf_comm::ProtobufStreamClient *client_;
+    std::vector<std::string> proto_dirs_;
+    protobuf_comm::MessageRegister      *message_register_;
+
+    //Publisher and subscriber for the connection to gazebo
+    gazebo::transport::PublisherPtr machine_info_pub_;
+    gazebo::transport::PublisherPtr game_state_pub_;
+    /* gazebo::transport::SubscriberPtr place_puck_under_machine_sub_; */
+    /* gazebo::transport::SubscriberPtr remove_puck_under_machine_sub_; */
+    gazebo::transport::SubscriberPtr time_sync_sub_;
+    gazebo::transport::SubscriberPtr set_game_state_sub_;
+    gazebo::transport::SubscriberPtr set_game_phase_sub_;
+    gazebo::transport::SubscriberPtr set_team_name_sub_;
+
+    //handler methods
+    /* void on_puck_place_msg(ConstPlacePuckUnderMachinePtr &msg); */
+    /* void on_puck_remove_msg(ConstRemovePuckFromMachinePtr &msg); */
+    void on_time_sync_msg(ConstSimTimePtr &msg);
+    void on_set_game_state_msg(ConstSetGameStatePtr &msg);
+    void on_set_game_phase_msg(ConstSetGamePhasePtr &msg);
+    void on_set_team_name_msg(ConstSetTeamNamePtr &msg);
+
+    //helper variables
+    bool disconnected_recently_;
+
+    void create_client();
+    
   };
   GZ_REGISTER_WORLD_PLUGIN(LlsfRefboxCommPlugin)
 }

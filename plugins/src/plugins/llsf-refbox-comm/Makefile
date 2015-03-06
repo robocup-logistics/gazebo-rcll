@@ -23,10 +23,10 @@ include $(BUILDSYSDIR)/boost.mk
 
 CFLAGS += $(CFLAGS_CPP11)
 
-LIBS_llsf_refbox_comm = fawkes_protobuf_comm llsf_msgs gazsim_msgs
-OBJS_llsf_refbox_comm = llsf_refbox_comm.o
+LIBS_gazebo_libllsf_refbox_comm = fawkes_protobuf_comm llsf_msgs gazsim_msgs
+OBJS_gazebo_libllsf_refbox_comm = llsf_refbox_comm.o
 
-OBJS_all = $(OBJS_llsf_refbox_comm)
+OBJS_all = $(OBJS_gazebo_libllsf_refbox_comm)
 
 REQ_BOOST_LIBS = system
 HAVE_BOOST_LIBS = $(call boost-have-libs,$(REQ_BOOST_LIBS))
@@ -39,7 +39,7 @@ ifeq ($(HAVE_GAZEBO)$(HAVE_PROTOBUF)$(HAVE_BOOST_LIBS),111)
 	     $(call boost-libs-ldflags,$(REQ_BOOST_LIBS)) \
 	     $(LDFLAGS_GAZEBO)
 
-  LIBS_all = $(LIBDIR)/llsf_refbox_comm.so
+  LIBS_all = $(LIBDIR)/gazebo/libllsf_refbox_comm.so
 else
   ifneq ($(HAVE_GAZEBO),1)
     WARN_TARGETS += warning_gazebo
