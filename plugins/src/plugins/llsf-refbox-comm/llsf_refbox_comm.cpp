@@ -64,9 +64,9 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   // place_puck_under_machine_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/place-puck-under-machine"), &LlsfRefboxCommPlugin::on_puck_place_msg, this);
   // remove_puck_under_machine_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/remove-puck-under-machine"), &LlsfRefboxCommPlugin::on_puck_remove_msg, this);
   time_sync_sub_ = node_->Subscribe(TOPIC_TIME, &LlsfRefboxCommPlugin::on_time_sync_msg, this);
-  // set_game_state_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/set-game-state"), &LlsfRefboxCommPlugin::on_set_game_state_msg, this);
-  // set_game_phase_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/set-game-phase"), &LlsfRefboxCommPlugin::on_set_game_phase_msg, this);
-  // set_team_name_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/set-team-name"), &LlsfRefboxCommPlugin::on_set_team_name_msg, this);  
+  set_game_state_sub_ = node_->Subscribe(TOPIC_SET_GAME_STATE, &LlsfRefboxCommPlugin::on_set_game_state_msg, this);
+  set_game_phase_sub_ = node_->Subscribe(TOPIC_SET_GAME_PHASE, &LlsfRefboxCommPlugin::on_set_game_phase_msg, this);
+  set_team_name_sub_ = node_->Subscribe(TOPIC_SET_TEAM_NAME, &LlsfRefboxCommPlugin::on_set_team_name_msg, this);  
 
   //connect update function
   update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&LlsfRefboxCommPlugin::Update, this));
@@ -195,33 +195,30 @@ void LlsfRefboxCommPlugin::on_time_sync_msg(ConstSimTimePtr &msg)
 
 void LlsfRefboxCommPlugin::on_set_game_state_msg(ConstSetGameStatePtr &msg)
 {
-  // //logger->log_info(name(), "Sending SetGameState to refbox");
-  // if(!client_->connected())
-  // {
-  //   return;
-  // }
-  // llsf_msgs::SetGameState to_rb = *msg;
-  // client_->send(to_rb);
+  if(!connected_)
+  {
+    return;
+  }
+  llsf_msgs::SetGameState to_rb = *msg;
+  client_->send(to_rb);
 }
 
 void LlsfRefboxCommPlugin::on_set_game_phase_msg(ConstSetGamePhasePtr &msg)
 {
-  // //logger->log_info(name(), "Sending SetGamePhase to refbox");
-  // if(!client_->connected())
-  // {
-  //   return;
-  // }
-  // llsf_msgs::SetGamePhase to_rb = *msg;
-  // client_->send(to_rb);
+  if(!connected_)
+  {
+    return;
+  }
+  llsf_msgs::SetGamePhase to_rb = *msg;
+  client_->send(to_rb);
 }
 
 void LlsfRefboxCommPlugin::on_set_team_name_msg(ConstSetTeamNamePtr &msg)
 {
-  // //logger->log_info(name(), "Sending SetTeamName to refbox");
-  // if(!client_->connected())
-  // {
-  //   return;
-  // }
-  // llsf_msgs::SetTeamName to_rb = *msg;
-  // client_->send(to_rb);
+  if(!connected_)
+  {
+    return;
+  }
+  llsf_msgs::SetTeamName to_rb = *msg;
+  client_->send(to_rb);
 }
