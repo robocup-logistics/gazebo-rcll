@@ -60,13 +60,13 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   //create publisher and subscriber for connection with gazebo node
   machine_info_pub_ = node_->Advertise<llsf_msgs::MachineInfo>(TOPIC_MACHINE_INFO);
   game_state_pub_ = node_->Advertise<llsf_msgs::GameState>(TOPIC_GAME_STATE);
-  // puck_info_pub_ = gazebo_world_node->Advertise<llsf_msgs::PuckInfo>(config->get_string("/gazsim/topics/puck-info"));
-  // place_puck_under_machine_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/place-puck-under-machine"), &GazsimLLSFRbCommThread::on_puck_place_msg, this);
-  // remove_puck_under_machine_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/remove-puck-under-machine"), &GazsimLLSFRbCommThread::on_puck_remove_msg, this);
-  // time_sync_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/time"), &GazsimLLSFRbCommThread::on_time_sync_msg, this);
-  // set_game_state_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/set-game-state"), &GazsimLLSFRbCommThread::on_set_game_state_msg, this);
-  // set_game_phase_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/set-game-phase"), &GazsimLLSFRbCommThread::on_set_game_phase_msg, this);
-  // set_team_name_sub_ = gazebo_world_node->Subscribe(config->get_string("/gazsim/topics/set-team-name"), &GazsimLLSFRbCommThread::on_set_team_name_msg, this);  
+  // puck_info_pub_ = node_->Advertise<llsf_msgs::PuckInfo>(config->get_string("/gazsim/topics/puck-info"));
+  // place_puck_under_machine_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/place-puck-under-machine"), &LlsfRefboxCommPlugin::on_puck_place_msg, this);
+  // remove_puck_under_machine_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/remove-puck-under-machine"), &LlsfRefboxCommPlugin::on_puck_remove_msg, this);
+  time_sync_sub_ = node_->Subscribe(TOPIC_TIME, &LlsfRefboxCommPlugin::on_time_sync_msg, this);
+  // set_game_state_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/set-game-state"), &LlsfRefboxCommPlugin::on_set_game_state_msg, this);
+  // set_game_phase_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/set-game-phase"), &LlsfRefboxCommPlugin::on_set_game_phase_msg, this);
+  // set_team_name_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/set-team-name"), &LlsfRefboxCommPlugin::on_set_team_name_msg, this);  
 
   //connect update function
   update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&LlsfRefboxCommPlugin::Update, this));
@@ -174,23 +174,23 @@ void LlsfRefboxCommPlugin::create_client()
 
 void LlsfRefboxCommPlugin::on_time_sync_msg(ConstSimTimePtr &msg)
 {
-  // // logger->log_info(name(), "Sending Simulation Time");
+  // printf("LLSF-refbox-comm: Sending Simulation Time\n");
   
-  // //provide time source with newest message
-  // if(!client_->connected())
-  // {
-  //   return;
-  // }
-  // //fill msg for refbox with info from gazsim_msg
-  // llsf_msgs::SimTimeSync to_rb;
-  // llsf_msgs::Time* time = to_rb.mutable_sim_time();
-  // time->set_sec(msg->sim_time_sec());
-  // time->set_nsec(msg->sim_time_nsec());
-  // to_rb.set_real_time_factor(msg->real_time_factor());
-  // to_rb.set_paused(msg->paused());
+  //provide time source with newest message
+  if(!connected_)
+  {
+    return;
+  }
+  //fill msg for refbox with info from gazsim_msg
+  llsf_msgs::SimTimeSync to_rb;
+  llsf_msgs::Time* time = to_rb.mutable_sim_time();
+  time->set_sec(msg->sim_time_sec());
+  time->set_nsec(msg->sim_time_nsec());
+  to_rb.set_real_time_factor(msg->real_time_factor());
+  to_rb.set_paused(msg->paused());
 
-  // //send it and make refbox able to handle the msg
-  // client_->send(to_rb);
+  //send it and make refbox able to handle the msg
+  client_->send(to_rb);
 }
 
 void LlsfRefboxCommPlugin::on_set_game_state_msg(ConstSetGameStatePtr &msg)

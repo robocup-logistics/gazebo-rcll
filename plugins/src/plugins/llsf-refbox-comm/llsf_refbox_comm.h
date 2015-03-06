@@ -48,6 +48,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePt
 #define RECONNECT_INTERVAL 2 //in s
 #define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
 #define TOPIC_GAME_STATE "~/LLSFRbSim/GameState/"
+#define TOPIC_TIME "~/gazsim/time-sync/"
 
 namespace protobuf_comm {
   class ProtobufStreamClient;
