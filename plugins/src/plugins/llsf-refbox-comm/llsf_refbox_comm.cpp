@@ -61,17 +61,29 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&LlsfRefboxCommPlugin::Update, this));
   printf("LLSF-refbox-connection-Plugin loaded!\n");
 
+  connected_ = false;
   printf("Trying to connect to refbox\n");
   //prepare client
   create_client();
   client_->async_connect(REFBOX_HOST, REFBOX_PORT);
-  //this invokes the connect in the loop
-  disconnected_recently_ = true;
 
+  last_connect_try_ = world_->GetSimTime().Double();
 }
 
 void LlsfRefboxCommPlugin::Update()
-{
+{ 
+  if(!connected_)
+  {
+    //if not connected, try to reconnect every x seconds
+    double time = world_->GetSimTime().Double();
+    if((time - last_connect_try_) > RECONNECT_INTERVAL)
+    {
+      printf("Trying to connect to refbox\n");
+      last_connect_try_ = time;
+      create_client();
+      client_->async_connect(REFBOX_HOST, REFBOX_PORT);
+    }
+  }
 }
 /** Handler for successful connection to the client
  */
@@ -79,6 +91,7 @@ void
 LlsfRefboxCommPlugin::client_connected()
 {
   printf("LLSF-refbox-comm: Connected to Refbox\n");
+  connected_ = true;
 }
 
 
@@ -89,7 +102,7 @@ void
 LlsfRefboxCommPlugin::client_disconnected(const boost::system::error_code &error)
 {
   printf("LLSF-refbox-comm: Disconnected\n");
-  //create_client();
+  connected_ = false;
 }
 
 /** Handler for incoming msg from client
@@ -140,9 +153,6 @@ void LlsfRefboxCommPlugin::create_client()
   		this, boost::asio::placeholders::error));
   client_->signal_received().connect(
     boost::bind(&LlsfRefboxCommPlugin::client_msg, this, _1, _2, _3));
-
-  //this invokes the connect in the loop
-  disconnected_recently_ = true;
 }
 
 // void LlsfRefboxCommPlugin::on_puck_place_msg(ConstPlacePuckUnderMachinePtr &msg)

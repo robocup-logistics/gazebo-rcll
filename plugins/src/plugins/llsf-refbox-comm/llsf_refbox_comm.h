@@ -45,6 +45,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePt
 #define PROTO_DIR "/plugins/src/libs/llsf_msgs"
 #define REFBOX_HOST "127.0.0.1"
 #define REFBOX_PORT 4444
+#define RECONNECT_INTERVAL 2 //in s
 
 
 namespace protobuf_comm {
@@ -107,7 +108,8 @@ namespace gazebo
     void on_set_team_name_msg(ConstSetTeamNamePtr &msg);
 
     //helper variables
-    bool disconnected_recently_;
+    bool connected_;
+    double last_connect_try_;
 
     void create_client();
     
