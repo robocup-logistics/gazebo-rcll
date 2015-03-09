@@ -39,9 +39,50 @@
 	  <diffuse>1.0 0.35 0.0 1</diffuse>
 	</material>
       </visual>
+      <visual name="ring_0">
+      <cast_shadows>false</cast_shadows>
+      <transparency>1</transparency>
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.008</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <visual name="ring_1">
+      <cast_shadows>false</cast_shadows>
+      <transparency>1</transparency>
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.008</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <visual name="ring_2">
+      <cast_shadows>false</cast_shadows>
+      <transparency>1</transparency>
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.008</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <visual name="cap">
+      <cast_shadows>false</cast_shadows>
+      <transparency>1</transparency>
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.004</length>
+          </cylinder>
+        </geometry>
+      </visual>
     </link>
 
     <!-- GPS plugin to let others know where this base is -->
     <plugin name="GPS" filename="libgps.so"/>
+    <plugin name="Puck" filename="libpuck.so"/>
   </model>
 </sdf>
