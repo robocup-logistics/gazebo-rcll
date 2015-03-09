@@ -26,6 +26,7 @@
 #include <gazebo/transport/transport.hh>
 #include <list>
 #include <string.h>
+#include <gazsim_msgs/WorkpieceCommand.pb.h>
 
 //amount of pucks to listen for
 #define NUMBER_PUCKS 20
