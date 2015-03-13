@@ -58,11 +58,16 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //the namespace is set to the world name!
   this->node_->Init(model_->GetWorld()->GetName());
 
+  spawned_tags_ = false;
+
   //subscribe for puck locations
   for(int i = 0; i < NUMBER_PUCKS; i++)
   {
     this->puck_subs_[i] = this->node_->Subscribe(std::string("~/puck_") + std::to_string(i) + "/gazsim/gps/" , &Mps::on_puck_msg, this);
   }
+
+  //Create publisher to spawn tags
+  visPub_ = this->node_->Advertise<msgs::Visual>("~/visual", /*number of lights*/ 3*12);
 
   //compute locations of input and output (not sure about the sides jet)
   double mps_x = this->model_->GetWorldPose().pos.x;
@@ -115,6 +120,13 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
  */
 void Mps::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
+  if(!spawned_tags_ && model_->GetWorld()->GetSimTime().Double() > TAG_SPAWN_TIME)
+  {
+    //Spawn tags (in Init is to early because it would be spawned at origin)
+    spawnTag("tag_input", name_ + "I" , 0, -0.176, 0);
+    spawnTag("tag_output", name_ + "O" , 0, 0.176, 3.14);
+    spawned_tags_ = true;
+  }
 }
 
 /** on Gazebo reset
@@ -162,4 +174,36 @@ void Mps::on_puck_msg(ConstPosePtr &msg)
     }
   }
   
+}
+
+/**
+ * Spawn tag on machine sides
+ */
+void Mps::spawnTag(std::string visual_name, std::string tag_name, float x, float y, float ori)
+{
+  //create message to return
+  msgs::Visual msg;
+
+  msgs::Geometry *geomMsg = msg.mutable_geometry();
+  geomMsg->set_type(msgs::Geometry::PLANE);
+  
+  msgs::Set(geomMsg->mutable_plane()->mutable_normal(), math::Vector3(0, 0, 1));
+  msgs::Set(geomMsg->mutable_plane()->mutable_size(), math::Vector2d(0.16, 0.16));
+  msg.set_cast_shadows(false);
+
+  //construct full path to link that should contain the tag
+  std::string parent_link = name_ + "::mps_tags::link";
+  msg.set_parent_name(parent_link.c_str());
+
+  msg.set_name((parent_link + "::" + visual_name).c_str());
+  msgs::Set(msg.mutable_pose(), math::Pose(x, y, TAG_HEIGHT, 1.57, 0, ori));
+
+  //set right texture
+  msg.mutable_material()->mutable_script()->set_name(std::string("tag/") + tag_name);
+
+  std::string *uri1 = msg.mutable_material()->mutable_script()->add_uri();
+  *uri1 = "model://tags/materials/scripts";
+  std::string *uri2 = msg.mutable_material()->mutable_script()->add_uri();
+  *uri2 = "model://tags/materials/textures";
+  visPub_->Publish(msg);
 }

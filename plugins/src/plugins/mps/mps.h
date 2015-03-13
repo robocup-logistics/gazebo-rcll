@@ -40,6 +40,11 @@
 #define BELT_LENGTH 0.35
 //Height of the belt
 #define BELT_HEIGHT 0.92
+//Height of the center of the tag
+#define TAG_HEIGHT 0.54
+//At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
+#define TAG_SPAWN_TIME 5.0
+
 
 namespace gazebo
 {
@@ -82,6 +87,11 @@ namespace gazebo
 
     /// Handler for puck positions
     void on_puck_msg(ConstPosePtr &msg);
+    
+    ///Publisher to send spawn machine tags
+    transport::PublisherPtr visPub_;
+    void spawnTag(std::string visual_name, std::string tag_name, float x, float y, float ori);
+    bool spawned_tags_;
 
     ///centers of input and output areas (global)
     float input_x_, input_y_, output_x_, output_y_;
