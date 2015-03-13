@@ -80,6 +80,35 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   output_y_ = mps_y
     + BELT_OFFSET_SIDE  * sin(mps_ori)
     + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+  
+  //set the machine type
+  printf("detected machine type: ");
+  if(this->name_.find("BS")!=std::string::npos)
+  {
+    this->machine_type_=MachineType::Base;
+    printf("base");
+  }
+  else if(this->name_.find("CS")!=std::string::npos)
+  {
+    this->machine_type_=MachineType::Cap;
+    printf("cap");
+  }
+  else if(this->name_.find("RS")!=std::string::npos)
+  {
+    this->machine_type_=MachineType::Ring;
+    printf("ring");
+  }
+  else if(this->name_.find("DS")!=std::string::npos)
+  {
+    this->machine_type_=MachineType::Delivery;
+    printf("deliv");
+  }
+  else
+  {
+    this->machine_type_=MachineType::Unknown;
+    printf("unknowen");
+  }
+  printf("\n");
 }
 
 /** Called by the world update start event
@@ -111,6 +140,26 @@ void Mps::on_puck_msg(ConstPosePtr &msg)
     printf("Workpiece %s was inserted into %s.\n Telepoting it into output!\n", msg->name().c_str(), name_.c_str());
     //teleport puck to output
     model_->GetWorld()->GetEntity(msg->name())->SetWorldPose(math::Pose(output_x_, output_y_, BELT_HEIGHT, 0, 0, 0));
+    //when this is a ring station spawn a ring ontop of the puck
+    if(this->machine_type_==MachineType::Ring)
+    {
+      //write to the puck plugin
+      std::string topic_string = std::string("~/") + msg->name() + std::string("/cmd");
+      transport::PublisherPtr puck_cmd_pub = this->node_->Advertise<gazsim_msgs::WorkpieceCommand>(topic_string);
+      if(!puck_cmd_pub->HasConnections())
+      {
+        printf("cannot connect to puck %s on topic %s\n",msg->name().c_str(),topic_string.c_str());
+      }
+      else
+      {
+        //TODO: dont'spawn a fixed color, get color from better source
+        gazsim_msgs::WorkpieceCommand cmd;
+        cmd.set_command(gazsim_msgs::Command::ADD_RING);
+        cmd.set_color(gazsim_msgs::Color::BLUE);
+        puck_cmd_pub->Publish(cmd);
+      }
+      puck_cmd_pub.reset();
+    }
   }
   
 }

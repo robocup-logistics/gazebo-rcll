@@ -1,8 +1,8 @@
 /***************************************************************************
- *  mps.h - Plugin to control a simulated MPS
+ *  puck.h - Plugin to control a simulated workpiece
  *
  *  Created: Fri Feb 20 17:15:34 2015
- *  Copyright  2015  Frederik Zwilling
+ *  Copyright  2015  Randolph Maaßen
  ****************************************************************************/
 
 /*  This program is free software; you can redistribute it and/or modify
@@ -24,41 +24,29 @@
 #include <gazebo/common/common.hh>
 #include <stdio.h>
 #include <gazebo/transport/transport.hh>
-#include <list>
+#include <stack>
 #include <string.h>
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
 
-//amount of pucks to listen for
-#define NUMBER_PUCKS 20
-//how far is the center of the belt hsifted from the machine center
-#define BELT_OFFSET_SIDE 0.025
-//radius of the area where a workpiece is detected by the machine
-#define DETECT_TOLERANCE 0.03
-//radius of a workpiece
-#define PUCK_SIZE 0.02
-//length of the belt to calculate pos of input/output area
-#define BELT_LENGTH 0.35
-//Height of the belt
-#define BELT_HEIGHT 0.92
+typedef const boost::shared_ptr<gazsim_msgs::WorkpieceCommand const> ConstWorkpieceCommandPtr;
+/// The height of one ring
+#define RING_HEIGHT 0.008 //meter
+/// The height of one cap
+#define CAP_HEIGHT 0.004 //meter
+/// The height of the workpiece base
+#define WORKPIECE_HEIGHT 0.0225 //meter
 
 namespace gazebo
 {
-  typedef enum MachineType{
-    Base,
-    Cap,
-    Ring,
-    Delivery,
-    Unknown,
-  } MachineType;
   /**
-   * Plugin to control a simulated MPS
-   * @author Frederik Zwilling
+   * Plugin to control a simulated Puck
+   * @author Randolph Maaßen
    */
-  class Mps : public ModelPlugin
+  class Puck : public ModelPlugin
   {
   public:
-    Mps();
-   ~Mps();
+    Puck();
+   ~Puck();
 
     //Overridden ModelPlugin-Functions
     virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
@@ -72,20 +60,28 @@ namespace gazebo
     event::ConnectionPtr update_connection_;
     ///Node for communication
     transport::NodePtr node_;
-    ///name of the mps and the communication channel
+    ///name of the puck and the communication channel
     std::string name_;
 
-    // Mps Stuff:
+    // Puck Stuff:
     
-    /// Subscriber to get puck positions
-    transport::SubscriberPtr puck_subs_[NUMBER_PUCKS];
+    /// Subscriber to get commands for model ring addition
+    transport::SubscriberPtr command_subscriber;
 
-    /// Handler for puck positions
-    void on_puck_msg(ConstPosePtr &msg);
+    /// Handler for command messages
+    void on_command_msg(ConstWorkpieceCommandPtr &cmd);
+    /// Add one ring on command
+    void add_ring(gazsim_msgs::Color clr);
+    /// Add a cap on command
+    void add_cap(gazsim_msgs::Color clr);
 
-    ///centers of input and output areas (global)
-    float input_x_, input_y_, output_x_, output_y_;
-    // the type of this mps
-    MachineType machine_type_;
+    /// The number of stored rings
+    size_t ring_count_;
+
+    /// Check, if we have a cap on top
+    bool have_cap;
+
+    /// Publisher to send visual changes to gazebo
+    transport::PublisherPtr visual_pub_;
   };
 }
