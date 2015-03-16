@@ -16,6 +16,11 @@
       <uri>model://webcam</uri>
       <pose>0.2 0 0.97 0 0 0</pose>
     </include>
+    <include>
+      <name>webcam_tag</name>
+      <uri>model://webcam</uri>
+      <pose>0.1 0 0.57 0 0 0</pose>
+    </include>
     <joint name="sick_joint" type="revolute">
       <child>sick_laser::link</child>
       <parent>robotino3::body</parent>
@@ -30,6 +35,18 @@
     </joint>
     <joint name="webcam_sensor_joint" type="revolute">
       <child>webcam::link</child>
+      <parent>robotino3::body</parent>
+      <pose>0.04 0 0.02 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="webcam_tag_sensor_joint" type="revolute">
+      <child>webcam_tag::link</child>
       <parent>robotino3::body</parent>
       <pose>0.04 0 0.02 0 0 0</pose>
       <axis>
