@@ -13,6 +13,7 @@
       <pose>0.17 0 0.22 0 0 0</pose>
     </include>
     <include>
+      <name>webcam_puck</name>
       <uri>model://webcam</uri>
       <pose>0.2 0 0.97 0 0 0</pose>
     </include>
@@ -34,7 +35,7 @@
       </axis>
     </joint>
     <joint name="webcam_sensor_joint" type="revolute">
-      <child>webcam::link</child>
+      <child>webcam_puck::link</child>
       <parent>robotino3::body</parent>
       <pose>0.04 0 0.02 0 0 0</pose>
       <axis>
