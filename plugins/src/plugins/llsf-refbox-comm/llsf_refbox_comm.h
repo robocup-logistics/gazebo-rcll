@@ -45,7 +45,9 @@ typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePt
 #define PROTO_DIR "/plugins/src/libs/llsf_msgs"
 #define REFBOX_HOST "127.0.0.1"
 #define REFBOX_PORT 4444
-#define RECONNECT_INTERVAL 2 //in s
+#define RECONNECT_INTERVAL 10 //in s
+//Max number of reconnect attempts (due to crash when tried to connect often)
+#define RECONNECT_ATTEMPTS 50
 #define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
 #define TOPIC_GAME_STATE "~/LLSFRbSim/GameState/"
 #define TOPIC_TIME "~/gazsim/time-sync/"
@@ -115,6 +117,7 @@ namespace gazebo
     //helper variables
     bool connected_;
     double last_connect_try_;
+    int connect_tries_;
 
     void create_client();
     

@@ -73,6 +73,7 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   printf("LLSF-refbox-connection-Plugin loaded!\n");
 
   connected_ = false;
+  connect_tries_ = 0;
   printf("Trying to connect to refbox\n");
   //prepare client
   create_client();
@@ -83,12 +84,13 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
 void LlsfRefboxCommPlugin::Update()
 { 
-  if(!connected_)
+  if(!connected_ && connect_tries_ < RECONNECT_ATTEMPTS)
   {
     //if not connected, try to reconnect every x seconds
     double time = world_->GetSimTime().Double();
     if((time - last_connect_try_) > RECONNECT_INTERVAL)
     {
+      connect_tries_++;
       printf("Trying to connect to refbox\n");
       last_connect_try_ = time;
       create_client();
@@ -114,6 +116,10 @@ LlsfRefboxCommPlugin::client_disconnected(const boost::system::error_code &error
 {
   printf("LLSF-refbox-comm: Disconnected\n");
   connected_ = false;
+  
+  if(connect_tries_ == RECONNECT_ATTEMPTS){
+    printf("LLSF-refbox-comm: Refbox-connect failed %d times. Stop trying to connect.\n", RECONNECT_ATTEMPTS);
+  }
 }
 
 /** Handler for incoming msg from client
