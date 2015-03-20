@@ -89,6 +89,10 @@ void Motor::OnUpdate(const common::UpdateInfo & /*_info*/)
  */
 void Motor::Reset()
 {
+  //stop movement
+  vx_ = 0;
+  vy_ = 0;
+  vomega_ = 0;
 }
 
 /** Functions for recieving Messages (registerd via suscribers)
