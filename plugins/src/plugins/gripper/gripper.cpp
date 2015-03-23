@@ -91,9 +91,26 @@ void Gripper::on_set_gripper_msg(ConstIntPtr &msg)
 void Gripper::close() {
 	std::cout << "Closing gripper!" << std::endl;
 	//TODO add link to puck model
+
+	physics::ModelPtr nearestPuck = getNearestPuck();
+
+	// TODO link models and store nearest puck reference
 }
 
 void Gripper::open() {
 	std::cout << "Opening gripper!" << std::endl;
-	//TODO remove link from puck model
+	//TODO remove link from puck model (nearest puck reference stored in close)
+}
+
+physics::ModelPtr Gripper::getNearestPuck() {
+
+	physics::ModelPtr nearest;
+
+	//TODO filter returned list by name. Each puck starts with "Puck", e.g. "Puck0", "Puck1", ... and then find the nearest puck
+	for(std::vector<physics::ModelPtr>::iterator it = model_->GetWorld()->GetModels().begin(); it != model_->GetWorld()->GetModels().end(); ++it) {
+		physics::ModelPtr modelPtr = *it;
+		std::cout << "Model = " << modelPtr->GetName() << std::endl;
+	}
+
+	return nearest;
 }

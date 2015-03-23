@@ -66,5 +66,7 @@ namespace gazebo
 
 		void close();
 		void open();
+
+		gazebo::physics::ModelPtr getNearestPuck();
     };
 }
