@@ -26,6 +26,7 @@
 #include <gazebo/transport/transport.hh>
 #include <list>
 #include <string.h>
+#include <fnmatch.h>
 
 #include <boost/thread/mutex.hpp>
 
@@ -56,6 +57,8 @@ namespace gazebo
         ///name of the gps and the communication channel
         std::string name_;
 
+        physics::ModelPtr grippedPuck;
+
         //Gripper Stuff:
 
         ///Set gripper callback
@@ -64,8 +67,15 @@ namespace gazebo
         ///Suscriber for SetGripper
         transport::SubscriberPtr set_gripper_sub_;
 
-		void close();
+        gazebo::physics::JointPtr grabJoint;
+
+        static gazebo::physics::LinkPtr getLinkEndingWith(physics::ModelPtr model, std::string link);
+        static gazebo::physics::JointPtr getJointEndingWith(physics::ModelPtr model, std::string link);
+
+        void close();
 		void open();
+
+        void setPuckPose();
 
 		gazebo::physics::ModelPtr getNearestPuck();
     };

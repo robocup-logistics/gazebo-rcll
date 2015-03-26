@@ -19,6 +19,7 @@
  */
 
 #include <math.h>
+#include <cfloat>
 
 #include "gripper.h"
 
@@ -49,6 +50,7 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     this->name_ = model_->GetName();
     printf("Loading Gripper Plugin of model %s\n", name_.c_str());
 
+
     // Listen to the update event. This event is broadcast every
     // simulation iteration.
     this->update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&Gripper::OnUpdate, this, _1));
@@ -60,6 +62,11 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 
     //create subscriber
     this->set_gripper_sub_ = this->node_->Subscribe(std::string("~/RobotinoSim/SetGripper/"), &Gripper::on_set_gripper_msg, this);
+
+
+	grabJoint = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_ );
+	grabJoint->SetName("gripper_grab_puck");
+	grabJoint->SetModel( model_ );
 }
 
 
@@ -67,7 +74,7 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
  */
 void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-
+	setPuckPose();
 }
 
 /** on Gazebo reset
@@ -87,30 +94,123 @@ void Gripper::on_set_gripper_msg(ConstIntPtr &msg)
 		this->open();
 }
 
+inline bool ends_with(std::string const & value, std::string const & ending)
+{
+	if (ending.size() > value.size()) return false;
+		return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
+gazebo::physics::LinkPtr Gripper::getLinkEndingWith(physics::ModelPtr model, std::string ending) {
+	std::vector<gazebo::physics::LinkPtr> links = model->GetLinks();
+	for (unsigned int i=0; i<links.size(); i++) {
+		if (ends_with(links[i]->GetName(), ending))
+			return links[i];
+	}
+	return gazebo::physics::LinkPtr();
+}
+
+gazebo::physics::JointPtr Gripper::getJointEndingWith(physics::ModelPtr model, std::string ending) {
+	std::vector<gazebo::physics::JointPtr> joints = model->GetJoints();
+	for (unsigned int i=0; i<joints.size(); i++) {
+		if (ends_with(joints[i]->GetName(), ending))
+			return joints[i];
+	}
+	return gazebo::physics::JointPtr();
+}
 
 void Gripper::close() {
+	if (grippedPuck)
+		return;
+
 	std::cout << "Closing gripper!" << std::endl;
 	//TODO add link to puck model
+	grippedPuck = getNearestPuck();
 
-	physics::ModelPtr nearestPuck = getNearestPuck();
+	setPuckPose();
 
-	// TODO link models and store nearest puck reference
+
+	// apply forces
+	/*gazebo::physics::JointPtr leftFingerJoint = getJointEndingWith(model_,"left_finger_move");
+	leftFingerJoint->SetForce(0,10);
+	gazebo::physics::JointPtr rightFingerJoint = getJointEndingWith(model_,"right_finger_move");
+	rightFingerJoint->SetForce(0,-10);
+
+	// link both models through a joint
+	gazebo::physics::LinkPtr gripperLink = getLinkEndingWith(model_,"gripper_grab");
+
+	if (!gripperLink){
+		std::cerr << "Link 'gripper_grab' not found in gripper model" << std::endl;
+		return;
+	}
+
+	gazebo::physics::LinkPtr puckLink = getLinkEndingWith(grippedPuck,"cylinder");
+	if (!puckLink){
+		std::cerr << "Link 'cylinder' not found in workpiece model" << std::endl;
+		return;
+	}
+
+	grabJoint->Load(gripperLink, puckLink, gripperLink->GetWorldPose() );
+	grabJoint->Attach(gripperLink, puckLink);
+
+	grabJoint->SetAxis(0,  gazebo::math::Vector3(0.0f,0.0f,1.0f) );
+	grabJoint->SetHighStop( 0, gazebo::math::Angle( 0.0f ) );
+	grabJoint->SetLowStop( 0, gazebo::math::Angle( 0.0f ) );
+
+*/
+
 }
 
 void Gripper::open() {
+	if (!grippedPuck)
+		return;
+
+	// apply forces
+	/*gazebo::physics::JointPtr leftFingerJoint = getJointEndingWith(model_,"left_finger_move");
+	leftFingerJoint->SetForce(0,-10);
+	gazebo::physics::JointPtr rightFingerJoint = getJointEndingWith(model_,"right_finger_move");
+	rightFingerJoint->SetForce(0,10);
+
+	grabJoint->Detach();*/
+
 	std::cout << "Opening gripper!" << std::endl;
+	grippedPuck.reset();
 	//TODO remove link from puck model (nearest puck reference stored in close)
+}
+
+void Gripper::setPuckPose(){
+	if (!grippedPuck)
+		return;
+	math::Pose gripperPose = model_->GetWorldPose();
+	math::Pose newPose = gripperPose;
+
+	newPose.pos.y += 0.28;
+	newPose.pos.z += 0.93;
+	grippedPuck->SetWorldPose(newPose);
 }
 
 physics::ModelPtr Gripper::getNearestPuck() {
 
 	physics::ModelPtr nearest;
-
-	//TODO filter returned list by name. Each puck starts with "Puck", e.g. "Puck0", "Puck1", ... and then find the nearest puck
-	for(std::vector<physics::ModelPtr>::iterator it = model_->GetWorld()->GetModels().begin(); it != model_->GetWorld()->GetModels().end(); ++it) {
-		physics::ModelPtr modelPtr = *it;
-		std::cout << "Model = " << modelPtr->GetName() << std::endl;
+	double gripperX = model_->GetWorldPose().pos.x;
+	double gripperY = model_->GetWorldPose().pos.y;
+	double gripperZ = model_->GetWorldPose().pos.z;
+	double distance = DBL_MAX;
+	unsigned int modelCount = model_->GetWorld()->GetModelCount();
+	physics::ModelPtr tmp;
+	//filter returned list by name. Each puck starts with "Puck", e.g. "Puck0", "Puck1", ... and then find the nearest puck
+	for(unsigned int i = 0 ; i < modelCount; i++){
+		tmp = model_->GetWorld()->GetModel(i);
+		if (fnmatch("puck*",tmp->GetName().c_str(),FNM_CASEFOLD) == 0){
+			double puckX = tmp->GetWorldPose().pos.x;
+			double puckY = tmp->GetWorldPose().pos.y;
+			double puckZ = tmp->GetWorldPose().pos.z;
+			double tmpDistance = std::sqrt(std::pow(gripperX-puckX,2)+std::pow(gripperY-puckY,2)+std::pow(gripperZ-puckZ,2));
+			if(tmpDistance < distance){
+				distance = tmpDistance;
+				nearest = tmp;
+			}
+		}
 	}
-
+	std::cout << "Nearest puck: " << nearest->GetName() << std::endl;
 	return nearest;
 }
