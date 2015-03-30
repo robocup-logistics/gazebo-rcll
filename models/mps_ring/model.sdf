@@ -105,7 +105,7 @@
     <include>
       <name>mps_tags</name>
       <uri>model://tags</uri>
-      <pose>0.025 0 0 0 0 0</pose> <!-- The belt is somehow not centered in the models -->
+      <pose>0.025 0 0 0 0 3.14</pose> <!-- The belt is somehow not centered in the models -->
     </include>
 
     <!-- Plugin to control the MPS and detect workpieces -->
