@@ -42,8 +42,10 @@
 #define BELT_HEIGHT 0.92
 //Height of the center of the tag
 #define TAG_HEIGHT 0.54
+//Height of the center of the tag
+#define TAG_SIZE 0.12
 //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
-#define TAG_SPAWN_TIME 5.0
+#define TAG_SPAWN_TIME 10.0
 
 
 namespace gazebo

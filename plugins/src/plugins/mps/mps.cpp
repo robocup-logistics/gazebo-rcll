@@ -188,7 +188,7 @@ void Mps::spawnTag(std::string visual_name, std::string tag_name, float x, float
   geomMsg->set_type(msgs::Geometry::PLANE);
   
   msgs::Set(geomMsg->mutable_plane()->mutable_normal(), math::Vector3(0, 0, 1));
-  msgs::Set(geomMsg->mutable_plane()->mutable_size(), math::Vector2d(0.16, 0.16));
+  msgs::Set(geomMsg->mutable_plane()->mutable_size(), math::Vector2d(TAG_SIZE, TAG_SIZE));
   msg.set_cast_shadows(false);
 
   //construct full path to link that should contain the tag
