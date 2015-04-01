@@ -22,6 +22,7 @@
 #include "light-signal-detection.h"
 #include <llsf_msgs/LightSignals.pb.h>
 #include <llsf_msgs/MachineInfo.pb.h>
+#include <gazsim_msgs/LightSignalDetection.pb.h>
 
 using namespace gazebo;
 
@@ -69,7 +70,7 @@ void LightSignalDetection::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sd
   last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
 
   //create publisher
-  this->light_signal_pub_ = this->node_->Advertise<llsf_msgs::MachineSignal>("~/gazsim/light-signal/");
+  this->light_signal_pub_ = this->node_->Advertise<gazsim_msgs::LightSignalDetection>("~/gazsim/light-signal/");
 
   //subscribe for light status msgs
   light_msg_sub_ = world_node_->Subscribe(std::string(TOPIC_MACHINE_INFO), &LightSignalDetection::on_light_msg, this);
@@ -84,6 +85,15 @@ void LightSignalDetection::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
   //Safe robot position to know if a light signal is in front of the robot
   robot_pose_ = model_->GetWorldPose();
+  //send message to robot control software periodically:
+  double time = model_->GetWorld()->GetSimTime().Double();
+  if(time - last_sent_time_ > SEND_INTERVAL)
+  {
+    last_sent_time_ = time;
+    //set visibility history
+    visibility_history_ = (time - visible_since_) * VISIBILITY_HISTORY_INCREASE_PER_SECOND;
+    send_light_detection();
+  }
 }
 
 /** on Gazebo reset
@@ -97,7 +107,23 @@ void LightSignalDetection::Reset()
  */
 void LightSignalDetection::send_light_detection()
 {
+  if(light_signal_pub_->HasConnections())
+  {
+    gazsim_msgs::LightSignalDetection msg;
+    msg.set_visible(visible_);
+    msg.set_visibility_history(visibility_history_);
+    gazsim_msgs::LightSignalDetection::LightSpec* red = msg.add_lights();
+    gazsim_msgs::LightSignalDetection::LightSpec* yellow = msg.add_lights();
+    gazsim_msgs::LightSignalDetection::LightSpec* green = msg.add_lights();
+    red->set_color(gazsim_msgs::LightSignalDetection::RED);
+    yellow->set_color(gazsim_msgs::LightSignalDetection::YELLOW);
+    green->set_color(gazsim_msgs::LightSignalDetection::GREEN);
+    red->set_state((gazsim_msgs::LightSignalDetection::LightState)state_red_);
+    yellow->set_state((gazsim_msgs::LightSignalDetection::LightState)state_yellow_);
+    green->set_state((gazsim_msgs::LightSignalDetection::LightState)state_green_);
 
+    light_signal_pub_->Publish(msg);
+  }
 }
 
 /** Functions for recieving a light signal status msg
@@ -121,7 +147,7 @@ void LightSignalDetection::on_light_msg(ConstMachineInfoPtr &msg)
     llsf_msgs::Machine machine = msg->machines(i);
     //TODO: use machine name from 2015 refbox
     //std::string machine_name = machine.name();
-    std::string machine_name = "CBSS";
+    std::string machine_name = "CBS";
     std::string light_link_name = machine_name + "::light_signals::link";
     physics::EntityPtr light_entity = model_->GetWorld()->GetEntity(light_link_name.c_str());
     if(light_entity == NULL){
@@ -139,6 +165,15 @@ void LightSignalDetection::on_light_msg(ConstMachineInfoPtr &msg)
   // get machine message of nearest machine
   if(min_dist < RADIUS_DETECTION_AREA){
     save_light_signal(msg->machines(nearest_index));
+    visible_ = true;
+    visibility_history_ = 0;
+    visible_since_ = model_->GetWorld()->GetSimTime().Double();
+    //light detection is sent periodically in the update loop
+  }
+  else{
+    visible_ = false;
+    visibility_history_ = -1;
+    send_light_detection();
   }
 }
 

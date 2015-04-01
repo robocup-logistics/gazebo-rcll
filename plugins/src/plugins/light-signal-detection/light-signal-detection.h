@@ -38,6 +38,8 @@ typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPt
 //Search area where the robot is looking for the signal relative to the robots center
 #define SEARCH_AREA_REL_X 0.5
 #define SEARCH_AREA_REL_Y 0.0
+#define SEND_INTERVAL 0.5
+#define VISIBILITY_HISTORY_INCREASE_PER_SECOND 30 //usually camera frame rate
 
 
 namespace gazebo
@@ -84,6 +86,11 @@ namespace gazebo
     void on_light_msg(ConstMachineInfoPtr &msg);
     void save_light_signal(llsf_msgs::Machine machine);
 
+    //is the light currently detected?
+    bool visible_;
+    //how long was the light detected?
+    int visibility_history_;
+    double visible_since_;
 
     //robot position
     math::Pose robot_pose_;
