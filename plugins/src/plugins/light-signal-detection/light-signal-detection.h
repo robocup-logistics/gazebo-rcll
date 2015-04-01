@@ -26,6 +26,19 @@
 #include <gazebo/transport/transport.hh>
 #include <list>
 #include <string.h>
+#include <llsf_msgs/MachineInfo.pb.h>
+
+
+//typedefs for sending the messages over the gazebo node
+typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
+
+//config values
+#define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
+#define RADIUS_DETECTION_AREA 0.3
+//Search area where the robot is looking for the signal relative to the robots center
+#define SEARCH_AREA_REL_X 0.5
+#define SEARCH_AREA_REL_Y 0.0
+
 
 namespace gazebo
 {
@@ -51,6 +64,8 @@ namespace gazebo
     event::ConnectionPtr update_connection_;
     ///Node for communication to fawkes
     transport::NodePtr node_;
+    ///Node for communication in gazebo
+    transport::NodePtr world_node_;
     ///name of the communication channel and the sensor
     std::string name_;
 
@@ -61,12 +76,19 @@ namespace gazebo
     ///Functions for sending information to fawkes:
     void send_light_detection();
 
+    //remember light state in front of the robot
+    llsf_msgs::LightState state_red_, state_yellow_, state_green_;
+    /// Subscriber to get msgs about the light status
+    transport::SubscriberPtr light_msg_sub_;
+    /// Handler for light status msg
+    void on_light_msg(ConstMachineInfoPtr &msg);
+    void save_light_signal(llsf_msgs::Machine machine);
+
+
     //robot position
     math::Pose robot_pose_;
 
     ///Publisher for Detected light signal
     transport::PublisherPtr light_signal_pub_;
-    /// Subscriber to get msgs about the light status
-    transport::SubscriberPtr light_msg_sub_;
   };
 }

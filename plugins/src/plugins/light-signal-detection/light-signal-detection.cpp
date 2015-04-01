@@ -59,11 +59,20 @@ void LightSignalDetection::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sd
   //the namespace is set to the model name!
   this->node_->Init(model_->GetWorld()->GetName()+"/"+name_);
 
+  //Create the communication Node in gazbeo
+  this->world_node_ = transport::NodePtr(new transport::Node());
+  //the namespace is set to the world name!
+  this->world_node_->Init(model_->GetWorld()->GetName());
+
+
   //init last sent time
   last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
 
   //create publisher
   this->light_signal_pub_ = this->node_->Advertise<llsf_msgs::MachineSignal>("~/gazsim/light-signal/");
+
+  //subscribe for light status msgs
+  light_msg_sub_ = world_node_->Subscribe(std::string(TOPIC_MACHINE_INFO), &LightSignalDetection::on_light_msg, this);
   
   robot_pose_ = model_->GetWorldPose();
 }
@@ -89,4 +98,64 @@ void LightSignalDetection::Reset()
 void LightSignalDetection::send_light_detection()
 {
 
+}
+
+/** Functions for recieving a light signal status msg
+ * @param msg message
+ */ 
+void LightSignalDetection::on_light_msg(ConstMachineInfoPtr &msg)
+{
+  // printf("LightSignalDetection: Got Light Msg!\n");
+
+  //Calculate Robot detetion center
+  double look_pos_x = robot_pose_.pos.x
+    + cos(robot_pose_.rot.GetYaw()) * SEARCH_AREA_REL_X - sin(robot_pose_.rot.GetYaw()) * SEARCH_AREA_REL_Y;
+  double look_pos_y = robot_pose_.pos.y 
+    + sin(robot_pose_.rot.GetYaw()) * SEARCH_AREA_REL_X + cos(robot_pose_.rot.GetYaw()) * SEARCH_AREA_REL_Y;
+
+  
+  // find mearest machine in front of the robot
+  int nearest_index = -1;
+  float min_dist = 1000000;
+  for(int i = 0; i < msg->machines_size(); i++){
+    llsf_msgs::Machine machine = msg->machines(i);
+    //TODO: use machine name from 2015 refbox
+    //std::string machine_name = machine.name();
+    std::string machine_name = "CBSS";
+    std::string light_link_name = machine_name + "::light_signals::link";
+    physics::EntityPtr light_entity = model_->GetWorld()->GetEntity(light_link_name.c_str());
+    if(light_entity == NULL){
+      printf("Light-Signal-Detection can't find machine with name %s\n!", machine_name.c_str());
+      return;
+    }
+    math::Pose light_pose = light_entity->GetWorldPose();
+    float dist = light_pose.pos.Distance(look_pos_x, look_pos_y, light_pose.pos.z);
+    if(dist < min_dist){
+      min_dist = dist;
+      nearest_index = i;
+    }
+  }
+
+  // get machine message of nearest machine
+  if(min_dist < RADIUS_DETECTION_AREA){
+    save_light_signal(msg->machines(nearest_index));
+  }
+}
+
+void LightSignalDetection::save_light_signal(llsf_msgs::Machine machine)
+{
+  //go through all light specs
+  //set default values
+  state_red_ = llsf_msgs::OFF;
+  state_yellow_ = llsf_msgs::OFF;
+  state_green_ = llsf_msgs::OFF;
+  for(int i = 0; i < machine.lights_size(); i++){
+    llsf_msgs::LightSpec light_msg = machine.lights(i);
+    switch(light_msg.color())
+    {
+    case llsf_msgs::RED: state_red_ = light_msg.state(); break;
+    case llsf_msgs::YELLOW: state_yellow_ = light_msg.state(); break;
+    case llsf_msgs::GREEN: state_green_ = light_msg.state(); break;
+    }
+  }
 }
