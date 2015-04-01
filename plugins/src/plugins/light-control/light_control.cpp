@@ -73,7 +73,8 @@ void LightControl::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   visPub_ = this->node_->Advertise<msgs::Visual>("~/visual",
 						 /*number of lights*/ 3*12);
 
-  //TODO: subscribe for light status msgs
+  //subscribe for light status msgs
+  light_msg_sub_ = node_->Subscribe(std::string(TOPIC_MACHINE_INFO), &LightControl::on_light_msg, this);
 
   world_ = model_->GetWorld();
   last_sent_time_ = world_->GetSimTime().Double();
@@ -87,7 +88,6 @@ void LightControl::OnUpdate(const common::UpdateInfo & /*_info*/)
   //wait until the world is completly loaded, otherwise the lights will spawn at (0,0)
   if(time < 20)
   {
-    //TODO still needed?
     return;
   }  
   //update lights only twice a second
@@ -98,9 +98,9 @@ void LightControl::OnUpdate(const common::UpdateInfo & /*_info*/)
   last_sent_time_ = time;
   
   //turn off yellow
-  visPub_->Publish(create_vis_msg(machine_name_, RED, BLINK));
-  visPub_->Publish(create_vis_msg(machine_name_, YELLOW, BLINK));
-  visPub_->Publish(create_vis_msg(machine_name_, GREEN, BLINK));
+  visPub_->Publish(create_vis_msg(machine_name_, RED, state_red_));
+  visPub_->Publish(create_vis_msg(machine_name_, YELLOW, state_yellow_));
+  visPub_->Publish(create_vis_msg(machine_name_, GREEN, state_green_));
 }
 
 /** on Gazebo reset
@@ -113,9 +113,35 @@ void LightControl::Reset()
 /** Functions for recieving a light signal status msg
  * @param msg message
  */ 
-void LightControl::on_light_msg(ConstPosePtr &msg)
+void LightControl::on_light_msg(ConstMachineInfoPtr &msg)
 {
-  //printf("Got Msg from %s!!!", msg->name().c_str()); 
+  // printf("Got Light Msg!");
+  
+  //TODO: find right machine by name (has to be set by 2015 refbox)
+  // for now use first machine
+  llsf_msgs::Machine machine_msg = msg->machines(0);
+  //set default values
+  state_red_ = OFF;
+  state_yellow_ = OFF;
+  state_green_ = OFF;
+    
+  //go through all light specs
+  for(int i = 0; i < machine_msg.lights_size(); i++){
+    llsf_msgs::LightSpec light_msg = machine_msg.lights(i);
+    LightState state = BLINK;
+    switch(light_msg.state())
+    {
+    case llsf_msgs::OFF: state = OFF; break;
+    case llsf_msgs::ON: state = ON; break;
+    case llsf_msgs::BLINK: state = BLINK; break;
+    }
+    switch(light_msg.color())
+    {
+    case llsf_msgs::RED: state_red_ = state; break;
+    case llsf_msgs::YELLOW: state_yellow_ = state; break;
+    case llsf_msgs::GREEN: state_green_ = state; break;
+    }
+  }
 }
 
 

@@ -26,6 +26,15 @@
 #include <gazebo/transport/transport.hh>
 #include <list>
 #include <string.h>
+#include <llsf_msgs/MachineInfo.pb.h>
+
+
+//typedefs for sending the messages over the gazebo node
+typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
+
+//config values
+#define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
+
 
 namespace gazebo
 {
@@ -77,12 +86,14 @@ namespace gazebo
     physics::WorldPtr world_;
 
     // Light_Control Stuff:
-    
+
+    LightState state_red_, state_yellow_, state_green_;
+
     /// Subscriber to get msgs about the light status
     transport::SubscriberPtr light_msg_sub_;
 
     /// Handler for light status msg
-    void on_light_msg(ConstPosePtr &msg);
+    void on_light_msg(ConstMachineInfoPtr &msg);
 
     ///Publisher to send visual changes to gazebo
     transport::PublisherPtr visPub_;
