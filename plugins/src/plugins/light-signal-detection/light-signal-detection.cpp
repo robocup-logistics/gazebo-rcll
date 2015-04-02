@@ -87,7 +87,7 @@ void LightSignalDetection::OnUpdate(const common::UpdateInfo & /*_info*/)
   robot_pose_ = model_->GetWorldPose();
   //send message to robot control software periodically:
   double time = model_->GetWorld()->GetSimTime().Double();
-  if(time - last_sent_time_ > SEND_INTERVAL)
+  if(time - last_sent_time_ > SEND_INTERVAL && visible_)
   {
     last_sent_time_ = time;
     //set visibility history
@@ -164,10 +164,21 @@ void LightSignalDetection::on_light_msg(ConstMachineInfoPtr &msg)
 
   // get machine message of nearest machine
   if(min_dist < RADIUS_DETECTION_AREA){
+    //check if the signal changed
+    llsf_msgs::LightState old_red = state_red_;
+    llsf_msgs::LightState old_yellow = state_yellow_;
+    llsf_msgs::LightState old_green = state_green_;
     save_light_signal(msg->machines(nearest_index));
-    visible_ = true;
-    visibility_history_ = 0;
-    visible_since_ = model_->GetWorld()->GetSimTime().Double();
+    if(!visible_
+       || old_red != state_red_
+       || old_yellow != state_yellow_
+       || old_green != state_green_)
+    {
+      //something changed
+      visible_ = true;
+      visibility_history_ = 0;
+      visible_since_ = model_->GetWorld()->GetSimTime().Double();
+    }
     //light detection is sent periodically in the update loop
   }
   else{
