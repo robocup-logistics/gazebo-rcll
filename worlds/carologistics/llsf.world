@@ -79,12 +79,12 @@
     <include>
       <name>CCS1</name>
       <uri>model://mps_cap</uri>
-      <pose>-1 5.5 0 0 0 2.4</pose>
+      <pose>-1 5.0 0 0 0 1.4</pose>
     </include>
     <include>
       <name>MCS1</name>
       <uri>model://mps_cap</uri>
-      <pose>1 5.5 0 0 0 -2.4</pose>
+      <pose>1 5.0 0 0 0 -1.4</pose>
     </include>
 
     <include>
@@ -125,12 +125,12 @@
     <include>
       <name>CDS1</name>
       <uri>model://mps_delivery</uri>
-      <pose>4.5 0.5 0 0 0 0.75</pose>
+      <pose>4.5 1.0 0 0 0 0.75</pose>
     </include>
     <include>
       <name>MDS1</name>
       <uri>model://mps_delivery</uri>
-      <pose>-4.5 0.5 0 0 0 -0.75</pose>
+      <pose>-4.5 1.0 0 0 0 -0.75</pose>
     </include>
 
     <!-- Pucks  -->
