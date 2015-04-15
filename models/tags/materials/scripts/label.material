@@ -12,7 +12,7 @@ material tag/empty
   }
 }
 
-material tag/CCS1I
+material tag/C-CS1I
 {
   receive_shadows off
   technique
@@ -29,7 +29,7 @@ material tag/CCS1I
   }
 }
 
-material tag/CCS1O
+material tag/C-CS1O
 {
   receive_shadows off
   technique
@@ -46,7 +46,7 @@ material tag/CCS1O
   }
 }
 
-material tag/CCS2I
+material tag/C-CS2I
 {
   receive_shadows off
   technique
@@ -63,7 +63,7 @@ material tag/CCS2I
   }
 }
 
-material tag/CCS2O
+material tag/C-CS2O
 {
   receive_shadows off
   technique
@@ -80,7 +80,7 @@ material tag/CCS2O
   }
 }
 
-material tag/CRS1I
+material tag/C-RS1I
 {
   receive_shadows off
   technique
@@ -97,7 +97,7 @@ material tag/CRS1I
   }
 }
 
-material tag/CRS1O
+material tag/C-RS1O
 {
   receive_shadows off
   technique
@@ -114,7 +114,7 @@ material tag/CRS1O
   }
 }
 
-material tag/CRS2I
+material tag/C-RS2I
 {
   receive_shadows off
   technique
@@ -131,7 +131,7 @@ material tag/CRS2I
   }
 }
 
-material tag/CRS2O
+material tag/C-RS2O
 {
   receive_shadows off
   technique
@@ -148,7 +148,7 @@ material tag/CRS2O
   }
 }
 
-material tag/CBSI
+material tag/C-BSI
 {
   receive_shadows off
   technique
@@ -165,7 +165,7 @@ material tag/CBSI
   }
 }
 
-material tag/CBSO
+material tag/C-BSO
 {
   receive_shadows off
   technique
@@ -182,7 +182,7 @@ material tag/CBSO
   }
 }
 
-material tag/CDSI
+material tag/C-DSI
 {
   receive_shadows off
   technique
@@ -199,7 +199,7 @@ material tag/CDSI
   }
 }
 
-material tag/CDSO
+material tag/C-DSO
 {
   receive_shadows off
   technique
@@ -216,7 +216,7 @@ material tag/CDSO
   }
 }
 
-material tag/MCS1I
+material tag/M-CS1I
 {
   receive_shadows off
   technique
@@ -233,7 +233,7 @@ material tag/MCS1I
   }
 }
 
-material tag/MCS1O
+material tag/M-CS1O
 {
   receive_shadows off
   technique
@@ -250,7 +250,7 @@ material tag/MCS1O
   }
 }
 
-material tag/MCS2I
+material tag/M-CS2I
 {
   receive_shadows off
   technique
@@ -267,7 +267,7 @@ material tag/MCS2I
   }
 }
 
-material tag/MCS2O
+material tag/M-CS2O
 {
   receive_shadows off
   technique
@@ -284,7 +284,7 @@ material tag/MCS2O
   }
 }
 
-material tag/MRS1I
+material tag/M-RS1I
 {
   receive_shadows off
   technique
@@ -301,7 +301,7 @@ material tag/MRS1I
   }
 }
 
-material tag/MRS1O
+material tag/M-RS1O
 {
   receive_shadows off
   technique
@@ -318,7 +318,7 @@ material tag/MRS1O
   }
 }
 
-material tag/MRS2I
+material tag/M-RS2I
 {
   receive_shadows off
   technique
@@ -335,7 +335,7 @@ material tag/MRS2I
   }
 }
 
-material tag/MRS2O
+material tag/M-RS2O
 {
   receive_shadows off
   technique
@@ -352,7 +352,7 @@ material tag/MRS2O
   }
 }
 
-material tag/MBSI
+material tag/M-BSI
 {
   receive_shadows off
   technique
@@ -369,7 +369,7 @@ material tag/MBSI
   }
 }
 
-material tag/MBSO
+material tag/M-BSO
 {
   receive_shadows off
   technique
@@ -386,7 +386,7 @@ material tag/MBSO
   }
 }
 
-material tag/MDSI
+material tag/M-DSI
 {
   receive_shadows off
   technique
@@ -403,7 +403,7 @@ material tag/MDSI
   }
 }
 
-material tag/MDSO
+material tag/M-DSO
 {
   receive_shadows off
   technique
