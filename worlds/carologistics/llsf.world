@@ -122,12 +122,12 @@
 
 
     <include>
-      <name>C-DS1</name>
+      <name>C-DS</name>
       <uri>model://mps_delivery</uri>
       <pose>4.5 1.0 0 0 0 0.75</pose>
     </include>
     <include>
-      <name>M-DS1</name>
+      <name>M-DS</name>
       <uri>model://mps_delivery</uri>
       <pose>-4.5 1.0 0 0 0 -0.75</pose>
     </include>

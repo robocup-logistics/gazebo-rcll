@@ -145,13 +145,11 @@ void LightSignalDetection::on_light_msg(ConstMachineInfoPtr &msg)
   float min_dist = 1000000;
   for(int i = 0; i < msg->machines_size(); i++){
     llsf_msgs::Machine machine = msg->machines(i);
-    //TODO: use machine name from 2015 refbox
-    //std::string machine_name = machine.name();
-    std::string machine_name = "CBS";
+    std::string machine_name = machine.name();
     std::string light_link_name = machine_name + "::light_signals::link";
     physics::EntityPtr light_entity = model_->GetWorld()->GetEntity(light_link_name.c_str());
     if(light_entity == NULL){
-      printf("Light-Signal-Detection can't find machine with name %s\n!", machine_name.c_str());
+      printf("Light-Signal-Detection can't find machine with name %s!\n", machine_name.c_str());
       return;
     }
     math::Pose light_pose = light_entity->GetWorldPose();
