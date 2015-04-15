@@ -58,7 +58,7 @@ void LightControl::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   }
   machine_name_ = machine->GetName();
   
-  printf("MachSIgnal: parent machine: %s\n", machine_name_.c_str());
+  printf("MachSignal: parent machine: %s\n", machine_name_.c_str());
 
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -117,29 +117,33 @@ void LightControl::on_light_msg(ConstMachineInfoPtr &msg)
 {
   // printf("Got Light Msg!");
   
-  //TODO: find right machine by name (has to be set by 2015 refbox)
-  // for now use first machine
-  llsf_msgs::Machine machine_msg = msg->machines(0);
-  //set default values
-  state_red_ = OFF;
-  state_yellow_ = OFF;
-  state_green_ = OFF;
+  // find right machine by name
+  for(int j = 0; j < msg->machines_size(); j++){
+    llsf_msgs::Machine machine_msg = msg->machines(j);
+    if(machine_msg.name() == machine_name_){
+      //set default values
+      state_red_ = OFF;
+      state_yellow_ = OFF;
+      state_green_ = OFF;
     
-  //go through all light specs
-  for(int i = 0; i < machine_msg.lights_size(); i++){
-    llsf_msgs::LightSpec light_msg = machine_msg.lights(i);
-    LightState state = BLINK;
-    switch(light_msg.state())
-    {
-    case llsf_msgs::OFF: state = OFF; break;
-    case llsf_msgs::ON: state = ON; break;
-    case llsf_msgs::BLINK: state = BLINK; break;
-    }
-    switch(light_msg.color())
-    {
-    case llsf_msgs::RED: state_red_ = state; break;
-    case llsf_msgs::YELLOW: state_yellow_ = state; break;
-    case llsf_msgs::GREEN: state_green_ = state; break;
+      //go through all light specs
+      for(int i = 0; i < machine_msg.lights_size(); i++){
+	llsf_msgs::LightSpec light_msg = machine_msg.lights(i);
+	LightState state = BLINK;
+	switch(light_msg.state())
+	{
+	case llsf_msgs::OFF: state = OFF; break;
+	case llsf_msgs::ON: state = ON; break;
+	case llsf_msgs::BLINK: state = BLINK; break;
+	}
+	switch(light_msg.color())
+	{
+	case llsf_msgs::RED: state_red_ = state; break;
+	case llsf_msgs::YELLOW: state_yellow_ = state; break;
+	case llsf_msgs::GREEN: state_green_ = state; break;
+	}
+      }
+      break;
     }
   }
 }
