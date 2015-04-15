@@ -39,6 +39,7 @@ package llsf_msgs;
 import "MachineInfo.proto";
 import "Pose2D.proto";
 import "Team.proto";
+import "Zone.proto";
 
 option java_package = "org.robocup_logistics.llsf_msgs";
 option java_outer_classname = "ExplorationInfoProtos";
@@ -55,18 +56,16 @@ message ExplorationSignal {
   repeated LightSpec lights = 2;
 }
 
-message ExplorationMachine {
+message ExplorationZone {
   enum CompType {
     COMP_ID  = 2000;
     MSG_TYPE = 71;
   }
 
-  // Name of the machine
-  required string  name = 1;
-  // Pose of the machine on the field
-  required Pose2D  pose = 2;
+  // Zone to explore
+  required Zone  zone = 2;
   // Team the machine belongs to
-  required Team    team_color = 3;
+  required Team  team_color = 3;
 }
 
 message ExplorationInfo {
@@ -77,6 +76,6 @@ message ExplorationInfo {
 
   // The signal assignments
   repeated ExplorationSignal  signals = 1;
-  // The machines to identify
-  repeated ExplorationMachine machines = 2;
+  // The zones to explore
+  repeated ExplorationZone    zones = 2;
 }

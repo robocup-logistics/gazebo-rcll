@@ -54,6 +54,13 @@ enum PuckState {
   FINISHED = 8;
 }
 
+enum RingColor {
+  RING_BLUE   = 1;
+  RING_GREEN  = 2;
+  RING_ORANGE = 3;
+  RING_YELLOW = 4;
+}
+
 message Puck {
   enum CompType {
     COMP_ID  = 2000;

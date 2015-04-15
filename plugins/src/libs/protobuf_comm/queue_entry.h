@@ -1,8 +1,8 @@
 
 /***************************************************************************
- *  MachineReport.proto - LLSF Protocol - Exploration Phase Report
+ *  queue_entry.h - Protobuf stream protocol - send queue entry
  *
- *  Created: Thu Mar 07 16:07:15 2013
+ *  Created: Fri Feb 01 22:07:14 2013
  *  Copyright  2013  Tim Niemueller [www.niemueller.de]
  ****************************************************************************/
 
@@ -34,59 +34,35 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package llsf_msgs;
+#ifndef __PROTOBUF_COMM_QUEUE_ENTRY_H_
+#define __PROTOBUF_COMM_QUEUE_ENTRY_H_
 
-import "MachineInfo.proto";
-import "PuckInfo.proto";
-import "Team.proto";
-import "Zone.proto";
+#include <boost/asio.hpp>
+#include <array>
 
-option java_package = "org.robocup_logistics.llsf_msgs";
-option java_outer_classname = "MachineReportProtos";
-
-message MachineReportEntry {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 60;
-  }
-
-  // Machine name and recognized type
-  // and zone the machine is in
-  required string name = 1;
-  required string type = 2;
-  required Zone   zone = 3;
+namespace protobuf_comm {
+#if 0 /* just to make Emacs auto-indent happy */
 }
+#endif
 
-// Robots send this to announce recognized
-// machines to the refbox.
-message MachineReport {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 61;
-  }
+/** Outgoing queue entry. */
+struct QueueEntry {
+public:
+  /** Constructor. */
+  QueueEntry()
+  {
+    frame_header.header_version = PB_FRAME_V2;
+    frame_header.cipher         = PB_ENCRYPTION_NONE;
+  };
+  std::string  serialized_message;	///< serialized protobuf message
+  frame_header_t    frame_header;	///< Frame header (network byte order), never encrypted
+  frame_header_v1_t frame_header_v1;	///< Frame header (network byte order), never encrypted
+  message_header_t message_header;		///< Frame header (network byte order)
+  std::array<boost::asio::const_buffer, 3> buffers;	///< outgoing buffers
+  std::string   encrypted_message;	///< encrypted buffer if encryption is used
+};
 
-  // Team for which the report is sent
-  required Team team_color = 2;
 
-  // All machines already already recognized
-  // or a subset thereof
-  repeated MachineReportEntry machines = 1;
-}
+} // end namespace protobuf_comm
 
-
-// The refbox periodically sends this to
-// acknowledge reported machines
-message MachineReportInfo {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 62;
-  }
-
-  // Names of machines for which the refbox
-  // received a report from a robot (which
-  // may have been correct or wrong)
-  repeated string reported_machines = 1;
-
-  // Team for which the report is sent
-  required Team team_color = 2;
-}
+#endif

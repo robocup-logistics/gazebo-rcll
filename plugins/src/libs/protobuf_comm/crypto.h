@@ -1,9 +1,9 @@
 
 /***************************************************************************
- *  MachineReport.proto - LLSF Protocol - Exploration Phase Report
+ *  crypto.h - Protobuf stream protocol - crypto utils
  *
- *  Created: Thu Mar 07 16:07:15 2013
- *  Copyright  2013  Tim Niemueller [www.niemueller.de]
+ *  Created: Tue Mar 11 21:12:35 2014
+ *  Copyright  2014  Tim Niemueller [www.niemueller.de]
  ****************************************************************************/
 
 /*  Redistribution and use in source and binary forms, with or without
@@ -34,59 +34,68 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package llsf_msgs;
+#ifndef __PROTOBUF_COMM_CRYPTO_H_
+#define __PROTOBUF_COMM_CRYPTO_H_
 
-import "MachineInfo.proto";
-import "PuckInfo.proto";
-import "Team.proto";
-import "Zone.proto";
+#include <string>
+#include <map>
 
-option java_package = "org.robocup_logistics.llsf_msgs";
-option java_outer_classname = "MachineReportProtos";
+#ifdef HAVE_LIBCRYPTO
+#  include <openssl/ossl_typ.h>
+#endif
 
-message MachineReportEntry {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 60;
-  }
-
-  // Machine name and recognized type
-  // and zone the machine is in
-  required string name = 1;
-  required string type = 2;
-  required Zone   zone = 3;
+namespace protobuf_comm {
+#if 0 /* just to make Emacs auto-indent happy */
 }
+#endif
 
-// Robots send this to announce recognized
-// machines to the refbox.
-message MachineReport {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 61;
-  }
+class BufferEncryptor {
+ public:
+  BufferEncryptor(const std::string &key, std::string cipher_name = "AES-128-ECB");
+  ~BufferEncryptor();
 
-  // Team for which the report is sent
-  required Team team_color = 2;
+  void encrypt(const std::string &plain, std::string &enc);
 
-  // All machines already already recognized
-  // or a subset thereof
-  repeated MachineReportEntry machines = 1;
-}
+  /** Get cipher ID.
+   * @return cipher ID */
+  int cipher_id() const
+  { return cipher_id_; }
+
+  size_t encrypted_buffer_size(size_t plain_length);
+
+ private:
+  unsigned char *key_;
+  long long unsigned int iv_;
+
+  const EVP_CIPHER *cipher_;
+
+  int cipher_id_;
+};
 
 
-// The refbox periodically sends this to
-// acknowledge reported machines
-message MachineReportInfo {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 62;
-  }
+class BufferDecryptor {
+ public:
+  BufferDecryptor(const std::string &key);
+  ~BufferDecryptor();
 
-  // Names of machines for which the refbox
-  // received a report from a robot (which
-  // may have been correct or wrong)
-  repeated string reported_machines = 1;
+  size_t decrypt(int cipher, const void *enc, size_t enc_size, void *plain, size_t plain_size);
 
-  // Team for which the report is sent
-  required Team team_color = 2;
-}
+ private:
+  void generate_key(int cipher);
+
+ private:
+  std::string key_;
+  std::map<int, std::string> keys_;
+};
+
+const char * cipher_name_by_id(int cipher);
+int          cipher_name_to_id(const char *cipher);
+
+#ifdef HAVE_LIBCRYPTO
+const EVP_CIPHER * cipher_by_id(int cipher);
+const EVP_CIPHER * cipher_by_name(const char *cipher);
+#endif
+
+} // end namespace fawkes
+
+#endif
