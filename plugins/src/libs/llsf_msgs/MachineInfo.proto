@@ -39,6 +39,7 @@ package llsf_msgs;
 import "Pose2D.proto";
 import "PuckInfo.proto";
 import "Team.proto";
+import "Zone.proto";
 
 option java_package = "org.robocup_logistics.llsf_msgs";
 option java_outer_classname = "MachineInfoProtos";
@@ -74,24 +75,22 @@ message Machine {
   // Machine name, type, and team
   required string    name       =  1;
   optional string    type       =  2;
+  optional string    state      =  3;
   optional Team      team_color = 10;
-
-  // Required inputs and produced output
-  // Only set for field machines T*
-  repeated PuckState inputs  = 3;
-  optional PuckState output  = 4;
-  // Puck currently in the machine area
-  repeated Puck      loaded_with = 5;
-  // Puck currently under the RFID sensor
-  optional Puck      puck_under_rfid = 6;
 
   // Current state of the lights
   repeated LightSpec lights = 7;
   // Optional pose if known to refbox
   optional Pose2D    pose = 8;
+  // Which zone the machine is in
+  optional Zone      zone = 11;
   // Only set during exploration phase
   // Correctly reported?
   optional bool      correctly_reported = 9;
+  // Number of bases loaded
+  optional uint32    loaded_with = 13 [default = 0];
+
+  repeated RingColor ring_colors = 14;
 }
 
 message MachineInfo {
