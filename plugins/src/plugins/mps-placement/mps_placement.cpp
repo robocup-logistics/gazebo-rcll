@@ -19,6 +19,7 @@
  */
 
 #include <math.h>
+#include <time.h>
 
 #include "mps_placement.h"
 
@@ -55,6 +56,8 @@ void MpsPlacementPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/
   
   machines_placed_ = false;
   is_game_started_ = false;
+
+  random_seed_base_ = (int) time(NULL);
 }
 
 /** on Gazebo reset
@@ -68,20 +71,12 @@ void MpsPlacementPlugin::Reset()
  * @param msg message
  */ 
 void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
-{  
-  if(machines_placed_ || !is_game_started_){
-    return;
-  }
-
+{
   // don't set positions before simulation is initialized
-  if(world_->GetSimTime().Double() < WAIT_TIME_BEFORE_PLACEMENT){
+  if(!is_game_started_ || world_->GetSimTime().Double() < WAIT_TIME_BEFORE_PLACEMENT){
     return;
   }
 
-  printf("MpsPlacementPlugin: Placing MPSs according to Machine Info from Refbox\n");
-  //sim time for random seed
-  int time = (int) world_->GetSimTime().Double();
-  
   // go through all machines
   for(int i = 0; i < msg->machines_size(); i++){
     llsf_msgs::Machine machine_msg = msg->machines(i);
@@ -118,7 +113,7 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
       }
 
       //randomize orientation
-      srand(time * zone_cyan);
+      srand(random_seed_base_ * zone_cyan + random_seed_base_ / zone_cyan);
       float ori = rand() % 100 -50;
       ori *= 2.0 * M_PI / 50.0;
       
@@ -131,14 +126,12 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
 	ori += M_PI / 2.0;
       }
       
-      printf("MpsPlacementPlugin: Seting %s into zone %d, (%f,%f, %f)\n", mps_name.c_str(), zone, zone_mid_x, zone_mid_y, ori);
+      // printf("MpsPlacementPlugin: Seting %s into zone %d, (%f,%f, %f)\n", mps_name.c_str(), zone, zone_mid_x, zone_mid_y, ori);
       mps->SetStatic(false);
       mps->SetWorldPose(math::Pose(zone_mid_x, zone_mid_y, 0, 0, 0, ori));
       mps->SetStatic(true);
     }
   }
-  
-  machines_placed_ = true;
 }
 
 /** Functions for recieving a game state msg

@@ -37,7 +37,7 @@ typedef const boost::shared_ptr<llsf_msgs::GameState const> ConstGameStatePtr;
 //config values
 #define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
 #define TOPIC_GAME_STATE "~/LLSFRbSim/GameState/"
-#define WAIT_TIME_BEFORE_PLACEMENT 20
+#define WAIT_TIME_BEFORE_PLACEMENT 15
 #define ZONE_HEIGHT 1.5
 #define ZONE_WIDTH 2.0
 
@@ -78,6 +78,7 @@ namespace gazebo
     
     bool machines_placed_;
     bool is_game_started_;
+    int random_seed_base_;
   };
   GZ_REGISTER_WORLD_PLUGIN(MpsPlacementPlugin)
 }
