@@ -56,7 +56,6 @@ void MpsPlacementPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/
   
   machines_placed_ = false;
   is_game_started_ = false;
-
   random_seed_base_ = (int) time(NULL);
 }
 
@@ -73,7 +72,7 @@ void MpsPlacementPlugin::Reset()
 void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
 {
   // don't set positions before simulation is initialized
-  if(!is_game_started_ || world_->GetSimTime().Double() < WAIT_TIME_BEFORE_PLACEMENT){
+  if(machines_placed_ ||!is_game_started_ || world_->GetSimTime().Double() < WAIT_TIME_BEFORE_PLACEMENT){
     return;
   }
 
@@ -126,12 +125,14 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
 	ori += M_PI / 2.0;
       }
       
-      // printf("MpsPlacementPlugin: Seting %s into zone %d, (%f,%f, %f)\n", mps_name.c_str(), zone, zone_mid_x, zone_mid_y, ori);
+      printf("MpsPlacementPlugin: Seting %s into zone %d, (%f,%f, %f)\n", mps_name.c_str(), zone, zone_mid_x, zone_mid_y, ori);
       mps->SetStatic(false);
       mps->SetWorldPose(math::Pose(zone_mid_x, zone_mid_y, 0, 0, 0, ori));
       mps->SetStatic(true);
     }
   }
+  printf("MpsPlacementPlugin: All machines placed\n");
+  machines_placed_ = true;
 }
 
 /** Functions for recieving a game state msg

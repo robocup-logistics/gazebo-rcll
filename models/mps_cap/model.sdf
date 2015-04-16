@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
   <model name="mps_cap">
-    <static>true</static>
+    <static>false</static>
     <link name="body">
       <gravity>true</gravity>
       <inertial>
 	<pose>0 0 0.445 0 0 0</pose>
-        <mass>30</mass>
+        <mass>100</mass>
         <inertia>
 	  <!-- according to http://en.wikipedia.org/wiki/List_of_moments_of_inertia for a solid box of width: 0.35, height:0.7, depth: 0.7, mass m=30 -->
           <ixx>2.45</ixx>
@@ -105,6 +105,15 @@
           </box>
         </geometry>
       </collision>
+      <collision name="collision_wheels">
+	<!-- Collision to avoid that the box falls down (In reality done by wheels) -->
+        <pose>0 0 0.01 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.35 0.02</size>
+          </box>
+        </geometry>
+      </collision>
     </link>
 
     <include>
@@ -118,6 +127,30 @@
       <uri>model://tags</uri>
       <pose>0.025 0 0 0 0 3.14</pose> <!-- The belt is somehow not centered in the models -->
     </include>
+
+    <joint name="mps_tag_joint" type="revolute">
+      <parent>body</parent>
+      <child>mps_tags::link</child>
+      <axis>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name="mps_light_joint" type="revolute">
+      <parent>body</parent>
+      <child>light_signals::link</child>
+      <axis>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
 
     <!-- Plugin to control the MPS and detect workpieces -->
     <plugin name="MPS" filename="libmps.so"/>
