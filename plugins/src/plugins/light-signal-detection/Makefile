@@ -1,7 +1,7 @@
 #*****************************************************************************
-#               Makefile Build System for Fawkes: Gazebo plugin for machine signals
+#               Makefile Build System for Fawkes: Gazebo plugin light-signal detection
 #
-#   Created on Sat Feb 21 19:09:20 2015
+#   Created on Mon Mar 30 16:11:42 2015
 #   Copyright (C) 2015 by Frederik Zwilling
 #
 ##*****************************************************************************
@@ -22,16 +22,16 @@ include $(BUILDSYSDIR)/protobuf.mk
 GAZEBO_LIBDIR = $(LIBDIR)/gazebo
 LIBDIRS_BASE += $(GAZEBO_LIBDIR)
 
-LIBS_gazebo_liblight_control = gazsim_msgs llsf_msgs
-OBJS_gazebo_liblight_control = light_control.o
+LIBS_gazebo_liblight_signal_detection = gazsim_msgs llsf_msgs
+OBJS_gazebo_liblight_signal_detection = light-signal-detection.o
 
-OBJS_all    = $(OBJS_gazebo_liblight_control)
+OBJS_all    = $(OBJS_gazebo_liblight_signal_detection)
 
-ifeq ($(HAVE_GAZEBO)$(HAVE_PROTOBUF)$(HAVE_CPP11),111)
-  CFLAGS  += $(CFLAGS_GAZEBO) $(CFLAGS_PROTOBUF) $(CFLAGS_CPP11)
+ifeq ($(HAVE_GAZEBO)$(HAVE_PROTOBUF),11)
+  CFLAGS  += $(CFLAGS_GAZEBO) $(CFLAGS_PROTOBUF)
   LDFLAGS += $(LDFLAGS_GAZEBO) $(LDFLAGS_PROTOBUF) -lm $(call boost-libs-ldflags,system) -lboost_system
 
-  LIBS_all = $(LIBDIR)/gazebo/liblight_control.so
+  LIBS_all = $(LIBDIR)/gazebo/liblight_signal_detection.so
 else
   ifneq ($(HAVE_GAZEBO),1)
     WARN_TARGETS += warning_gazebo
@@ -39,22 +39,17 @@ else
   ifneq ($(HAVE_PROTOBUF),1)
     WARN_TARGETS += warning_protobuf
   endif
-  ifneq ($(HAVE_CPP11),1)
-    WARN_TARGETS += warning_cpp11
-  endif
 endif
 
 ifeq ($(OBJSSUBMAKE),1)
 all: $(WARN_TARGETS)
 .PHONY: warning_gazebo warning_protobuf
 warning_gazebo:
-	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-light_control Plugin$(TNORMAL) " \
+	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-light_signal_detection Plugin$(TNORMAL) " \
 		"(Gazebo Simulator not found)"
 warning_protobuf:
-	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-light_control Plugin$(TNORMAL) " \
+	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-light_signal_detection Plugin$(TNORMAL) " \
 		"(protobuf[-devel] not installed)"
-warning_cpp11:
-	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting image viewing support$(TNORMAL) (C++11 not supported)"
 endif
 
 include $(BUILDSYSDIR)/base.mk

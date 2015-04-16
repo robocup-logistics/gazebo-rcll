@@ -1,7 +1,7 @@
 /***************************************************************************
- *  light_control.h - Plugin to control the light signals on an MPS
+ *  light-signal-detection.h - provides ground truth light signal detection of the nearest achine in front of the robotino
  *
- *  Created: Sat Feb 21 19:11:25 2015
+ *  Created: Mon Mar 30 16:15:38 2015
  *  Copyright  2015  Frederik Zwilling
  ****************************************************************************/
 
@@ -34,39 +34,25 @@ typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPt
 
 //config values
 #define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
+#define RADIUS_DETECTION_AREA 0.3
+//Search area where the robot is looking for the signal relative to the robots center
+#define SEARCH_AREA_REL_X 0.5
+#define SEARCH_AREA_REL_Y 0.0
+#define SEND_INTERVAL 0.5
+#define VISIBILITY_HISTORY_INCREASE_PER_SECOND 30 //usually camera frame rate
 
 
 namespace gazebo
 {
-  typedef enum Color
-  {
-    RED,
-    YELLOW,
-    GREEN
-  } Color;
-
-  typedef enum LightState
-  {
-    OFF,
-    ON,
-    BLINK
-  } LightState;
-
-
-  namespace msgs
-  {
-    class Visual;
-  }
-
   /**
-   * Plugin to control the light signals on an MPS
+   * Provides ground Truth position
    * @author Frederik Zwilling
    */
-  class LightControl : public ModelPlugin
+  class LightSignalDetection : public ModelPlugin
   {
   public:
-    LightControl();
-   ~LightControl();
+    LightSignalDetection();
+   ~LightSignalDetection();
 
     //Overridden ModelPlugin-Functions
     virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
@@ -78,31 +64,38 @@ namespace gazebo
     physics::ModelPtr model_;
     /// Pointer to the update event connection
     event::ConnectionPtr update_connection_;
-    ///Node for communication
+    ///Node for communication to fawkes
     transport::NodePtr node_;
-    ///name of the light signal models
+    ///Node for communication in gazebo
+    transport::NodePtr world_node_;
+    ///name of the communication channel and the sensor
     std::string name_;
-    ///pointer to the world
-    physics::WorldPtr world_;
-
-    // Light_Control Stuff:
-
-    LightState state_red_, state_yellow_, state_green_;
-
-    /// Subscriber to get msgs about the light status
-    transport::SubscriberPtr light_msg_sub_;
-
-    /// Handler for light status msg
-    void on_light_msg(ConstMachineInfoPtr &msg);
-
-    ///Publisher to send visual changes to gazebo
-    transport::PublisherPtr visPub_;
-    msgs::Visual create_vis_msg(std::string machine_name, Color color, LightState state);
 
     ///time variable to send in intervals
     double last_sent_time_;
 
-    ///name of the machine containing the light signal
-    std::string machine_name_;
+    //Light-detection Stuff:
+    ///Functions for sending information to fawkes:
+    void send_light_detection();
+
+    //remember light state in front of the robot
+    llsf_msgs::LightState state_red_, state_yellow_, state_green_;
+    /// Subscriber to get msgs about the light status
+    transport::SubscriberPtr light_msg_sub_;
+    /// Handler for light status msg
+    void on_light_msg(ConstMachineInfoPtr &msg);
+    void save_light_signal(llsf_msgs::Machine machine);
+
+    //is the light currently detected?
+    bool visible_;
+    //how long was the light detected?
+    int visibility_history_;
+    double visible_since_;
+
+    //robot position
+    math::Pose robot_pose_;
+
+    ///Publisher for Detected light signal
+    transport::PublisherPtr light_signal_pub_;
   };
 }

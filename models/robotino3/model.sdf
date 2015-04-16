@@ -78,5 +78,6 @@
     <plugin name="Motor" filename="libmotor.so"/>
     <plugin name="Gyro" filename="libgyro.so"/>
     <plugin name="GPS" filename="libgps.so"/>
+    <plugin name="LightSignalDetection" filename="liblight_signal_detection.so"/>
   </model>
 </sdf>
