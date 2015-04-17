@@ -58,7 +58,7 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //the namespace is set to the world name!
   this->node_->Init(model_->GetWorld()->GetName());
 
-  spawned_tags_ = false;
+  spawned_tags_last_ = model_->GetWorld()->GetSimTime().Double();
 
   //subscribe for puck locations
   for(int i = 0; i < NUMBER_PUCKS; i++)
@@ -120,12 +120,12 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
  */
 void Mps::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-  if(!spawned_tags_ && model_->GetWorld()->GetSimTime().Double() > TAG_SPAWN_TIME)
+  if(model_->GetWorld()->GetSimTime().Double() - spawned_tags_last_ > TAG_SPAWN_TIME)
   {
     //Spawn tags (in Init is to early because it would be spawned at origin)
     spawnTag("tag_input", name_ + "I" , 0, -0.176, 0);
     spawnTag("tag_output", name_ + "O" , 0, 0.176, 3.14);
-    spawned_tags_ = true;
+    spawned_tags_last_ = model_->GetWorld()->GetSimTime().Double();
   }
 }
 

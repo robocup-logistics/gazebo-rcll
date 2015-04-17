@@ -149,5 +149,6 @@ void MpsPlacementPlugin::on_game_state_msg(ConstGameStatePtr &msg)
   if(is_game_started_ && msg->phase() == llsf_msgs::GameState::PRE_GAME){
     printf("MpsPlacementPlugin: Game stopped\n");
     is_game_started_ = false;
+    machines_placed_ = false;
   }
 }
