@@ -6,7 +6,7 @@
       <gravity>true</gravity>
       <inertial>
 	<pose>0 0 0.445 0 0 0</pose>
-        <mass>100</mass>
+        <mass>300</mass>
         <inertia>
 	  <!-- according to http://en.wikipedia.org/wiki/List_of_moments_of_inertia for a solid box of width: 0.35, height:0.7, depth: 0.7, mass m=30 -->
           <ixx>2.45</ixx>
