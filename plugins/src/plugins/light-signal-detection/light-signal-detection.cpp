@@ -76,6 +76,12 @@ void LightSignalDetection::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sd
   light_msg_sub_ = world_node_->Subscribe(std::string(TOPIC_MACHINE_INFO), &LightSignalDetection::on_light_msg, this);
   
   robot_pose_ = model_->GetWorldPose();
+
+  //initial values:
+  visible_ = false;
+  visibility_history_ = -1;
+  visible_since_ = 0;
+  state_red_ = state_green_ = state_yellow_ = llsf_msgs::OFF;
 }
 
 
