@@ -87,18 +87,6 @@
         <cast_shadows>false</cast_shadows>
       </visual>
     </link>
-    <!-- <joint name="webcam_sensor_joint" type="revolute"> -->
-    <!--   <child>webcam::link</child> -->
-    <!--   <parent>body</parent> -->
-    <!--   <pose>0.04 0 0.02 0 0 0</pose> -->
-    <!--   <axis> -->
-    <!--     <xyz>0 0 1</xyz> -->
-    <!--     <limit> -->
-    <!--       <upper>0</upper> -->
-    <!--       <lower>0</lower> -->
-    <!--     </limit> -->
-    <!--   </axis> -->
-    <!-- </joint> -->
     
     <plugin name="Gripper" filename="libgripper.so"/>
   </model>

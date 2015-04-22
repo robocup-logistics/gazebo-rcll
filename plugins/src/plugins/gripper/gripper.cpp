@@ -63,19 +63,20 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     //create subscriber
     this->set_gripper_sub_ = this->node_->Subscribe(std::string("~/RobotinoSim/SetGripper/"), &Gripper::on_set_gripper_msg, this);
 
+    robotino_ = model_->GetParentModel();
+    robotino_link_ = robotino_->GetChildLink("robotino3::body");
 
-	grabJoint = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_ );
-	grabJoint->SetName("gripper_grab_puck");
-	grabJoint->SetModel( model_ );
+    grabJoint = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_);
+    grabJoint->SetName("gripper_grab_puck");
+    grabJoint->SetModel( model_);
+    // grabJoint->SetPose(gazebo::math::Vector3(0.0,0.0,0.0));
 }
 
 
 /** Called by the world update start event
  */
 void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
-{
-	setPuckPose();
-}
+{}
 
 /** on Gazebo reset
  */
@@ -126,38 +127,37 @@ void Gripper::close() {
 	//TODO add link to puck model
 	grippedPuck = getNearestPuck();
 
+        //teleport puck into gripper center
 	setPuckPose();
 
-
-	// apply forces
-	/*gazebo::physics::JointPtr leftFingerJoint = getJointEndingWith(model_,"left_finger_move");
-	leftFingerJoint->SetForce(0,10);
-	gazebo::physics::JointPtr rightFingerJoint = getJointEndingWith(model_,"right_finger_move");
-	rightFingerJoint->SetForce(0,-10);
-
 	// link both models through a joint
-	gazebo::physics::LinkPtr gripperLink = getLinkEndingWith(model_,"gripper_grab");
+	gazebo::physics::LinkPtr gripperLink = getLinkEndingWith(model_,"link");
 
 	if (!gripperLink){
 		std::cerr << "Link 'gripper_grab' not found in gripper model" << std::endl;
 		return;
 	}
+        else{
+          printf("Found Gripper Link\n");
+        }
 
 	gazebo::physics::LinkPtr puckLink = getLinkEndingWith(grippedPuck,"cylinder");
 	if (!puckLink){
 		std::cerr << "Link 'cylinder' not found in workpiece model" << std::endl;
 		return;
 	}
+        else{
+          printf("Found Puck Link\n");
+        }
 
-	grabJoint->Load(gripperLink, puckLink, gripperLink->GetWorldPose() );
+	grabJoint->Load(gripperLink, puckLink, math::Pose(-0.285, 0, 0, 0, 0, 0));
 	grabJoint->Attach(gripperLink, puckLink);
+        printf("Attached\n");
 
 	grabJoint->SetAxis(0,  gazebo::math::Vector3(0.0f,0.0f,1.0f) );
 	grabJoint->SetHighStop( 0, gazebo::math::Angle( 0.0f ) );
 	grabJoint->SetLowStop( 0, gazebo::math::Angle( 0.0f ) );
-
-*/
-
+        printf("Sachen gesetzt\n");
 }
 
 void Gripper::open() {

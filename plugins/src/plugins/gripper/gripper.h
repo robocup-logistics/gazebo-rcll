@@ -50,6 +50,8 @@ namespace gazebo
     private:
         /// Pointer to the gazbeo model
         physics::ModelPtr model_;
+        physics::ModelPtr robotino_;
+        physics::LinkPtr robotino_link_;
         /// Pointer to the update event connection
         event::ConnectionPtr update_connection_;
         ///Node for communication to fawkes

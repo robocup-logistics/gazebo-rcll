@@ -67,7 +67,7 @@
     <joint name="gripper_joint" type="revolute">
       <child>gripper::link</child>
       <parent>robotino3::body</parent>
-      <pose>0.04 0 0.02 0 0 0</pose>
+      <pose>0 0 0 0 0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
