@@ -25,7 +25,7 @@
 using namespace gazebo;
 
 // Register this plugin to make it available in the simulator
-GZ_REGISTER_MODEL_PLUGIN(Mps)
+//GZ_REGISTER_MODEL_PLUGIN(Mps)
 
 ///Constructor
 Mps::Mps()
