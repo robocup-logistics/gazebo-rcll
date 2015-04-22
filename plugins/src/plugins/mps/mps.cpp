@@ -86,34 +86,6 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     + BELT_OFFSET_SIDE  * sin(mps_ori)
     + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
   
-  //set the machine type
-  printf("detected machine type: ");
-  if(this->name_.find("BS")!=std::string::npos)
-  {
-    this->machine_type_=MachineType::Base;
-    printf("base");
-  }
-  else if(this->name_.find("CS")!=std::string::npos)
-  {
-    this->machine_type_=MachineType::Cap;
-    printf("cap");
-  }
-  else if(this->name_.find("RS")!=std::string::npos)
-  {
-    this->machine_type_=MachineType::Ring;
-    printf("ring");
-  }
-  else if(this->name_.find("DS")!=std::string::npos)
-  {
-    this->machine_type_=MachineType::Delivery;
-    printf("deliv");
-  }
-  else
-  {
-    this->machine_type_=MachineType::Unknown;
-    printf("unknowen");
-  }
-  printf("\n");
 }
 
 /** Called by the world update start event

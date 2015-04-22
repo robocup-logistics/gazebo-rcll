@@ -21,6 +21,10 @@
  */
 
 #include "mps_loader.h"
+#include "base_station.h"
+#include "ring_station.h"
+#include "cap_station.h"
+#include "delivery_station.h"
 
 using namespace gazebo;
 
@@ -29,6 +33,7 @@ GZ_REGISTER_MODEL_PLUGIN(MpsLoader)
 
 MpsLoader::MpsLoader()
 {
+
 }
 
 MpsLoader::~MpsLoader()
@@ -39,7 +44,34 @@ MpsLoader::~MpsLoader()
 
 void MpsLoader::Load(physics::ModelPtr _parent, sdf::ElementPtr)
 {
-  
+  std::string name = _parent->GetName();
+  //set the machine type
+  printf("detected machine type: ");
+  if(name.find("BS")!=std::string::npos)
+  {
+    printf("base");
+    mps_ = new BaseStation();
+  }
+  else if(name.find("CS")!=std::string::npos)
+  {
+    printf("cap");
+    mps_= new CapStation();
+  }
+  else if(name.find("RS")!=std::string::npos)
+  {
+    printf("ring");
+    mps_ = new RingStation();
+  }
+  else if(name.find("DS")!=std::string::npos)
+  {
+    printf("delivery");
+    mps_ = new DeliveryStation;
+  }
+  else
+  {
+    printf("unknowen machine");
+  }
+  printf("\n");
 }
 
 void MpsLoader::OnUpdate(const common::UpdateInfo &)
