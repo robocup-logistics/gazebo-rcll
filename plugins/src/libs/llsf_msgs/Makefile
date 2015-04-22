@@ -21,5 +21,7 @@ PROTOBUF_all = llsf_msgs
 
 MSGS_llsf_msgs = $(notdir $(patsubst %.proto,%,$(wildcard $(SRCDIR)/*.proto)))
 
+MachineReport.pb.cpp: | Team.pb.cpp
+
 include $(BUILDSYSDIR)/protobuf.mk
 include $(BUILDSYSDIR)/base.mk

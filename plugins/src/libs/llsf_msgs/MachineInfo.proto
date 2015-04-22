@@ -78,6 +78,8 @@ message Machine {
   optional string    state      =  3;
   optional Team      team_color = 10;
 
+  optional bool      prepared   = 15;
+
   // Current state of the lights
   repeated LightSpec lights = 7;
   // Optional pose if known to refbox

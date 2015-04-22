@@ -84,3 +84,25 @@ message LoadPuckInMachine {
   // ID of the puck to place
   required uint32 puck_id = 2;
 }
+
+
+enum MachineState {
+  IDLE      = 1;
+  AVAILABLE = 2;
+  PROCESSED = 3;
+  DELIVERED = 4;
+  RETRIEVED = 5;
+}
+
+// Load puck into machine area.
+message SetMachineState {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 17;
+  }
+
+  // Machine to place puck at
+  required string machine_name = 1;
+  // State to set
+  required MachineState state = 2;
+}
