@@ -4,9 +4,9 @@
 
     <!-- Physics, to determine the simulation speed (step size and update rate) -->
     <physics type="ode">
-      <max_step_size>0.001</max_step_size>
+      <max_step_size>0.004</max_step_size>
       <real_time_factor>1</real_time_factor>
-      <real_time_update_rate>1000</real_time_update_rate>
+      <real_time_update_rate>300</real_time_update_rate>
     </physics>
 
     <gui>
@@ -43,7 +43,6 @@
       <pose>4.5 -0.5 0 0 0 1.57</pose>
     </include>
     <!-- <include> -->
-    <!--   <name>robotino3</name> -->
     <!--   <uri>model://robotino-nr-3</uri> -->
     <!--   <pose>5.5 -0.5 0 0 0 1.57</pose> -->
     <!-- </include> -->
@@ -149,5 +148,6 @@
     <!-- Plugins for the world -->
     <plugin name="llsf_refbox_comm" filename="libllsf_refbox_comm.so" />
     <plugin name="timesync" filename="libtimesync.so" />
+    <plugin name="mps_placement" filename="libmps_placement.so" />
   </world>
 </sdf>
