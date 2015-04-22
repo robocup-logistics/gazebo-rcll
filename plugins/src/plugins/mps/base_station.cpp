@@ -24,7 +24,8 @@
 
 using namespace gazebo;
 
-BaseStation::BaseStation()
+BaseStation::BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
+  Mps(_parent,_sdf)
 {
 }
 

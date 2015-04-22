@@ -64,14 +64,12 @@ namespace gazebo
    * Plugin to control a simulated MPS
    * @author Frederik Zwilling
    */
-  class Mps : public ModelPlugin
+  class Mps
   {
   public:
-    Mps();
-   ~Mps();
+    Mps(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
+    virtual ~Mps();
 
-    //Overridden ModelPlugin-Functions
-    virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
     virtual void OnUpdate(const common::UpdateInfo &);
     virtual void Reset();
 

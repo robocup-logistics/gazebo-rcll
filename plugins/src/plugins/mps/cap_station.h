@@ -30,7 +30,7 @@ namespace gazebo {
 class CapStation : public Mps
 {
 public:
-  CapStation();
+  CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 };
 
 }

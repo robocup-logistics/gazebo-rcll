@@ -30,7 +30,7 @@ namespace gazebo {
 class RingStation : public Mps
 {
 public:
-  RingStation();
+  RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 };
 
 }

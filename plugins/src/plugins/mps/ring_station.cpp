@@ -24,6 +24,7 @@
 
 using namespace gazebo;
 
-RingStation::RingStation()
+RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
+  Mps(_parent,_sdf)
 {
 }

@@ -28,19 +28,7 @@ using namespace gazebo;
 //GZ_REGISTER_MODEL_PLUGIN(Mps)
 
 ///Constructor
-Mps::Mps()
-{
-}
-///Destructor
-Mps::~Mps()
-{
-  printf("Destructing Mps Plugin!\n");
-}
-
-/** on loading of the plugin
- * @param _parent Parent Model
- */
-void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/) 
+Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 {
   // Store the pointer to the model
   this->model_ = _parent;
@@ -85,7 +73,11 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   output_y_ = mps_y
     + BELT_OFFSET_SIDE  * sin(mps_ori)
     + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
-  
+}
+///Destructor
+Mps::~Mps()
+{
+  printf("Destructing Mps Plugin!\n");
 }
 
 /** Called by the world update start event

@@ -31,7 +31,7 @@ namespace gazebo
 class BaseStation : public Mps
 {
 public:
-  BaseStation();
+  BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 };
 
 }

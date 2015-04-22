@@ -42,30 +42,30 @@ MpsLoader::~MpsLoader()
   printf("Destructing Mps Plugin!\n");
 }
 
-void MpsLoader::Load(physics::ModelPtr _parent, sdf::ElementPtr)
+void MpsLoader::Load(physics::ModelPtr _parent, sdf::ElementPtr sdf)
 {
   std::string name = _parent->GetName();
   //set the machine type
   printf("detected machine type: ");
   if(name.find("BS")!=std::string::npos)
   {
+    mps_ = new BaseStation(_parent, sdf);
     printf("base");
-    mps_ = new BaseStation();
   }
   else if(name.find("CS")!=std::string::npos)
   {
+    mps_= new CapStation(_parent, sdf);
     printf("cap");
-    mps_= new CapStation();
   }
   else if(name.find("RS")!=std::string::npos)
   {
+    mps_ = new RingStation(_parent, sdf);
     printf("ring");
-    mps_ = new RingStation();
   }
   else if(name.find("DS")!=std::string::npos)
   {
+    mps_ = new DeliveryStation(_parent, sdf);
     printf("delivery");
-    mps_ = new DeliveryStation;
   }
   else
   {

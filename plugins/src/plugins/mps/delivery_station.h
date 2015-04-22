@@ -31,7 +31,7 @@ namespace gazebo
 class DeliveryStation : public Mps
 {
 public:
-  DeliveryStation();
+  DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 };
 
 }
