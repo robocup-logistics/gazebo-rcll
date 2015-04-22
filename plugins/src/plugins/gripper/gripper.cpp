@@ -82,6 +82,7 @@ void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
  */
 void Gripper::Reset()
 {
+  open();
 }
 
 /** Functions for recieving Messages (registerd via suscribers)
@@ -164,13 +165,7 @@ void Gripper::open() {
 	if (!grippedPuck)
 		return;
 
-	// apply forces
-	/*gazebo::physics::JointPtr leftFingerJoint = getJointEndingWith(model_,"left_finger_move");
-	leftFingerJoint->SetForce(0,-10);
-	gazebo::physics::JointPtr rightFingerJoint = getJointEndingWith(model_,"right_finger_move");
-	rightFingerJoint->SetForce(0,10);
-
-	grabJoint->Detach();*/
+	grabJoint->Detach();
 
 	std::cout << "Opening gripper!" << std::endl;
 	grippedPuck.reset();
@@ -183,7 +178,9 @@ void Gripper::setPuckPose(){
 	math::Pose gripperPose = model_->GetWorldPose();
 	math::Pose newPose = gripperPose;
 
-	newPose.pos.y += 0.28;
+        printf("gripper pos: (%f,%f,%f)", newPose.pos.x, newPose.pos.y, newPose.rot.GetYaw());
+	newPose.pos.x += 0.28 * cos(newPose.rot.GetYaw());
+	newPose.pos.y += 0.28 * sin(newPose.rot.GetYaw());
 	newPose.pos.z += 0.93;
 	grippedPuck->SetWorldPose(newPose);
 }
