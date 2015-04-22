@@ -5,19 +5,6 @@
     <link name="link">
       <pose>0 0 0 0 0 0</pose>
       <!-- Origin is where the puck should be gripped -->
-      <gravity>false</gravity>
-      <inertial>
-        <mass>500</mass>
-        <pose>0 0 0 0 0 0</pose>
-        <inertia>
-          <ixx>1.0</ixx>
-          <ixy>0.0</ixy>
-          <ixz>0.0</ixz>
-          <iyy>1.0</iyy>
-          <iyz>0.0</iyz>
-          <izz>1.0</izz>
-        </inertia>
-      </inertial>
       <visual name="back-visual">
         <pose>-0.15 0 0 0 0 0</pose>
         <geometry>
