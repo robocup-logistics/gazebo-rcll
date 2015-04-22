@@ -28,3 +28,37 @@ RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
   Mps(_parent,_sdf)
 {
 }
+
+void RingStation::on_puck_msg(ConstPosePtr &msg)
+{
+  //printf("Got Msg from %s!!!", msg->name().c_str());
+
+  //check if the puck is in the input area
+  double dist = sqrt((msg->position().x() - input_x_) * (msg->position().x() - input_x_)
+		     + (msg->position().y() - input_y_) * (msg->position().y() - input_y_)
+		     + (msg->position().z() - BELT_HEIGHT) * (msg->position().z() - BELT_HEIGHT));
+  if(dist < DETECT_TOLERANCE)
+  {
+    printf("Workpiece %s was inserted into %s.\n Telepoting it into output!\n", msg->name().c_str(), name_.c_str());
+    //teleport puck to output
+    model_->GetWorld()->GetEntity(msg->name())->SetWorldPose(math::Pose(output_x_, output_y_, BELT_HEIGHT, 0, 0, 0));
+    //spawn a ring ontop of the puck
+    //write to the puck plugin
+    std::string topic_string = std::string("~/") + msg->name() + std::string("/cmd");
+    transport::PublisherPtr puck_cmd_pub = this->node_->Advertise<gazsim_msgs::WorkpieceCommand>(topic_string);
+    if(!puck_cmd_pub->HasConnections())
+    {
+      printf("cannot connect to puck %s on topic %s\n",msg->name().c_str(),topic_string.c_str());
+    }
+    else
+    {
+      //TODO: dont'spawn a fixed color, get color from better source
+      gazsim_msgs::WorkpieceCommand cmd;
+      cmd.set_command(gazsim_msgs::Command::ADD_RING);
+      cmd.set_color(gazsim_msgs::Color::BLUE);
+      puck_cmd_pub->Publish(cmd);
+    }
+    puck_cmd_pub.reset();
+  }
+
+}

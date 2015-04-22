@@ -73,7 +73,7 @@ namespace gazebo
     virtual void OnUpdate(const common::UpdateInfo &);
     virtual void Reset();
 
-  private:
+  protected:
     /// Pointer to the gazbeo model
     physics::ModelPtr model_;
     /// Pointer to the update event connection
@@ -89,7 +89,7 @@ namespace gazebo
     transport::SubscriberPtr puck_subs_[NUMBER_PUCKS];
 
     /// Handler for puck positions
-    void on_puck_msg(ConstPosePtr &msg);
+    virtual void on_puck_msg(ConstPosePtr &msg);
     
     ///Publisher to send spawn machine tags
     transport::PublisherPtr visPub_;
