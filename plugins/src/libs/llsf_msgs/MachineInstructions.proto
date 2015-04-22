@@ -36,7 +36,7 @@
 
 package llsf_msgs;
 
-import "PuckInfo.proto";
+import "ProductColor.proto";
 import "Team.proto";
 
 option java_package = "org.robocup_logistics.llsf_msgs";

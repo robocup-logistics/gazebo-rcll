@@ -37,9 +37,10 @@
 package llsf_msgs;
 
 import "Pose2D.proto";
-import "PuckInfo.proto";
+import "ProductColor.proto";
 import "Team.proto";
 import "Zone.proto";
+import "MachineInstructions.proto";
 
 option java_package = "org.robocup_logistics.llsf_msgs";
 option java_outer_classname = "MachineInfoProtos";
@@ -93,6 +94,15 @@ message Machine {
   optional uint32    loaded_with = 13 [default = 0];
 
   repeated RingColor ring_colors = 14;
+
+
+  // Instruction information
+  // only available to clients, not peers
+  optional PrepareInstructionBS instruction_bs = 16;
+  optional PrepareInstructionDS instruction_ds = 17;
+  optional PrepareInstructionRS instruction_rs = 18;
+  optional PrepareInstructionCS instruction_cs = 19;
+
 }
 
 message MachineInfo {

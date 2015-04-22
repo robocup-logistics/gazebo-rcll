@@ -1,9 +1,9 @@
 
 /***************************************************************************
- *  PuckInfo.proto - LLSF Protocol - Puck information
+ *  ProductColor.proto - LLSF Protocol - Product color information
  *
- *  Created: Mon Feb 25 11:36:50 2013
- *  Copyright  2013  Tim Niemueller [www.niemueller.de]
+ *  Created: Wed Apr 22 17:13:32 2015
+ *  Copyright  2013-2015  Tim Niemueller [www.niemueller.de]
  ****************************************************************************/
 
 /*  Redistribution and use in source and binary forms, with or without
@@ -36,23 +36,8 @@
 
 package llsf_msgs;
 
-import "Pose2D.proto";
-import "Team.proto";
-
 option java_package = "org.robocup_logistics.llsf_msgs";
-option java_outer_classname = "PuckInfoProtos";
-
-// Current state of a puck
-enum PuckState {
-  S0 = 0;
-  S1 = 1;
-  S2 = 2;
-  P1 = 4;
-  P2 = 5;
-  P3 = 6;
-  CONSUMED = 7;
-  FINISHED = 8;
-}
+option java_outer_classname = "ProductColorProtos";
 
 enum RingColor {
   RING_BLUE   = 1;
@@ -70,32 +55,4 @@ enum BaseColor {
 enum CapColor {
   CAP_BLACK = 1;
   CAP_GREY  = 2;
-}
-
-message Puck {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 50;
-  }
-
-  // Puck unique ID
-  required uint32    id = 1;
-  // Current state of the puck
-  required PuckState state = 2;
-
-  // Optional pose information
-  optional Pose2D    pose = 3;
-
-  // Team the puck belongs to
-  optional Team      team_color = 4;
-}
-
-message PuckInfo {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 51;
-  }
-
-  // List of all known pucks
-  repeated Puck pucks = 1;
 }

@@ -37,7 +37,7 @@
 package llsf_msgs;
 
 import "Team.proto";
-import "PuckInfo.proto";
+import "ProductColor.proto";
 
 option java_package = "org.robocup_logistics.llsf_msgs";
 option java_outer_classname = "OrderInfoProtos";
