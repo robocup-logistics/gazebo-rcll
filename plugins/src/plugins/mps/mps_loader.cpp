@@ -46,32 +46,30 @@ void MpsLoader::Load(physics::ModelPtr _parent, sdf::ElementPtr sdf)
 {
   std::string name = _parent->GetName();
   //set the machine type
-  printf("detected machine type: ");
   if(name.find("BS")!=std::string::npos)
   {
+    printf("detected machine type: base \n");
     mps_ = new BaseStation(_parent, sdf);
-    printf("base");
   }
   else if(name.find("CS")!=std::string::npos)
   {
+    printf("detected machine type: cap \n");
     mps_= new CapStation(_parent, sdf);
-    printf("cap");
   }
   else if(name.find("RS")!=std::string::npos)
   {
+    printf("detected machine type: ring \n");
     mps_ = new RingStation(_parent, sdf);
-    printf("ring");
   }
   else if(name.find("DS")!=std::string::npos)
   {
+    printf("detected machine type: delivery \n");
     mps_ = new DeliveryStation(_parent, sdf);
-    printf("delivery");
   }
   else
   {
     printf("unknowen machine");
   }
-  printf("\n");
 }
 
 void MpsLoader::OnUpdate(const common::UpdateInfo &)
