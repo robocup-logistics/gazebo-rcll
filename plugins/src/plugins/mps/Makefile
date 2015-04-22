@@ -25,7 +25,8 @@ LIBDIRS_BASE += $(GAZEBO_LIBDIR)
 LIBS_gazebo_libmps = gazsim_msgs
 OBJS_gazebo_libmps = mps.o\
                      mps_loader.o\
-                     base_station.o
+                     base_station.o\
+                     ring_station.o
 
 OBJS_all    = $(OBJS_gazebo_libmps)
 
