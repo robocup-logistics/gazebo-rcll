@@ -30,6 +30,13 @@
 
 #include <boost/thread/mutex.hpp>
 
+
+//config values
+#define TOPIC_SET_GRIPPER "~/RobotinoSim/SetGripper/"
+#define TOPIC_HOLDS_PUCK "~/LLSFRbSim/MachineInfo/"
+#define RADIUS_GRAB_AREA 0.05
+
+
 namespace gazebo
 {
     /**
@@ -75,10 +82,10 @@ namespace gazebo
         static gazebo::physics::JointPtr getJointEndingWith(physics::ModelPtr model, std::string link);
 
         void close();
-		void open();
+        void open();
 
         void setPuckPose();
 
-		gazebo::physics::ModelPtr getNearestPuck();
+        gazebo::physics::ModelPtr getNearestPuck();
     };
 }
