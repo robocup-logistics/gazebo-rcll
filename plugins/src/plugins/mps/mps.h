@@ -18,6 +18,9 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#ifndef MPS_H
+#define MPS_H
+
 #include <boost/bind.hpp>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
@@ -101,3 +104,5 @@ namespace gazebo
     MachineType machine_type_;
   };
 }
+
+#endif // MPS_H
