@@ -28,3 +28,7 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   Mps(_parent,_sdf)
 {
 }
+
+void CapStation::on_puck_msg(ConstPosePtr &msg)
+{
+}

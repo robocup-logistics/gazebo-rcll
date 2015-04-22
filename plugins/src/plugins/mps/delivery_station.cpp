@@ -28,3 +28,7 @@ DeliveryStation::DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr  _sd
   Mps(_parent,_sdf)
 {
 }
+
+void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
+{
+}
