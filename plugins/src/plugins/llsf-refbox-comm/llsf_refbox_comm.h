@@ -26,15 +26,12 @@
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <llsf_msgs/MachineCommands.pb.h>
 #include <llsf_msgs/SimTimeSync.pb.h>
-#include <llsf_msgs/PuckInfo.pb.h>
 #include <llsf_msgs/GameState.pb.h>
 #include <llsf_msgs/GameInfo.pb.h>
 #include <gazsim_msgs/SimTime.pb.h>
 
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
-typedef const boost::shared_ptr<llsf_msgs::PlacePuckUnderMachine const> ConstPlacePuckUnderMachinePtr;
-typedef const boost::shared_ptr<llsf_msgs::RemovePuckFromMachine const> ConstRemovePuckFromMachinePtr;
 typedef const boost::shared_ptr<gazsim_msgs::SimTime const> ConstSimTimePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetGameState const> ConstSetGameStatePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetGamePhase const> ConstSetGamePhasePtr;
