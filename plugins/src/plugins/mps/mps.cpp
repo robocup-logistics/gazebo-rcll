@@ -48,17 +48,16 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 
   spawned_tags_last_ = model_->GetWorld()->GetSimTime().Double();
 
-  //subscribe for puck locations
-  for(int i = 0; i < NUMBER_PUCKS; i++)
-  {
-    this->puck_subs_[i] = this->node_->Subscribe(std::string("~/puck_") + std::to_string(i) + "/gazsim/gps/" , &Mps::on_puck_msg, this);
-  }
   //subscribe to machine info
   this->machine_info_subscriber_ = this->node_->Subscribe(TOPIC_MACHINE_INFO, &Mps::on_machine_msg, this);
+  
+  this->new_puck_subscriber_ = node_->Subscribe("~/new_puck",&Mps::on_new_puck,this);
 
   //Create publisher to spawn tags
   visPub_ = this->node_->Advertise<msgs::Visual>("~/visual", /*number of lights*/ 3*12);
   set_machne_state_pub_ = this->node_->Advertise<llsf_msgs::SetMachineState>(TOPIC_SET_MACHINE_STATE);
+  
+  world_ = model_->GetWorld();
 }
 ///Destructor
 Mps::~Mps()
@@ -202,4 +201,25 @@ bool Mps::puck_in_output(ConstPosePtr &pose)
 		     + (pose->position().y() - output_y()) * (pose->position().y() - output_y())
 		     + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
   return dist < DETECT_TOLERANCE;
+}
+
+bool Mps::puck_in_input(const math::Pose &pose)
+{
+  double dist = sqrt((pose.pos.x - input_x()) * (pose.pos.x - input_x())
+		     + (pose.pos.y - input_y()) * (pose.pos.y - input_y())
+		     + (pose.pos.z - BELT_HEIGHT) * (pose.pos.z - BELT_HEIGHT));
+  return dist < DETECT_TOLERANCE;
+}
+
+bool Mps::puck_in_output(const math::Pose &pose)
+{
+  double dist = sqrt((pose.pos.x - output_x()) * (pose.pos.x - output_x())
+		     + (pose.pos.y - output_y()) * (pose.pos.y - output_y())
+		     + (pose.pos.z - BELT_HEIGHT) * (pose.pos.z - BELT_HEIGHT));
+  return dist < DETECT_TOLERANCE;
+}
+
+void Mps::on_new_puck(ConstNewPuckPtr &msg)
+{
+    this->puck_subs_.push_back(this->node_->Subscribe(msg->gps_topic() , &Mps::on_puck_msg, this));
 }

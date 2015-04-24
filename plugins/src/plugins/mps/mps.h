@@ -32,6 +32,7 @@
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <llsf_msgs/MachineCommands.pb.h>
+#include <gazsim_msgs/NewPuck.pb.h>
 
 //amount of pucks to listen for
 #define NUMBER_PUCKS 20
@@ -61,6 +62,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachin
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
 typedef const llsf_msgs::Machine ConstMachine;
 typedef llsf_msgs::MachineState State;
+typedef const boost::shared_ptr<gazsim_msgs::NewPuck const> ConstNewPuckPtr;
 
 namespace gazebo
 {
@@ -90,7 +92,7 @@ namespace gazebo
     // Mps Stuff:
     
     /// Subscriber to get puck positions
-    transport::SubscriberPtr puck_subs_[NUMBER_PUCKS];
+    std::vector<transport::SubscriberPtr> puck_subs_;
     /// Subscriber to get machine infos
     transport::SubscriberPtr machine_info_subscriber_;
 
@@ -99,6 +101,9 @@ namespace gazebo
     /// Handler for machine msgs
     void on_machine_msg(ConstMachineInfoPtr &msg);
     virtual void new_machine_info(ConstMachine &machine);
+    
+    transport::SubscriberPtr new_puck_subscriber_;
+    virtual void on_new_puck(ConstNewPuckPtr &msg);
     
     ///Publisher to send machine state
     transport::PublisherPtr set_machne_state_pub_;
@@ -120,6 +125,10 @@ namespace gazebo
     
     bool puck_in_input(ConstPosePtr &pose);
     bool puck_in_output(ConstPosePtr &pose);
+    bool puck_in_input(const math::Pose &pose);
+    bool puck_in_output(const math::Pose &pose);
+    
+    physics::WorldPtr world_;
   };
 }
 
