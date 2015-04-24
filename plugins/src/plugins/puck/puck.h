@@ -67,6 +67,8 @@ namespace gazebo
     
     /// Subscriber to get commands for model ring addition
     transport::SubscriberPtr command_subscriber;
+    
+    transport::PublisherPtr new_puck_publisher;
 
     /// Handler for command messages
     void on_command_msg(ConstWorkpieceCommandPtr &cmd);

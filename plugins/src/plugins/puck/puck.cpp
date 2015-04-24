@@ -20,6 +20,7 @@
 
 #include <math.h>
 #include <gazebo/physics/PhysicsTypes.hh>
+#include <gazsim_msgs/NewPuck.pb.h>
 
 #include "puck.h"
 
@@ -59,16 +60,45 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   // the namespace is set to the world name!
   this->node_->Init(model_->GetWorld()->GetName());
 
-  // subscribe for puck commands
-  this->command_subscriber = this->node_->Subscribe(std::string("~/") + this->name_ + std::string("/cmd"), &Puck::on_command_msg, this);
-  printf("\n");
-
   // register visual publisher
   this->visual_pub_ = this->node_->Advertise<msgs::Visual>("~/visual");
-
+  
   // initialize without rings or cap
   this->ring_count_ = 0;
   this->have_cap = false;
+  
+  this->new_puck_publisher = this->node_->Advertise<gazsim_msgs::NewPuck>("~/new_puck");
+  gazsim_msgs::NewPuck new_puck_msg;
+  if(model_->GetName().find("puck")==std::string::npos)
+  {
+    //get the new puck number by listing the models in the world whose names begin with puck
+    physics::Model_V models = _parent->GetWorld()->GetModels();
+    unsigned int puck_count = 0;
+    for(physics::ModelPtr model:models)
+    {
+      if(model->GetName().find("puck") != std::string::npos)
+      {
+        puck_count++;
+      }
+    }
+    std::string new_name = "puck_" + std::to_string(puck_count);
+    printf("setting name for %s to %s\n",name_.c_str(),new_name.c_str());
+    model_->SetName(new_name);
+    new_puck_msg.set_puck_name(new_name);
+    new_puck_msg.set_gps_topic("~/"+new_name+"/gazsim/gps/");
+  }
+  else
+  {
+    new_puck_msg.set_puck_name(name_);
+    new_puck_msg.set_gps_topic("~/"+name_+"/gazsim/gps/");
+  }
+  new_puck_publisher->Publish(new_puck_msg);
+  
+  
+  
+  // subscribe for puck commands
+  this->command_subscriber = this->node_->Subscribe(std::string("~/") + this->model_->GetName() + std::string("/cmd"), &Puck::on_command_msg, this);
+  
 }
 
 /** Called by the world update start event
