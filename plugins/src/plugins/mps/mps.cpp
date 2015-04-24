@@ -159,3 +159,18 @@ float Mps::output_y()
     + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
 }
 
+bool Mps::puck_in_input(ConstPosePtr &pose)
+{
+  double dist = sqrt((pose->position().x() - input_x()) * (pose->position().x() - input_x())
+		     + (pose->position().y() - input_y()) * (pose->position().y() - input_y())
+		     + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
+  return dist < DETECT_TOLERANCE;
+}
+
+bool Mps::puck_in_output(ConstPosePtr &pose)
+{
+  double dist = sqrt((pose->position().x() - output_x()) * (pose->position().x() - output_x())
+		     + (pose->position().y() - output_y()) * (pose->position().y() - output_y())
+		     + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
+  return dist < DETECT_TOLERANCE;
+}

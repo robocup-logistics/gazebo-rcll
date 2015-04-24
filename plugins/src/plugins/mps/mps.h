@@ -39,6 +39,8 @@
 #define DETECT_TOLERANCE 0.03
 //radius of a workpiece
 #define PUCK_SIZE 0.02
+//height of a puck
+#define PUCK_HEIGHT 0.0225
 //length of the belt to calculate pos of input/output area
 #define BELT_LENGTH 0.35
 //Height of the belt
@@ -94,6 +96,9 @@ namespace gazebo
     virtual float input_y();
     virtual float output_x();
     virtual float output_y();
+    
+    bool puck_in_input(ConstPosePtr &pose);
+    bool puck_in_output(ConstPosePtr &pose);
   };
 }
 
