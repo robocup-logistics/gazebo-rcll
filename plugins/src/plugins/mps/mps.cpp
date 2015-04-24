@@ -152,7 +152,7 @@ void Mps::spawnTag(std::string visual_name, std::string tag_name, float x, float
 }
 
   //compute locations of input and output (not sure about the sides jet)
-float Mps::input_x()
+float Mps::output_x()
 {
   double mps_x = this->model_->GetWorldPose().pos.x;
   double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
@@ -161,7 +161,7 @@ float Mps::input_x()
       + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
 }
 
-float Mps::input_y()
+float Mps::output_y()
 {
   double mps_y = this->model_->GetWorldPose().pos.y;
   double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
@@ -170,7 +170,7 @@ float Mps::input_y()
       - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
 }
 
-float Mps::output_x()
+float Mps::input_x()
 {
   double mps_x = this->model_->GetWorldPose().pos.x;
   double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
@@ -179,7 +179,7 @@ float Mps::output_x()
       - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
 }
 
-float Mps::output_y()
+float Mps::input_y()
 {
   double mps_y = this->model_->GetWorldPose().pos.y;
   double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
