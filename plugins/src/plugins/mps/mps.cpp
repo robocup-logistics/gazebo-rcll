@@ -112,6 +112,7 @@ void Mps::new_machine_info(ConstMachine &machine)
 
 void Mps::set_state(State state)
 {
+  printf("Setting state for machine %s to %s \n", name_.c_str(), llsf_msgs::MachineState_Name(state).c_str());
   llsf_msgs::SetMachineState set_state;
   set_state.set_machine_name(name_);
   set_state.set_state(state);
