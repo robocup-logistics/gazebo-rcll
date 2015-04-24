@@ -36,6 +36,9 @@ public:
 private:
   void on_puck_msg(ConstPosePtr &msg);
   void new_machine_info(ConstMachine &machine);
+  
+  // Create a publisher on the ~/factory topic
+  transport::PublisherPtr factoryPub;
 };
 
 }

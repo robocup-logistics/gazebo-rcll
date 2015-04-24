@@ -27,6 +27,7 @@ using namespace gazebo;
 BaseStation::BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   Mps(_parent,_sdf)
 {
+  factoryPub = node_->Advertise<msgs::Factory>("~/factory");
 }
 
 void BaseStation::on_puck_msg(ConstPosePtr &msg)
