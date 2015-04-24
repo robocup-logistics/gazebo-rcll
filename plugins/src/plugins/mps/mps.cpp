@@ -53,9 +53,12 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   {
     this->puck_subs_[i] = this->node_->Subscribe(std::string("~/puck_") + std::to_string(i) + "/gazsim/gps/" , &Mps::on_puck_msg, this);
   }
+  //subscribe to machine info
+  this->machine_info_subscriber_ = this->node_->Subscribe(TOPIC_MACHINE_INFO, &Mps::on_machine_msg, this);
 
   //Create publisher to spawn tags
   visPub_ = this->node_->Advertise<msgs::Visual>("~/visual", /*number of lights*/ 3*12);
+  set_machne_state_pub_ = this->node_->Advertise<llsf_msgs::SetMachineState>(TOPIC_SET_MACHINE_STATE);
 }
 ///Destructor
 Mps::~Mps()
@@ -88,6 +91,32 @@ void Mps::Reset()
 void Mps::on_puck_msg(ConstPosePtr &msg)
 {
 
+}
+
+void Mps::on_machine_msg(ConstMachineInfoPtr &msg)
+{
+  for(const llsf_msgs::Machine &machine: msg->machines())
+  {
+    if(machine.name() == this->name_ &&
+       machine.state() != current_state_){
+      printf("new_info for %s, state: %s \n",machine.name().c_str(), machine.state().c_str());
+      new_machine_info(machine);
+      current_state_ = machine.state();
+    }
+  }
+}
+
+void Mps::new_machine_info(ConstMachine &machine)
+{
+  
+}
+
+void Mps::set_state(State state)
+{
+  llsf_msgs::SetMachineState set_state;
+  set_state.set_machine_name(name_);
+  set_state.set_state(state);
+  set_machne_state_pub_->Publish(set_state);
 }
 
 /**

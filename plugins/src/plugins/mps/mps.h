@@ -30,6 +30,8 @@
 #include <list>
 #include <string.h>
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
+#include <llsf_msgs/MachineInfo.pb.h>
+#include <llsf_msgs/MachineCommands.pb.h>
 
 //amount of pucks to listen for
 #define NUMBER_PUCKS 20
@@ -51,7 +53,14 @@
 #define TAG_SIZE 0.135
 //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
 #define TAG_SPAWN_TIME 5.0
+#define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
+#define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
 
+
+typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
+typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
+typedef const llsf_msgs::Machine ConstMachine;
+typedef llsf_msgs::MachineState State;
 
 namespace gazebo
 {
@@ -82,9 +91,17 @@ namespace gazebo
     
     /// Subscriber to get puck positions
     transport::SubscriberPtr puck_subs_[NUMBER_PUCKS];
+    /// Subscriber to get machine infos
+    transport::SubscriberPtr machine_info_subscriber_;
 
     /// Handler for puck positions
     virtual void on_puck_msg(ConstPosePtr &msg);
+    /// Handler for machine msgs
+    void on_machine_msg(ConstMachineInfoPtr &msg);
+    virtual void new_machine_info(ConstMachine &machine);
+    
+    ///Publisher to send machine state
+    transport::PublisherPtr set_machne_state_pub_;
     
     ///Publisher to send spawn machine tags
     transport::PublisherPtr visPub_;
@@ -96,6 +113,8 @@ namespace gazebo
     virtual float input_y();
     virtual float output_x();
     virtual float output_y();
+    
+    void set_state(State state);
     
     bool puck_in_input(ConstPosePtr &pose);
     bool puck_in_output(ConstPosePtr &pose);
