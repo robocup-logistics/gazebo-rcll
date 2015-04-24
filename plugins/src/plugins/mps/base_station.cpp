@@ -45,15 +45,26 @@ void BaseStation::on_puck_msg(ConstPosePtr &msg)
 
 void BaseStation::new_machine_info(ConstMachine &machine)
 {
-  if(machine.state() == "READY-AT-OUTPUT")
+  if(machine.state() == "PROCESSING" || machine.state() == "READY-AT-OUTPUT")
   {
+    math::Pose spawn_pose(input_x(),input_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
     msgs::Factory new_puck_msg;
     new_puck_msg.set_sdf_filename("model://workpiece_base");
-    msgs::Set(new_puck_msg.mutable_pose(),math::Pose(input_x(),input_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0));
-    new_puck_msg.set_edit_name("puck_3");
+    msgs::Set(new_puck_msg.mutable_pose(),spawn_pose);
+    //new_puck_msg.set_edit_name(std::string("puckn"));
     factoryPub->Publish(new_puck_msg);
-    
-    
+    have_puck_ = "workpiece_base";
     set_state(State::PROCESSED);
   }
+}
+
+void BaseStation::on_new_puck(ConstNewPuckPtr &msg)
+{
+  Mps::on_new_puck(msg);
+  physics::ModelPtr new_puck = world_->GetModel(msg->puck_name());
+  if(puck_in_input(new_puck->GetWorldPose()) || puck_in_output(new_puck->GetWorldPose()))
+  {
+    have_puck_ = new_puck->GetName();
+  }
+  
 }

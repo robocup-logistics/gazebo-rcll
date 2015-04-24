@@ -40,6 +40,8 @@ private:
   
   // Create a publisher on the ~/factory topic
   transport::PublisherPtr factoryPub;
+  
+  void on_new_puck(ConstNewPuckPtr &msg);
 };
 
 }
