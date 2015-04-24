@@ -62,6 +62,7 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 
     //create subscriber
     this->set_gripper_sub_ = this->node_->Subscribe(std::string(TOPIC_SET_GRIPPER), &Gripper::on_set_gripper_msg, this);
+    has_puck_pub_ = this->node_->Advertise<msgs::Int>(TOPIC_HOLDS_PUCK);
 
     robotino_ = model_->GetParentModel();
     robotino_link_ = robotino_->GetChildLink("robotino3::body");
@@ -127,13 +128,11 @@ void Gripper::close() {
 	std::cout << "Closing gripper!" << std::endl;
 
 	grippedPuck = getNearestPuck();
-        printf("ö gripper.\n");
         if (!grippedPuck){
                 printf("No Puck found in gripper.\n");
                 return;
         }
 
-        printf("Puck found in gripper.\n");
         //teleport puck into gripper center
 	setPuckPose();
 
@@ -157,6 +156,8 @@ void Gripper::close() {
 	grabJoint->SetAxis(0,  gazebo::math::Vector3(0.0f,0.0f,1.0f) );
 	grabJoint->SetHighStop( 0, gazebo::math::Angle( 0.0f ) );
 	grabJoint->SetLowStop( 0, gazebo::math::Angle( 0.0f ) );
+        
+        sendHasPuck(true);
 }
 
 void Gripper::open() {
@@ -167,6 +168,8 @@ void Gripper::open() {
 
 	// std::cout << "Opening gripper!" << std::endl;
 	grippedPuck.reset();
+
+        sendHasPuck(false);
 }
 
 void Gripper::setPuckPose(){
@@ -208,4 +211,17 @@ physics::ModelPtr Gripper::getNearestPuck() {
           grippedPuck.reset();
           return grippedPuck;
         }
+}
+
+
+void Gripper::sendHasPuck(bool has_puck)
+{
+  msgs::Int msg;
+  if(has_puck){
+    msg.set_data(1);
+  }
+  else{
+    msg.set_data(0);
+  }
+  has_puck_pub_->Publish(msg);
 }

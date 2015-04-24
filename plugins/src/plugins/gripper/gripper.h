@@ -33,7 +33,7 @@
 
 //config values
 #define TOPIC_SET_GRIPPER "~/RobotinoSim/SetGripper/"
-#define TOPIC_HOLDS_PUCK "~/LLSFRbSim/MachineInfo/"
+#define TOPIC_HOLDS_PUCK "~/RobotinoSim/GripperHasPuck/"
 #define RADIUS_GRAB_AREA 0.05
 
 
@@ -75,6 +75,8 @@ namespace gazebo
 
         ///Suscriber for SetGripper
         transport::SubscriberPtr set_gripper_sub_;
+        /// Publisher for has_puck
+        gazebo::transport::PublisherPtr has_puck_pub_;
 
         gazebo::physics::JointPtr grabJoint;
 
@@ -85,6 +87,7 @@ namespace gazebo
         void open();
 
         void setPuckPose();
+        void sendHasPuck(bool has_puck);
 
         gazebo::physics::ModelPtr getNearestPuck();
     };
