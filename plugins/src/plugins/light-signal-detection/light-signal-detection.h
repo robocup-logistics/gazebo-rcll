@@ -34,10 +34,10 @@ typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPt
 
 //config values
 #define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
-#define RADIUS_DETECTION_AREA 0.3
+#define RADIUS_DETECTION_AREA 0.4
 //Search area where the robot is looking for the signal relative to the robots center
-#define SEARCH_AREA_REL_X 0.5
-#define SEARCH_AREA_REL_Y 0.0
+#define SEARCH_AREA_REL_X 0.6
+#define SEARCH_AREA_REL_Y 0.4
 #define SEND_INTERVAL 0.5
 #define VISIBILITY_HISTORY_INCREASE_PER_SECOND 30 //usually camera frame rate
 
