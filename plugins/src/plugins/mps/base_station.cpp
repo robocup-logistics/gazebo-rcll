@@ -34,6 +34,13 @@ BaseStation::BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
 
 void BaseStation::on_puck_msg(ConstPosePtr &msg)
 {
+  if(msg->name() == have_puck_ &&
+     !puck_in_input(msg) &&
+     !puck_in_output(msg))
+  {
+    have_puck_ = "";
+    set_state(State::RETRIEVED);
+  }
 }
 
 void BaseStation::new_machine_info(ConstMachine &machine)
