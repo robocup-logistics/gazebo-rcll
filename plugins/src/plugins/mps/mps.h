@@ -114,6 +114,8 @@ namespace gazebo
     virtual float output_x();
     virtual float output_y();
     
+    std::string current_state_;
+    
     void set_state(State state);
     
     bool puck_in_input(ConstPosePtr &pose);
