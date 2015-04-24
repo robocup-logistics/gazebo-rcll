@@ -56,23 +56,6 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 
   //Create publisher to spawn tags
   visPub_ = this->node_->Advertise<msgs::Visual>("~/visual", /*number of lights*/ 3*12);
-
-  //compute locations of input and output (not sure about the sides jet)
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
-  input_x_ = mps_x
-    + BELT_OFFSET_SIDE  * cos(mps_ori)
-    + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
-  input_y_ = mps_y
-    + BELT_OFFSET_SIDE  * sin(mps_ori)
-    - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
-  output_x_ = mps_x
-    + BELT_OFFSET_SIDE  * cos(mps_ori)
-    - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
-  output_y_ = mps_y
-    + BELT_OFFSET_SIDE  * sin(mps_ori)
-    + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
 }
 ///Destructor
 Mps::~Mps()
@@ -138,3 +121,41 @@ void Mps::spawnTag(std::string visual_name, std::string tag_name, float x, float
   *uri2 = "model://tags/materials/textures";
   visPub_->Publish(msg);
 }
+
+  //compute locations of input and output (not sure about the sides jet)
+float Mps::input_x()
+{
+  double mps_x = this->model_->GetWorldPose().pos.x;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  return mps_x
+      + BELT_OFFSET_SIDE  * cos(mps_ori)
+      + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+}
+
+float Mps::input_y()
+{
+  double mps_y = this->model_->GetWorldPose().pos.y;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  return mps_y
+      + BELT_OFFSET_SIDE  * sin(mps_ori)
+      - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+}
+
+float Mps::output_x()
+{
+  double mps_x = this->model_->GetWorldPose().pos.x;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  return mps_x
+      + BELT_OFFSET_SIDE  * cos(mps_ori)
+      - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+}
+
+float Mps::output_y()
+{
+  double mps_y = this->model_->GetWorldPose().pos.y;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  return mps_y
+    + BELT_OFFSET_SIDE  * sin(mps_ori)
+    + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+}
+

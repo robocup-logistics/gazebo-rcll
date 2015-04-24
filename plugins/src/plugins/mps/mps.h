@@ -90,7 +90,10 @@ namespace gazebo
     double spawned_tags_last_;
 
     ///centers of input and output areas (global)
-    float input_x_, input_y_, output_x_, output_y_;
+    virtual float input_x();
+    virtual float input_y();
+    virtual float output_x();
+    virtual float output_y();
   };
 }
 
