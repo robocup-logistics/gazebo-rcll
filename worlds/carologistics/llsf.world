@@ -25,7 +25,7 @@
 
     <!-- Field  -->
     <include>
-      <uri>model://logistics_league_field</uri>
+      <uri>model://german_open_field</uri>
     </include>
 
     <!-- World Plugin -->
