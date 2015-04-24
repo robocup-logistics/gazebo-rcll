@@ -45,4 +45,15 @@ void BaseStation::on_puck_msg(ConstPosePtr &msg)
 
 void BaseStation::new_machine_info(ConstMachine &machine)
 {
+  if(machine.state() == "READY-AT-OUTPUT")
+  {
+    msgs::Factory new_puck_msg;
+    new_puck_msg.set_sdf_filename("model://workpiece_base");
+    msgs::Set(new_puck_msg.mutable_pose(),math::Pose(input_x(),input_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0));
+    new_puck_msg.set_edit_name("puck_3");
+    factoryPub->Publish(new_puck_msg);
+    
+    
+    set_state(State::PROCESSED);
+  }
 }
