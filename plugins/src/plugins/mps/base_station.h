@@ -33,7 +33,9 @@ class BaseStation : public Mps
 public:
   BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
   
+private:
   void on_puck_msg(ConstPosePtr &msg);
+  void new_machine_info(ConstMachine &machine);
 };
 
 }
