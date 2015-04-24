@@ -47,7 +47,26 @@ void BaseStation::new_machine_info(ConstMachine &machine)
 {
   if(machine.state() == "PROCESSING" || machine.state() == "READY-AT-OUTPUT")
   {
-    math::Pose spawn_pose(input_x(),input_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
+    if(!machine.has_instruction_bs())
+    {
+      printf("machine %s without instructions",name_.c_str());
+      return;
+    }
+    math::Pose spawn_pose;
+    if(machine.instruction_bs().side() == llsf_msgs::MachineSide::INPUT)
+    {
+      spawn_pose = math::Pose(input_x(),input_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
+      printf("spawning puck at input\n");
+    }
+    else if(machine.instruction_bs().side() == llsf_msgs::MachineSide::OUTPUT)
+    {
+      spawn_pose = math::Pose(output_x(), output_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
+      printf("spawning puck at output\n");
+    }
+    else
+    {
+      spawn_pose = math::Pose(0,0,0,0,0,0);
+    }
     msgs::Factory new_puck_msg;
     new_puck_msg.set_sdf_filename("model://workpiece_base");
     msgs::Set(new_puck_msg.mutable_pose(),spawn_pose);
