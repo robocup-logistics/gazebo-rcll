@@ -28,8 +28,6 @@ BaseStation::BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   Mps(_parent,_sdf)
 {
   have_puck_ = "";
-  
-  factoryPub = node_->Advertise<msgs::Factory>("~/factory");
 }
 
 void BaseStation::on_puck_msg(ConstPosePtr &msg)
@@ -67,11 +65,7 @@ void BaseStation::new_machine_info(ConstMachine &machine)
     {
       spawn_pose = math::Pose(0,0,0,0,0,0);
     }
-    msgs::Factory new_puck_msg;
-    new_puck_msg.set_sdf_filename("model://workpiece_base");
-    msgs::Set(new_puck_msg.mutable_pose(),spawn_pose);
-    //new_puck_msg.set_edit_name(std::string("puckn"));
-    factoryPub->Publish(new_puck_msg);
+    spawn_puck(spawn_pose);
     have_puck_ = "workpiece_base";
     set_state(State::PROCESSED);
   }

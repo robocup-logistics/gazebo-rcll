@@ -58,6 +58,8 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   set_machne_state_pub_ = this->node_->Advertise<llsf_msgs::SetMachineState>(TOPIC_SET_MACHINE_STATE);
   
   world_ = model_->GetWorld();
+  
+  factoryPub = node_->Advertise<msgs::Factory>("~/factory");
 }
 ///Destructor
 Mps::~Mps()
@@ -223,4 +225,12 @@ bool Mps::puck_in_output(const math::Pose &pose)
 void Mps::on_new_puck(ConstNewPuckPtr &msg)
 {
     this->puck_subs_.push_back(this->node_->Subscribe(msg->gps_topic() , &Mps::on_puck_msg, this));
+}
+
+void Mps::spawn_puck(const math::Pose &spawn_pose)
+{
+  msgs::Factory new_puck_msg;
+  new_puck_msg.set_sdf_filename("model://workpiece_base");
+  msgs::Set(new_puck_msg.mutable_pose(),spawn_pose);
+  factoryPub->Publish(new_puck_msg);
 }

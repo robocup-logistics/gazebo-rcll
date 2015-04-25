@@ -129,6 +129,11 @@ namespace gazebo
     bool puck_in_output(const math::Pose &pose);
     
     physics::WorldPtr world_;
+    
+    void spawn_puck(const math::Pose &spawn_pose);
+    
+    // Create a publisher on the ~/factory topic
+    transport::PublisherPtr factoryPub;
   };
 }
 
