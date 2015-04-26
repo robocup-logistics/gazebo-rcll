@@ -190,6 +190,16 @@ float Mps::input_y()
     + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
 }
 
+math::Pose Mps::input()
+{
+  return math::Pose(input_x(), input_y(), BELT_HEIGHT,0,0,0);
+}
+
+math::Pose Mps::output()
+{
+  return math::Pose(output_x(), output_y(), BELT_HEIGHT,0,0,0);
+}
+
 bool Mps::puck_in_input(ConstPosePtr &pose)
 {
   double dist = sqrt((pose->position().x() - input_x()) * (pose->position().x() - input_x())

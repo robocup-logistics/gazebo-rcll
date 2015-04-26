@@ -119,6 +119,9 @@ namespace gazebo
     virtual float output_x();
     virtual float output_y();
     
+    virtual math::Pose input();
+    virtual math::Pose output();
+    
     std::string current_state_;
     
     void set_state(State state);
