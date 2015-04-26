@@ -52,8 +52,24 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   printf("Loading Puck Plugin of model %s\n", _parent->GetName().c_str());
   // Store the pointer to the model
   this->model_ = _parent;
-
-  printf("Loading Puck Plugin of model %s\n", name_.c_str());
+  // rename the model before doing anything
+  if(model_->GetName().find("puck")==std::string::npos)
+  {
+    //get the new puck number by listing the models in the world whose names begin with puck
+    physics::Model_V models = _parent->GetWorld()->GetModels();
+    unsigned int puck_count = 0;
+    for(physics::ModelPtr model:models)
+    {
+      if(model->GetName().find("puck") != std::string::npos)
+      {
+        puck_count++;
+      }
+    }
+    std::string new_name = "puck_" + std::to_string(puck_count);
+    printf("setting name for %s to %s\n",name().c_str(),new_name.c_str());
+    model_->SetName(new_name);
+  }
+  
 
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -73,29 +89,9 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   
   this->new_puck_publisher = this->node_->Advertise<gazsim_msgs::NewPuck>("~/new_puck");
   gazsim_msgs::NewPuck new_puck_msg;
-  if(model_->GetName().find("puck")==std::string::npos)
-  {
-    //get the new puck number by listing the models in the world whose names begin with puck
-    physics::Model_V models = _parent->GetWorld()->GetModels();
-    unsigned int puck_count = 0;
-    for(physics::ModelPtr model:models)
-    {
-      if(model->GetName().find("puck") != std::string::npos)
-      {
-        puck_count++;
-      }
-    }
-    std::string new_name = "puck_" + std::to_string(puck_count);
-    printf("setting name for %s to %s\n",name_.c_str(),new_name.c_str());
-    model_->SetName(new_name);
-    new_puck_msg.set_puck_name(new_name);
-    new_puck_msg.set_gps_topic("~/"+new_name+"/gazsim/gps/");
-  }
-  else
-  {
-    new_puck_msg.set_puck_name(name_);
-    new_puck_msg.set_gps_topic("~/"+name_+"/gazsim/gps/");
-  }
+  
+  new_puck_msg.set_puck_name(name());
+  new_puck_msg.set_gps_topic("~/"+name()+"/gazsim/gps/");
   new_puck_publisher->Publish(new_puck_msg);
   
   
