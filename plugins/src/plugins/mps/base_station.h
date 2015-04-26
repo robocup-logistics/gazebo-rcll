@@ -38,8 +38,6 @@ private:
   void new_machine_info(ConstMachine &machine);
   std::string have_puck_;
   
-  // Create a publisher on the ~/factory topic
-  transport::PublisherPtr factoryPub;
   
   void on_new_puck(ConstNewPuckPtr &msg);
 };
