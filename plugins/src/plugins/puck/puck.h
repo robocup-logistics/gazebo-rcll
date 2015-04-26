@@ -61,7 +61,7 @@ namespace gazebo
     ///Node for communication
     transport::NodePtr node_;
     ///name of the puck and the communication channel
-    std::string name_;
+    inline std::string name();
 
     // Puck Stuff:
     

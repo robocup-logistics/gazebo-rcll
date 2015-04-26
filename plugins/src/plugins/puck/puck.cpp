@@ -39,16 +39,20 @@ Puck::~Puck()
   printf("Destructing Puck Plugin!\n");
 }
 
+inline std::string Puck::name()
+{
+  return model_->GetName();
+}
+
 /** on loading of the plugin
  * @param _parent Parent Model
  */
 void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 {
+  printf("Loading Puck Plugin of model %s\n", _parent->GetName().c_str());
   // Store the pointer to the model
   this->model_ = _parent;
 
-  // get the model-name
-  this->name_ = model_->GetName();
   printf("Loading Puck Plugin of model %s\n", name_.c_str());
 
   // Listen to the update event. This event is broadcast every
@@ -157,7 +161,7 @@ void Puck::add_ring(gazsim_msgs::Color clr)
   // get a height, where to spawn the new visual
   double vis_middle = WORKPIECE_HEIGHT;
   std::string color_name = gazsim_msgs::Color_Name(clr);
-  printf("%s has recieved a %s ring\n", this->name_.c_str(), color_name.c_str());
+  printf("%s has recieved a %s ring\n", this->name().c_str(), color_name.c_str());
   // calcualte the height for the next ring
   vis_middle = (WORKPIECE_HEIGHT/2) + this->ring_count_ * RING_HEIGHT + (RING_HEIGHT/2);
   printf("vis_height is: %f\n",vis_middle);
