@@ -200,6 +200,14 @@ math::Pose Mps::output()
   return math::Pose(output_x(), output_y(), BELT_HEIGHT,0,0,0);
 }
 
+bool Mps::pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance)
+{
+  double dist = sqrt((to_test.pos.x - reference.pos.x) * (to_test.pos.x - reference.pos.x)
+		     + (to_test.pos.y - reference.pos.y) * (to_test.pos.y - reference.pos.y)
+		     + (to_test.pos.z - reference.pos.z) * (to_test.pos.z - reference.pos.z));
+  return dist < tolerance;
+}
+
 bool Mps::puck_in_input(ConstPosePtr &pose)
 {
   double dist = sqrt((pose->position().x() - input_x()) * (pose->position().x() - input_x())

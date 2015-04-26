@@ -126,6 +126,8 @@ namespace gazebo
     
     void set_state(State state);
     
+    bool pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance = DETECT_TOLERANCE);
+    
     bool puck_in_input(ConstPosePtr &pose);
     bool puck_in_output(ConstPosePtr &pose);
     bool puck_in_input(const math::Pose &pose);
