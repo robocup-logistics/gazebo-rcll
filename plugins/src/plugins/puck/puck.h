@@ -76,14 +76,18 @@ namespace gazebo
     void add_ring(gazsim_msgs::Color clr);
     /// Add a cap on command
     void add_cap(gazsim_msgs::Color clr);
+    void remove_cap();
 
     /// The number of stored rings
     size_t ring_count_;
 
     /// Check, if we have a cap on top
     bool have_cap;
+    gazsim_msgs::Color cap_color_;
 
     /// Publisher to send visual changes to gazebo
     transport::PublisherPtr visual_pub_;
+    
+    msgs::Visual create_visual_msg(std::string element_name, double element_height, gazsim_msgs::Color clr);
   };
 }

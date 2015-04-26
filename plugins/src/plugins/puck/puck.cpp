@@ -36,7 +36,7 @@ Puck::Puck()
 ///Destructor
 Puck::~Puck()
 {
-  printf("Destructing Puck Plugin!\n");
+  printf("Destructing Puck Plugin for %s!\n",this->name().c_str());
 }
 
 inline std::string Puck::name()
@@ -124,29 +124,67 @@ void Puck::Reset()
  */ 
 void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
 {
-  switch(cmd->command()){
+  switch(cmd->command())
+  {
     case gazsim_msgs::Command::ADD_RING:
       this->add_ring(cmd->color());
       break;
     case gazsim_msgs::Command::ADD_CAP:
+      this->add_cap(cmd->color());
+      break;
+    case gazsim_msgs::Command::REMOVE_CAP:
+      remove_cap();
       break;
     default:
-      printf("puck %s recieved an unknowen command", this->name_.c_str());
+      printf("puck %s recieved an unknowen command", this->name().c_str());
       break;
   }
-
 }
 
 void Puck::add_ring(gazsim_msgs::Color clr)
 {
+  
   // create the ring name and add a new ring
   std::string ring_name = std::string("ring_") + std::to_string(this->ring_count_);
+  
+  msgs::Visual visual_msg = create_visual_msg(ring_name, RING_HEIGHT, clr);
+  
+  // publish visual change
+  this->visual_pub_->Publish(visual_msg);
+  this->ring_count_++;
+
+}
+
+void Puck::add_cap(gazsim_msgs::Color clr)
+{
+  msgs::Visual vis_msg = create_visual_msg("cap", CAP_HEIGHT, clr);
+  
+  this->visual_pub_->Publish(vis_msg);
+  this->have_cap = true;
+  cap_color_ = clr;
+}
+
+void Puck::remove_cap()
+{
+  transport::PublisherPtr pub = node_->Advertise<gazsim_msgs::WorkpieceResult>("~/"+this->name()+"/cmd/result");
+  gazsim_msgs::WorkpieceResult msg;
+  msg.set_puck_name(name());
+  msg.set_color(cap_color_);
+  pub->Publish(msg);
+  have_cap = false;
+}
+
+
+msgs::Visual Puck::create_visual_msg(std::string element_name, double element_height, gazsim_msgs::Color clr)
+{
+  std::string parent_name = "workpiece_base"; //model_->GetLink("cylinder")->GetParent()->GetName();
   // create a massage for visual control
   gazebo::msgs::Visual visual_msg;
   // the parent of the new visual is the workpiece itself
-  visual_msg.set_parent_name(this->name_ + "::cylinder");
+  visual_msg.set_parent_name(parent_name + "::cylinder");
+  //visual_msg.set_parent_id(model_->GetLink("cylinder")->GetParent()->GetId());
   // set the name of the object
-  visual_msg.set_name(this->name_ + std::string("::cylinder::") + ring_name);
+  visual_msg.set_name(parent_name + std::string("::cylinder::") + element_name);
   // no need for shadows on the visual
   visual_msg.set_cast_shadows(false);
   // get  a geometryfor the visual
@@ -161,12 +199,12 @@ void Puck::add_ring(gazsim_msgs::Color clr)
   // get a height, where to spawn the new visual
   double vis_middle = WORKPIECE_HEIGHT;
   std::string color_name = gazsim_msgs::Color_Name(clr);
-  printf("%s has recieved a %s ring\n", this->name().c_str(), color_name.c_str());
+  printf("%s has recieved a %s %s\n", this->name().c_str(), color_name.c_str(), element_name.c_str());
   // calcualte the height for the next ring
-  vis_middle = (WORKPIECE_HEIGHT/2) + this->ring_count_ * RING_HEIGHT + (RING_HEIGHT/2);
+  vis_middle = (WORKPIECE_HEIGHT/2) + this->ring_count_ * RING_HEIGHT + (element_height/2);
   printf("vis_height is: %f\n",vis_middle);
   // the height of a ring, in meters
-  geom_msg->mutable_cylinder()->set_length(RING_HEIGHT);
+  geom_msg->mutable_cylinder()->set_length(element_height);
   //set the color according to the message
   switch(clr){
     case gazsim_msgs::Color::RED:
@@ -179,6 +217,8 @@ void Puck::add_ring(gazsim_msgs::Color clr)
       msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0,1,0));
       break;
     case gazsim_msgs::Color::BLACK:
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0,0,0));
+      break;
     case gazsim_msgs::Color::GREY:
     default:
       msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(1,1,0));
@@ -186,8 +226,5 @@ void Puck::add_ring(gazsim_msgs::Color clr)
   }
   // set the calculated pose for the visual
   msgs::Set(visual_msg.mutable_pose(),math::Pose(0,0,vis_middle,0,0,0));
-  // publish visual change
-  this->visual_pub_->Publish(visual_msg);
-  this->ring_count_++;
-
+  return visual_msg;
 }
