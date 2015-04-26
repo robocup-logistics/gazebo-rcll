@@ -64,7 +64,7 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 ///Destructor
 Mps::~Mps()
 {
-  printf("Destructing Mps Plugin!\n");
+  printf("Destructing Mps Plugin for %s!\n",this->name_.c_str());
 }
 
 /** Called by the world update start event
@@ -247,6 +247,7 @@ void Mps::on_new_puck(ConstNewPuckPtr &msg)
 
 void Mps::spawn_puck(const math::Pose &spawn_pose)
 {
+  printf("spawning puck for %s\n",name_.c_str());
   msgs::Factory new_puck_msg;
   new_puck_msg.set_sdf_filename("model://workpiece_base");
   msgs::Set(new_puck_msg.mutable_pose(),spawn_pose);
