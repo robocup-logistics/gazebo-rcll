@@ -25,6 +25,10 @@
 
 #include "mps.h"
 
+#define SPAWN_PUCK_TIME 20
+
+typedef const boost::shared_ptr<const gazsim_msgs::WorkpieceResult> ConstWorkpieceResultPtr;
+
 namespace gazebo {
 
 class CapStation : public Mps
@@ -33,6 +37,28 @@ public:
   CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
   
   void on_puck_msg(ConstPosePtr &msg);
+  void on_new_puck(ConstNewPuckPtr &msg);
+  void OnUpdate(const common::UpdateInfo &info);
+  void new_machine_info(ConstMachine &machine);
+  void on_puck_result(ConstWorkpieceResultPtr &result);
+  
+  math::Pose shelf_left_pose();
+  math::Pose shelf_middle_pose();
+  math::Pose shelf_right_pose();
+  
+  bool pose_in_shelf_left(const math::Pose &puck_pose);
+  bool pose_in_shelf_middle(const math::Pose &puck_pose);
+  bool pose_in_shelf_right(const math::Pose &puck_pose);
+  
+  physics::ModelPtr puck_in_shelf_left_;
+  physics::ModelPtr puck_in_shelf_middle_;
+  physics::ModelPtr puck_in_shelf_right_;
+  
+  llsf_msgs::CsOp task_;
+  gazsim_msgs::Color stored_cap_color_;
+  std::string get_from_puck_name_;
+  
+  std::vector<transport::SubscriberPtr> workpiece_result_subscribers_;
 };
 
 }
