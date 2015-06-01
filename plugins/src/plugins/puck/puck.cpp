@@ -99,6 +99,9 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   // subscribe for puck commands
   this->command_subscriber = this->node_->Subscribe(std::string("~/") + this->model_->GetName() + std::string("/cmd"), &Puck::on_command_msg, this);
   
+  // publisher for workpiece command results
+  this->workpiece_result_pub_ = node_->Advertise<gazsim_msgs::WorkpieceResult>("~/"+this->name()+"/cmd/result");
+  
 }
 
 /** Called by the world update start event
@@ -162,11 +165,10 @@ void Puck::add_cap(gazsim_msgs::Color clr)
 
 void Puck::remove_cap()
 {
-  transport::PublisherPtr pub = node_->Advertise<gazsim_msgs::WorkpieceResult>("~/"+this->name()+"/cmd/result");
   gazsim_msgs::WorkpieceResult msg;
   msg.set_puck_name(name());
   msg.set_color(cap_color_);
-  pub->Publish(msg);
+  this->workpiece_result_pub_->Publish(msg);
   have_cap = false;
 }
 
