@@ -27,6 +27,7 @@ using namespace gazebo;
 DeliveryStation::DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
   Mps(_parent,_sdf)
 {
+  selected_gate_ = 0;
 }
 
 void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
@@ -51,6 +52,7 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
         puck->SetWorldPose(get_puck_world_pose(-0.5,0.5));
         break;
     }
+    set_state(State::AVAILABLE);
   }
 }
 
