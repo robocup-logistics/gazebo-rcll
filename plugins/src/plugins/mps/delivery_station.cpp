@@ -34,16 +34,21 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
   if(puck_in_input(msg))
   {
     physics::ModelPtr puck = world_->GetModel(msg->name());
+    printf("%s got puck %s for gate %i\n",this->name_.c_str(), puck->GetName().c_str(), selected_gate_);
     switch(selected_gate_)
     {
       case 1:
-        puck->SetWorldPose(slide_1_pose());
+        puck->SetWorldPose(get_puck_world_pose(0.3,-0.2));
         break;
       case 2:
-        puck->SetWorldPose(slide_2_pose());
+        puck->SetWorldPose(get_puck_world_pose(0.3,-0.1));
         break;
       case 3:
-        puck->SetWorldPose(slide_3_pose());
+        puck->SetWorldPose(get_puck_world_pose(0.3,-0.0));
+        break;
+      default:
+        printf("bad gateway for puck\n");
+        puck->SetWorldPose(get_puck_world_pose(-0.5,0.5));
         break;
     }
   }
@@ -52,50 +57,7 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 void DeliveryStation::new_machine_info(ConstMachine &machine)
 {
   selected_gate_ = machine.instruction_ds().gate();
-}
-
-math::Pose DeliveryStation::slide_1_pose()
-{
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
-  double x = mps_x
-      + (BELT_OFFSET_SIDE-0.30)  * cos(mps_ori)
-      - ((BELT_LENGTH-0.05) / 2 - PUCK_SIZE) * sin(mps_ori);
-  double y = mps_y
-             + (BELT_OFFSET_SIDE-0.30)  * sin(mps_ori)
-             + ((BELT_LENGTH-0.5) / 2 - PUCK_SIZE) * cos(mps_ori);
-  return math::Pose(x,y,BELT_HEIGHT,0,00,0);
-}
-
-math::Pose DeliveryStation::slide_2_pose()
-{  
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
-  double x = mps_x
-             + (BELT_OFFSET_SIDE-0.30)  * cos(mps_ori)
-             - ((BELT_LENGTH-0.05) / 2 - PUCK_SIZE) * sin(mps_ori);
-  double y = mps_y
-             + (BELT_OFFSET_SIDE-0.30)  * sin(mps_ori)
-             + ((BELT_LENGTH-0.5) / 2 - PUCK_SIZE) * cos(mps_ori);
-  return math::Pose(x,y,BELT_HEIGHT,0,00,0);
-  //return math::Pose(0,0,0,0,0,0);
-}
-
-math::Pose DeliveryStation::slide_3_pose()
-{
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
-  double x = mps_x
-      + (BELT_OFFSET_SIDE-0.30)  * cos(mps_ori)
-      - ((BELT_LENGTH-0.05) / 2 - PUCK_SIZE) * sin(mps_ori);
-  double y = mps_y
-             + (BELT_OFFSET_SIDE-0.30)  * sin(mps_ori)
-             + ((BELT_LENGTH-0.5) / 2 - PUCK_SIZE) * cos(mps_ori);
-  return math::Pose(x,y,BELT_HEIGHT,0,00,0);
-  //return math::Pose(0,0,0,0,0,0);
+  printf("%s got the new gate %i\n", this->name_.c_str(), selected_gate_);
 }
 
 

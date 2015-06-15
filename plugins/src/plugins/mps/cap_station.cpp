@@ -137,45 +137,17 @@ void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 
 math::Pose CapStation::shelf_left_pose()
 {
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
-  double x = mps_x
-      + (BELT_OFFSET_SIDE-0.10)  * cos(mps_ori)
-      - ((BELT_LENGTH) / 2 - PUCK_SIZE) * sin(mps_ori);
-  double y = mps_y
-             + (BELT_OFFSET_SIDE-0.10)  * sin(mps_ori)
-             + ((BELT_LENGTH) / 2 - PUCK_SIZE) * cos(mps_ori);
-  return math::Pose(x,y,BELT_HEIGHT,0,0,0);
-  
+  return get_puck_world_pose(-0.1, 0);
 }
 
 math::Pose CapStation::shelf_middle_pose()
 {
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
-  double x = mps_x
-             + (BELT_OFFSET_SIDE-0.20)  * cos(mps_ori)
-             - ((BELT_LENGTH) / 2 - PUCK_SIZE) * sin(mps_ori);
-  double y = mps_y
-             + (BELT_OFFSET_SIDE-0.20)  * sin(mps_ori)
-             + ((BELT_LENGTH) / 2 - PUCK_SIZE) * cos(mps_ori);
-  return math::Pose(x,y,BELT_HEIGHT,0,0,0);
+  return get_puck_world_pose(-0.2, 0);
 }
 
 math::Pose CapStation::shelf_right_pose()
 {
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
-  double x = mps_x
-      + (BELT_OFFSET_SIDE-0.30)  * cos(mps_ori)
-      - ((BELT_LENGTH) / 2 - PUCK_SIZE) * sin(mps_ori);
-  double y = mps_y
-             + (BELT_OFFSET_SIDE-0.30)  * sin(mps_ori)
-             + ((BELT_LENGTH) / 2 - PUCK_SIZE) * cos(mps_ori);
-  return math::Pose(x,y,BELT_HEIGHT,0,0,0);
+  return get_puck_world_pose(-0.3,0);
 }
 
 

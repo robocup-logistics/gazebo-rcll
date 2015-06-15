@@ -124,6 +124,9 @@ namespace gazebo
     virtual math::Pose input();
     virtual math::Pose output();
     
+    /// convert puck pose from mps frame to world frame
+    math::Pose get_puck_world_pose(double long_side, double short_side, double height = BELT_HEIGHT);
+    
     std::string current_state_;
     
     void set_state(State state);

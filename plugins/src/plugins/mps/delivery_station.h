@@ -36,10 +36,6 @@ public:
   void on_puck_msg(ConstPosePtr &msg);
   void new_machine_info(ConstMachine &machine);
   
-  math::Pose slide_1_pose();
-  math::Pose slide_2_pose();
-  math::Pose slide_3_pose();
-  
   uint selected_gate_;
 };
 

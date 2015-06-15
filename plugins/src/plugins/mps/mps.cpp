@@ -254,3 +254,17 @@ void Mps::spawn_puck(const math::Pose &spawn_pose)
   msgs::Set(new_puck_msg.mutable_pose(),spawn_pose);
   factoryPub->Publish(new_puck_msg);
 }
+
+math::Pose Mps::get_puck_world_pose(double long_side, double short_side, double height)
+{
+  double mps_x = this->model_->GetWorldPose().pos.x;
+  double mps_y = this->model_->GetWorldPose().pos.y;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  double x = mps_x
+             + (BELT_OFFSET_SIDE + long_side)  * cos(mps_ori)
+             - ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * sin(mps_ori);
+  double y = mps_y
+             + (BELT_OFFSET_SIDE + long_side)  * sin(mps_ori)
+             + ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * cos(mps_ori);
+  return math::Pose(x,y,height,0,0,0);
+}
