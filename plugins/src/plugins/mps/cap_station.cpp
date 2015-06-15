@@ -61,8 +61,8 @@ void CapStation::on_puck_msg(ConstPosePtr &msg)
   if(puck_in_input(msg))
   {
     std::string puck_name = msg->name();
-    transport::PublisherPtr cmd_pub = node_->Advertise<gazsim_msgs::WorkpieceCommand>("~/"+puck_name+"/cmd");
     gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
+    cmd_msg.set_puck_name(puck_name);
     switch(task_)
     {
       case llsf_msgs::CsOp::RETRIEVE_CAP:
@@ -76,7 +76,7 @@ void CapStation::on_puck_msg(ConstPosePtr &msg)
         cmd_msg.set_color(stored_cap_color_);
         break;
     }
-    cmd_pub->Publish(cmd_msg);
+    puck_cmd_pub_->Publish(cmd_msg);
     world_->GetModel(puck_name)->SetWorldPose(output());
   }
 }
@@ -84,7 +84,7 @@ void CapStation::on_puck_msg(ConstPosePtr &msg)
 void CapStation::on_new_puck(ConstNewPuckPtr &msg)
 {
   Mps::on_new_puck(msg);
-  workpiece_result_subscribers_.push_back(node_->Subscribe("~/"+msg->puck_name()+"/cmd/result",&CapStation::on_puck_result,this));
+  workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
   //get model
   physics::Model_V models = world_->GetModels();
   for(physics::ModelPtr model: models)
@@ -101,21 +101,21 @@ void CapStation::on_new_puck(ConstNewPuckPtr &msg)
       {
         cmd.set_color(gazsim_msgs::Color::BLACK);
       }
-      transport::PublisherPtr cmd_pub = node_->Advertise<gazsim_msgs::WorkpieceCommand>("~/"+model->GetName()+"/cmd");
+      cmd.set_puck_name(msg->puck_name());
       if(pose_in_shelf_left(model->GetWorldPose()))
       {
         puck_in_shelf_left_ = model;
-        cmd_pub->Publish(cmd);
+        puck_cmd_pub_->Publish(cmd);
       }
       else if(pose_in_shelf_middle(model->GetWorldPose()))
       {
         puck_in_shelf_middle_ = model;
-        cmd_pub->Publish(cmd);
+        puck_cmd_pub_->Publish(cmd);
       }
       else if(pose_in_shelf_right(model->GetWorldPose()))
       {
         puck_in_shelf_right_ = model;
-        cmd_pub->Publish(cmd);
+        puck_cmd_pub_->Publish(cmd);
       }
     }
   }

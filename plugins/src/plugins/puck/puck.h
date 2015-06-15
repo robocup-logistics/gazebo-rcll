@@ -88,6 +88,9 @@ namespace gazebo
     /// Publisher to send visual changes to gazebo
     transport::PublisherPtr visual_pub_;
     
+    /// Publisher to send command results
+    transport::PublisherPtr workpiece_result_pub_;
+    
     msgs::Visual create_visual_msg(std::string element_name, double element_height, gazsim_msgs::Color clr);
   };
 }

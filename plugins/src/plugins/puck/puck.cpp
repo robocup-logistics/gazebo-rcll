@@ -97,10 +97,10 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   
   
   // subscribe for puck commands
-  this->command_subscriber = this->node_->Subscribe(std::string("~/") + this->model_->GetName() + std::string("/cmd"), &Puck::on_command_msg, this);
+  this->command_subscriber = this->node_->Subscribe(std::string("~/pucks/cmd"), &Puck::on_command_msg, this);
   
   // publisher for workpiece command results
-  this->workpiece_result_pub_ = node_->Advertise<gazsim_msgs::WorkpieceResult>("~/"+this->name()+"/cmd/result");
+  this->workpiece_result_pub_ = node_->Advertise<gazsim_msgs::WorkpieceResult>("~/pucks/cmd/result");
   
 }
 
@@ -123,6 +123,10 @@ void Puck::Reset()
  */ 
 void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
 {
+  if(cmd->puck_name() != name())
+  {
+    return;
+  }
   switch(cmd->command())
   {
     case gazsim_msgs::Command::ADD_RING:

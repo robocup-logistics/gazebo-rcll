@@ -58,7 +58,7 @@ public:
   gazsim_msgs::Color stored_cap_color_;
   std::string get_from_puck_name_;
   
-  std::vector<transport::SubscriberPtr> workpiece_result_subscribers_;
+  transport::SubscriberPtr workpiece_result_subscriber_;
 };
 
 }

@@ -56,6 +56,8 @@
 #define TAG_SPAWN_TIME 5.0
 #define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
 #define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
+#define TOPIC_PUCK_COMMAND "~/pucks/cmd"
+#define TOPIC_PUCK_COMMAND_RESULT "~/pucks/cmd/result"
 
 
 typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
@@ -139,6 +141,9 @@ namespace gazebo
     
     // Create a publisher on the ~/factory topic
     transport::PublisherPtr factoryPub;
+    
+    /// Publisher for puck command
+    transport::PublisherPtr puck_cmd_pub_;
   };
 }
 

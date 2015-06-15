@@ -41,11 +41,9 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
     model_->GetWorld()->GetEntity(msg->name())->SetWorldPose(math::Pose(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0));
     //spawn a ring ontop of the puck
     //write to the puck plugin
-    std::string topic_string = std::string("~/") + msg->name() + std::string("/cmd");
-    transport::PublisherPtr puck_cmd_pub = this->node_->Advertise<gazsim_msgs::WorkpieceCommand>(topic_string);
-    if(!puck_cmd_pub->HasConnections())
+    if(!puck_cmd_pub_->HasConnections())
     {
-      printf("cannot connect to puck %s on topic %s\n",msg->name().c_str(),topic_string.c_str());
+      printf("cannot connect to puck %s on topic %s\n",msg->name().c_str(),TOPIC_PUCK_COMMAND);
     }
     else
     {
@@ -53,8 +51,8 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
       gazsim_msgs::WorkpieceCommand cmd;
       cmd.set_command(gazsim_msgs::Command::ADD_RING);
       cmd.set_color(gazsim_msgs::Color::BLUE);
-      puck_cmd_pub->Publish(cmd);
+      cmd.set_puck_name(msg->name());
+      puck_cmd_pub_->Publish(cmd);
     }
-    puck_cmd_pub.reset();
   }
 }

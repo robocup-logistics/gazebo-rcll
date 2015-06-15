@@ -57,6 +57,7 @@ message WorkpieceCommand {
 
   required Command command = 1;
   optional Color color = 2;
+  required string puck_name = 3;
 
 }
 

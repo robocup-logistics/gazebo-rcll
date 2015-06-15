@@ -60,6 +60,7 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   world_ = model_->GetWorld();
   
   factoryPub = node_->Advertise<msgs::Factory>("~/factory");
+  puck_cmd_pub_ = node_->Advertise<gazsim_msgs::WorkpieceCommand>(TOPIC_PUCK_COMMAND);
 }
 ///Destructor
 Mps::~Mps()
