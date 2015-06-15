@@ -124,6 +124,7 @@ void CapStation::on_new_puck(ConstNewPuckPtr &msg)
 void CapStation::new_machine_info(ConstMachine &machine)
 {
   task_ = machine.instruction_cs().operation();
+  printf("%s got a new task: %s\n",name_.c_str(),llsf_msgs::CsOp_Name(task_).c_str());
 }
 
 void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
