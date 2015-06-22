@@ -25,7 +25,7 @@
 
     <!-- Field  -->
     <include>
-      <uri>model://logistics_league_field</uri>
+      <uri>model://german_open_field</uri>
     </include>
 
     <!-- World Plugin -->
@@ -148,6 +148,6 @@
     <!-- Plugins for the world -->
     <plugin name="llsf_refbox_comm" filename="libllsf_refbox_comm.so" />
     <plugin name="timesync" filename="libtimesync.so" />
-    <plugin name="mps_placement" filename="libmps_placement.so" />
+    <!-- <plugin name="mps_placement" filename="libmps_placement.so" /> -->
   </world>
 </sdf>
