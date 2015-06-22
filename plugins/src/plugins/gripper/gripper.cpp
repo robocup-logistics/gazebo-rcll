@@ -61,26 +61,29 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     this->node_->Init(model_->GetWorld()->GetName()+"/"+name_);
 
     //create subscriber
-    this->set_gripper_sub_ = this->node_->Subscribe(std::string("~/RobotinoSim/SetGripper/"), &Gripper::on_set_gripper_msg, this);
+    this->set_gripper_sub_ = this->node_->Subscribe(std::string(TOPIC_SET_GRIPPER), &Gripper::on_set_gripper_msg, this);
+    has_puck_pub_ = this->node_->Advertise<msgs::Int>(TOPIC_HOLDS_PUCK);
 
+    robotino_ = model_->GetParentModel();
+    robotino_link_ = robotino_->GetChildLink("robotino3::body");
 
-	grabJoint = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_ );
-	grabJoint->SetName("gripper_grab_puck");
-	grabJoint->SetModel( model_ );
+    grabJoint = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_);
+    grabJoint->SetName("gripper_grab_puck");
+    grabJoint->SetModel( model_);
+    // grabJoint->SetPose(gazebo::math::Vector3(0.0,0.0,0.0));
 }
 
 
 /** Called by the world update start event
  */
 void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
-{
-	setPuckPose();
-}
+{}
 
 /** on Gazebo reset
  */
 void Gripper::Reset()
 {
+  open();
 }
 
 /** Functions for recieving Messages (registerd via suscribers)
@@ -123,20 +126,18 @@ void Gripper::close() {
 		return;
 
 	std::cout << "Closing gripper!" << std::endl;
-	//TODO add link to puck model
-	grippedPuck = getNearestPuck();
 
+	grippedPuck = getNearestPuck();
+        if (!grippedPuck){
+                printf("No Puck found in gripper.\n");
+                return;
+        }
+
+        //teleport puck into gripper center
 	setPuckPose();
 
-
-	// apply forces
-	/*gazebo::physics::JointPtr leftFingerJoint = getJointEndingWith(model_,"left_finger_move");
-	leftFingerJoint->SetForce(0,10);
-	gazebo::physics::JointPtr rightFingerJoint = getJointEndingWith(model_,"right_finger_move");
-	rightFingerJoint->SetForce(0,-10);
-
 	// link both models through a joint
-	gazebo::physics::LinkPtr gripperLink = getLinkEndingWith(model_,"gripper_grab");
+	gazebo::physics::LinkPtr gripperLink = getLinkEndingWith(model_,"link");
 
 	if (!gripperLink){
 		std::cerr << "Link 'gripper_grab' not found in gripper model" << std::endl;
@@ -149,51 +150,45 @@ void Gripper::close() {
 		return;
 	}
 
-	grabJoint->Load(gripperLink, puckLink, gripperLink->GetWorldPose() );
+	grabJoint->Load(gripperLink, puckLink, math::Pose(-0.285, 0, 0, 0, 0, 0));
 	grabJoint->Attach(gripperLink, puckLink);
 
 	grabJoint->SetAxis(0,  gazebo::math::Vector3(0.0f,0.0f,1.0f) );
 	grabJoint->SetHighStop( 0, gazebo::math::Angle( 0.0f ) );
 	grabJoint->SetLowStop( 0, gazebo::math::Angle( 0.0f ) );
-
-*/
-
+        
+        sendHasPuck(true);
 }
 
 void Gripper::open() {
 	if (!grippedPuck)
 		return;
 
-	// apply forces
-	/*gazebo::physics::JointPtr leftFingerJoint = getJointEndingWith(model_,"left_finger_move");
-	leftFingerJoint->SetForce(0,-10);
-	gazebo::physics::JointPtr rightFingerJoint = getJointEndingWith(model_,"right_finger_move");
-	rightFingerJoint->SetForce(0,10);
+	grabJoint->Detach();
 
-	grabJoint->Detach();*/
-
-	std::cout << "Opening gripper!" << std::endl;
+	// std::cout << "Opening gripper!" << std::endl;
 	grippedPuck.reset();
-	//TODO remove link from puck model (nearest puck reference stored in close)
+
+        sendHasPuck(false);
 }
 
 void Gripper::setPuckPose(){
 	if (!grippedPuck)
 		return;
-	math::Pose gripperPose = model_->GetWorldPose();
+	math::Pose gripperPose = model_->GetLink("carologistics-robotino-3::gripper::link")->GetWorldPose();
 	math::Pose newPose = gripperPose;
 
-	newPose.pos.y += 0.28;
-	newPose.pos.z += 0.93;
+        // printf("gripper pos: (%f,%f,%f)", newPose.pos.x, newPose.pos.y, newPose.rot.GetYaw());
+	// newPose.pos.x += 0.28 * cos(newPose.rot.GetYaw());
+	// newPose.pos.y += 0.28 * sin(newPose.rot.GetYaw());
+	// newPose.pos.z += 0.93;
 	grippedPuck->SetWorldPose(newPose);
 }
 
 physics::ModelPtr Gripper::getNearestPuck() {
 
 	physics::ModelPtr nearest;
-	double gripperX = model_->GetWorldPose().pos.x;
-	double gripperY = model_->GetWorldPose().pos.y;
-	double gripperZ = model_->GetWorldPose().pos.z;
+	math::Pose gripperPose = model_->GetLink("carologistics-robotino-3::gripper::link")->GetWorldPose();
 	double distance = DBL_MAX;
 	unsigned int modelCount = model_->GetWorld()->GetModelCount();
 	physics::ModelPtr tmp;
@@ -201,16 +196,32 @@ physics::ModelPtr Gripper::getNearestPuck() {
 	for(unsigned int i = 0 ; i < modelCount; i++){
 		tmp = model_->GetWorld()->GetModel(i);
 		if (fnmatch("puck*",tmp->GetName().c_str(),FNM_CASEFOLD) == 0){
-			double puckX = tmp->GetWorldPose().pos.x;
-			double puckY = tmp->GetWorldPose().pos.y;
-			double puckZ = tmp->GetWorldPose().pos.z;
-			double tmpDistance = std::sqrt(std::pow(gripperX-puckX,2)+std::pow(gripperY-puckY,2)+std::pow(gripperZ-puckZ,2));
+                        double tmpDistance = gripperPose.pos.Distance(tmp->GetWorldPose().pos);
 			if(tmpDistance < distance){
 				distance = tmpDistance;
 				nearest = tmp;
 			}
 		}
 	}
-	std::cout << "Nearest puck: " << nearest->GetName() << std::endl;
-	return nearest;
+	// std::cout << "Nearest puck: " << nearest->GetName() << std::endl;
+        if(distance < RADIUS_GRAB_AREA){
+          return nearest;
+        }
+        else{
+          grippedPuck.reset();
+          return grippedPuck;
+        }
+}
+
+
+void Gripper::sendHasPuck(bool has_puck)
+{
+  msgs::Int msg;
+  if(has_puck){
+    msg.set_data(1);
+  }
+  else{
+    msg.set_data(0);
+  }
+  has_puck_pub_->Publish(msg);
 }
