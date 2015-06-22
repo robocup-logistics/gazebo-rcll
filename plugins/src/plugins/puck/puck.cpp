@@ -127,19 +127,23 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
   {
     return;
   }
+  printf("puck %s recieved command: ",this->name().c_str());
   switch(cmd->command())
   {
     case gazsim_msgs::Command::ADD_RING:
+      printf("add ring with color: %s\n",gazsim_msgs::Color_Name(cmd->color()).c_str());
       this->add_ring(cmd->color());
       break;
     case gazsim_msgs::Command::ADD_CAP:
+      printf("add cap with color: %s\n",gazsim_msgs::Color_Name(cmd->color()).c_str());
       this->add_cap(cmd->color());
       break;
     case gazsim_msgs::Command::REMOVE_CAP:
+      printf("remove cap, providing cap color %s\n", gazsim_msgs::Color_Name(this->cap_color_).c_str());
       remove_cap();
       break;
     default:
-      printf("puck %s recieved an unknowen command", this->name().c_str());
+      printf("unknowen");
       break;
   }
 }
