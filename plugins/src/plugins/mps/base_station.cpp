@@ -43,7 +43,7 @@ void BaseStation::on_puck_msg(ConstPosePtr &msg)
 
 void BaseStation::new_machine_info(ConstMachine &machine)
 {
-  if(machine.state() == "PROCESSING" || machine.state() == "READY-AT-OUTPUT")
+  if(machine.state() == "PROCESSED")
   {
     if(!machine.has_instruction_bs())
     {
@@ -68,6 +68,7 @@ void BaseStation::new_machine_info(ConstMachine &machine)
     spawn_puck(spawn_pose);
     have_puck_ = "workpiece_base";
     set_state(State::PROCESSED);
+    set_state(State::DELIVERED);
   }
 }
 
