@@ -32,7 +32,6 @@
       <pose>0.21 0 0.08 0 0 0</pose>
     </include>
 
-
     <joint name="sick_joint" type="revolute">
       <child>sick_laser::link</child>
       <parent>robotino3::body</parent>

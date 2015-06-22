@@ -26,19 +26,17 @@
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <llsf_msgs/MachineCommands.pb.h>
 #include <llsf_msgs/SimTimeSync.pb.h>
-#include <llsf_msgs/PuckInfo.pb.h>
 #include <llsf_msgs/GameState.pb.h>
 #include <llsf_msgs/GameInfo.pb.h>
 #include <gazsim_msgs/SimTime.pb.h>
 
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
-typedef const boost::shared_ptr<llsf_msgs::PlacePuckUnderMachine const> ConstPlacePuckUnderMachinePtr;
-typedef const boost::shared_ptr<llsf_msgs::RemovePuckFromMachine const> ConstRemovePuckFromMachinePtr;
 typedef const boost::shared_ptr<gazsim_msgs::SimTime const> ConstSimTimePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetGameState const> ConstSetGameStatePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetGamePhase const> ConstSetGamePhasePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePtr;
+typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
 
 
 //config values
@@ -54,6 +52,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePt
 #define TOPIC_SET_GAME_STATE "~/LLSFRbSim/SetGameState/"
 #define TOPIC_SET_GAME_PHASE "~/LLSFRbSim/SetGamePhase/"
 #define TOPIC_SET_TEAM_NAME "~/LLSFRbSim/SetTeamName/"
+#define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
 
 namespace protobuf_comm {
   class ProtobufStreamClient;
@@ -105,6 +104,7 @@ namespace gazebo
     gazebo::transport::SubscriberPtr set_game_state_sub_;
     gazebo::transport::SubscriberPtr set_game_phase_sub_;
     gazebo::transport::SubscriberPtr set_team_name_sub_;
+    gazebo::transport::SubscriberPtr set_machine_state_sub_;
 
     //handler methods
     /* void on_puck_place_msg(ConstPlacePuckUnderMachinePtr &msg); */
@@ -113,6 +113,7 @@ namespace gazebo
     void on_set_game_state_msg(ConstSetGameStatePtr &msg);
     void on_set_game_phase_msg(ConstSetGamePhasePtr &msg);
     void on_set_team_name_msg(ConstSetTeamNamePtr &msg);
+    void on_set_machine_state_msg(ConstSetMachineStatePtr &msg);
 
     //helper variables
     bool connected_;

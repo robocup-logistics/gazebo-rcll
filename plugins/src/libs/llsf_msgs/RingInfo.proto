@@ -1,9 +1,9 @@
 
 /***************************************************************************
- *  MachineCommands.proto - LLSF Protocol - Machine Commands
+ *  RingInfo.proto - LLSF Protocol - Ring information
  *
- *  Created: Thu Mar 07 16:00:55 2013
- *  Copyright  2013  Tim Niemueller [www.niemueller.de]
+ *  Created: Wed Apr 22 17:14:14 2015
+ *  Copyright  2013-2015  Tim Niemueller [www.niemueller.de]
  ****************************************************************************/
 
 /*  Redistribution and use in source and binary forms, with or without
@@ -36,38 +36,26 @@
 
 package llsf_msgs;
 
+import "ProductColor.proto";
+
 option java_package = "org.robocup_logistics.llsf_msgs";
-option java_outer_classname = "MachineCommandsProtos";
+option java_outer_classname = "RingInfoProtos";
 
-enum MachineState {
-  IDLE      = 1;
-  AVAILABLE = 2;
-  PROCESSED = 3;
-  DELIVERED = 4;
-  RETRIEVED = 5;
+
+message Ring {
+  // Ring color this concerns
+  required RingColor ring_color = 1;
+  // number of additional bases
+  // required to produce this ring type
+  required uint32    raw_material = 2;
 }
 
-// Load puck into machine area.
-message SetMachineState {
+message RingInfo {
   enum CompType {
     COMP_ID  = 2000;
-    MSG_TYPE = 17;
+    MSG_TYPE = 110;
   }
 
-  // Machine to place puck at
-  required string machine_name = 1;
-  // State to set
-  required MachineState state = 2;
-}
-
-
-// Load puck into machine area.
-message MachineAddBase {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 18;
-  }
-
-  // Machine to place puck at
-  required string machine_name = 1;
+  // List of all known pucks
+  repeated Ring rings = 1;
 }

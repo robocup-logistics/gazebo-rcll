@@ -42,10 +42,6 @@ RefboxComm::RefboxComm(LlsfDataTable *table, transport::NodePtr gazebo_node)
   table_ = table;
   gazebo_node_ = gazebo_node;
 
-  //create publisher
-  this->place_puck_under_machine_pub_ = gazebo_node_->Advertise<llsf_msgs::PlacePuckUnderMachine>("~/LLSFRbSim/PlacePuckUnderMachine/");
-  this->remove_puck_from_machine_pub_ = gazebo_node_->Advertise<llsf_msgs::RemovePuckFromMachine>("~/LLSFRbSim/RemovePuckFromMachine/");
-
   //create subscriber
   this->machine_info_sub_ = gazebo_node_->Subscribe(std::string("~/LLSFRbSim/MachineInfo/"), &RefboxComm::on_machine_info_msg, this);
   this->puck_info_sub_ = gazebo_node_->Subscribe(std::string("~/LLSFRbSim/PuckInfo/"), &RefboxComm::on_puck_info_msg, this);

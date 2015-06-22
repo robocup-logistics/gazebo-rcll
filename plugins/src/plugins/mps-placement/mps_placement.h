@@ -72,6 +72,12 @@ namespace gazebo
     /// Subscriber to get Game state msgs
     transport::SubscriberPtr game_state_sub_;
 
+    /// Spawn machine at a position
+    void spawn_mps(const math::Pose &spawn_pose, std::string model_name);
+
+    ///Remove existing MPS (e.g. before spawning them at other location)
+    void remove_existing_mps();
+
     /// Handler for getting refbox msgs
     void on_machine_info_msg(ConstMachineInfoPtr &msg);
     void on_game_state_msg(ConstGameStatePtr &msg);
@@ -79,6 +85,10 @@ namespace gazebo
     bool machines_placed_;
     bool is_game_started_;
     int random_seed_base_;
+
+    // Create a publisher on the ~/factory topic to spawn models
+    transport::PublisherPtr factoryPub;
+    transport::PublisherPtr modelPub;
   };
   GZ_REGISTER_WORLD_PLUGIN(MpsPlacementPlugin)
 }

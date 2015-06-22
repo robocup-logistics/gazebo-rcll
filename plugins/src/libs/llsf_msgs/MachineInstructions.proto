@@ -1,8 +1,8 @@
 
 /***************************************************************************
- *  MachineCommands.proto - LLSF Protocol - Machine Commands
+ *  MachineInstructions.proto - LLSF Protocol - Machine instruction messages
  *
- *  Created: Thu Mar 07 16:00:55 2013
+ *  Created: Thu Apr 16 14:19:07 2015
  *  Copyright  2013  Tim Niemueller [www.niemueller.de]
  ****************************************************************************/
 
@@ -36,38 +36,51 @@
 
 package llsf_msgs;
 
+import "ProductColor.proto";
+import "Team.proto";
+
 option java_package = "org.robocup_logistics.llsf_msgs";
-option java_outer_classname = "MachineCommandsProtos";
+option java_outer_classname = "MachineInstructionProtos";
 
-enum MachineState {
-  IDLE      = 1;
-  AVAILABLE = 2;
-  PROCESSED = 3;
-  DELIVERED = 4;
-  RETRIEVED = 5;
+enum MachineSide {
+  INPUT  = 1;
+  OUTPUT = 2;
 }
 
-// Load puck into machine area.
-message SetMachineState {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 17;
-  }
-
-  // Machine to place puck at
-  required string machine_name = 1;
-  // State to set
-  required MachineState state = 2;
+enum CsOp {
+  RETRIEVE_CAP = 1;
+  MOUNT_CAP    = 2;
 }
 
+message PrepareInstructionBS {
+  required MachineSide side  = 1;
+  required BaseColor   color = 2;
+}
 
-// Load puck into machine area.
-message MachineAddBase {
+message PrepareInstructionDS {
+  required uint32 gate = 1;
+}
+
+message PrepareInstructionRS {
+  required RingColor ring_color = 1;
+}
+
+message PrepareInstructionCS {
+  required CsOp operation = 1;
+}
+
+message PrepareMachine {
   enum CompType {
     COMP_ID  = 2000;
-    MSG_TYPE = 18;
+    MSG_TYPE = 101;
   }
 
-  // Machine to place puck at
-  required string machine_name = 1;
+  required Team   team_color = 1;
+  // Machine name which to instruct
+  required string machine = 2;
+
+  optional PrepareInstructionBS instruction_bs = 4;
+  optional PrepareInstructionDS instruction_ds = 5;
+  optional PrepareInstructionRS instruction_rs = 6;
+  optional PrepareInstructionCS instruction_cs = 7;
 }
