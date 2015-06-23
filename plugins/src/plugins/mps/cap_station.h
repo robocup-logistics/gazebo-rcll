@@ -56,7 +56,7 @@ public:
   
   llsf_msgs::CsOp task_;
   gazsim_msgs::Color stored_cap_color_;
-  std::string get_from_puck_name_;
+  std::string puck_in_processing_name_;
   
   transport::SubscriberPtr workpiece_result_subscriber_;
 };

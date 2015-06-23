@@ -30,6 +30,7 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   spawn_puck(shelf_left_pose());
   spawn_puck(shelf_middle_pose());
   spawn_puck(shelf_right_pose());
+  workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
 }
 
 void CapStation::OnUpdate(const common::UpdateInfo &info)
@@ -58,33 +59,46 @@ void CapStation::OnUpdate(const common::UpdateInfo &info)
 
 void CapStation::on_puck_msg(ConstPosePtr &msg)
 {
-  if(puck_in_input(msg))
+  if(current_state_ == "READY-AT-OUTPUT")
   {
-    std::string puck_name = msg->name();
-    gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
-    cmd_msg.set_puck_name(puck_name);
-    switch(task_)
+    if(puck_in_processing_name_ != "" && 
+       !puck_in_output(world_->GetModel(puck_in_processing_name_)->GetWorldPose()))
     {
-      case llsf_msgs::CsOp::RETRIEVE_CAP:
-        printf("%s retrives cap from %s\n ", name_.c_str(), puck_name.c_str());
-        cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
-        get_from_puck_name_ = puck_name;
-        break;
-      case llsf_msgs::CsOp::MOUNT_CAP:
-        printf("%s mounts cap on %s with color %s\n", name_.c_str(), puck_name.c_str(), gazsim_msgs::Color_Name(stored_cap_color_).c_str());
-        cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
-        cmd_msg.set_color(stored_cap_color_);
-        break;
+      set_state(State::RETRIEVED);
+      puck_in_processing_name_ = "";
     }
-    puck_cmd_pub_->Publish(cmd_msg);
-    world_->GetModel(puck_name)->SetWorldPose(output());
+  }
+  else if(current_state_ == "PREPARED")
+  {
+    if(puck_in_input(msg))
+    {
+      set_state(State::AVAILABLE);
+      std::string puck_name = msg->name();
+      gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
+      cmd_msg.set_puck_name(puck_name);
+      switch(task_)
+      {
+        case llsf_msgs::CsOp::RETRIEVE_CAP:
+          printf("%s retrives cap from %s\n ", name_.c_str(), puck_name.c_str());
+          cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
+          break;
+        case llsf_msgs::CsOp::MOUNT_CAP:
+          printf("%s mounts cap on %s with color %s\n", name_.c_str(), puck_name.c_str(), gazsim_msgs::Color_Name(stored_cap_color_).c_str());
+          cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
+          cmd_msg.set_color(stored_cap_color_);
+          break;
+      }
+      //set_state(State::PROCESSED);
+      puck_cmd_pub_->Publish(cmd_msg);
+      world_->GetModel(puck_name)->SetWorldPose(output());
+      puck_in_processing_name_ = puck_name;
+    }
   }
 }
 
 void CapStation::on_new_puck(ConstNewPuckPtr &msg)
 {
   Mps::on_new_puck(msg);
-  workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
   //get model
   physics::Model_V models = world_->GetModels();
   for(physics::ModelPtr model: models)
@@ -123,13 +137,20 @@ void CapStation::on_new_puck(ConstNewPuckPtr &msg)
 
 void CapStation::new_machine_info(ConstMachine &machine)
 {
-  task_ = machine.instruction_cs().operation();
-  printf("%s got a new task: %s\n",name_.c_str(),llsf_msgs::CsOp_Name(task_).c_str());
+  if(machine.state() == "PREPARED")
+  {
+    task_ = machine.instruction_cs().operation();
+    printf("%s got a new task: %s\n",name_.c_str(),llsf_msgs::CsOp_Name(task_).c_str());
+  }
+  else if(machine.state() == "PROCESSED" && puck_in_output(world_->GetModel(puck_in_processing_name_)->GetWorldPose()))
+  {
+    set_state(State::DELIVERED);
+  }
 }
 
 void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 {
-  if(result->puck_name() == get_from_puck_name_)
+  if(result->puck_name() == puck_in_processing_name_)
   {
     printf("%s got cap from %s with color %s\n",name_.c_str(), result->puck_name().c_str(), gazsim_msgs::Color_Name(result->color()).c_str());
     stored_cap_color_ = result->color();
