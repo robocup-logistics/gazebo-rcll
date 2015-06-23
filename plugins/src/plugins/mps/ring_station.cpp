@@ -89,5 +89,6 @@ void RingStation::new_machine_info(ConstMachine &machine)
       cmd.set_puck_name(puck_in_processing_name_);
       puck_cmd_pub_->Publish(cmd);
     }
+    set_state(State::DELIVERED);
   }
 }
