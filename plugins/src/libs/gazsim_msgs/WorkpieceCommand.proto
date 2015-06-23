@@ -42,6 +42,8 @@ enum Color{
   BLUE = 2;
   GREY = 3;
   BLACK = 4;
+  YELLOW = 5;
+  ORANGE = 6;
 }
 
 enum Command{
