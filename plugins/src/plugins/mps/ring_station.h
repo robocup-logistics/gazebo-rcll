@@ -36,6 +36,7 @@ public:
   
   void new_machine_info(ConstMachine &machine);
   
+  std::string puck_in_processing_name_;
   gazsim_msgs::Color color_to_put_;
 };
 

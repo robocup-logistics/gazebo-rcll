@@ -31,29 +31,12 @@ RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
 
 void RingStation::on_puck_msg(ConstPosePtr &msg)
 {
-  //printf("Got Msg from %s!!!", msg->name().c_str());
-
   //check if the puck is in the input area
   if(puck_in_input(msg))
   {
-    printf("Workpiece %s was inserted into %s.\n Telepoting it into output!\n", msg->name().c_str(), name_.c_str());
-    //teleport puck to output
-    model_->GetWorld()->GetEntity(msg->name())->SetWorldPose(math::Pose(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0));
-    //spawn a ring ontop of the puck
-    //write to the puck plugin
-    if(!puck_cmd_pub_->HasConnections())
-    {
-      printf("cannot connect to puck %s on topic %s\n",msg->name().c_str(),TOPIC_PUCK_COMMAND);
-    }
-    else
-    {
-      //TODO: dont'spawn a fixed color, get color from better source
-      gazsim_msgs::WorkpieceCommand cmd;
-      cmd.set_command(gazsim_msgs::Command::ADD_RING);
-      cmd.set_color(gazsim_msgs::Color::BLUE);
-      cmd.set_puck_name(msg->name());
-      puck_cmd_pub_->Publish(cmd);
-    }
+    set_state(State::AVAILABLE);
+    puck_in_processing_name_ = msg->name();
+    printf("%s got %s\n", name_.c_str(), puck_in_processing_name_.c_str());
   }
 }
 
@@ -76,6 +59,27 @@ void RingStation::new_machine_info(ConstMachine &machine)
         color_to_put_ = gazsim_msgs::Color::YELLOW;
         break;
     }
-    printf("%s is prepared to put %s on a workpiece\n", name_, gazsim_msgs::Color_Name(color_to_put_));
+    printf("%s is prepared to put %s on a workpiece\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str());
+  }
+  else if(machine.state() == "PROCESSED")
+  {
+    printf("%s is putting a %s ring onto %s\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str(), puck_in_processing_name_.c_str());
+    //teleport puck to output
+    model_->GetWorld()->GetEntity(puck_in_processing_name_)->SetWorldPose(math::Pose(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0));
+    //spawn a ring ontop of the puck
+    //write to the puck plugin
+    if(!puck_cmd_pub_->HasConnections())
+    {
+      printf("cannot connect to puck %s on topic %s\n",puck_in_processing_name_.c_str(),TOPIC_PUCK_COMMAND);
+    }
+    else
+    {
+      //TODO: dont'spawn a fixed color, get color from better source
+      gazsim_msgs::WorkpieceCommand cmd;
+      cmd.set_command(gazsim_msgs::Command::ADD_RING);
+      cmd.set_color(color_to_put_);
+      cmd.set_puck_name(puck_in_processing_name_);
+      puck_cmd_pub_->Publish(cmd);
+    }
   }
 }
