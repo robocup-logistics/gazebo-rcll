@@ -38,6 +38,13 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
     puck_in_processing_name_ = msg->name();
     printf("%s got %s\n", name_.c_str(), puck_in_processing_name_.c_str());
   }
+  if(current_state_ == "READY-AT-OUTPUT" &&
+     msg->name() == puck_in_processing_name_ &&
+     !puck_in_output(msg))
+  {
+    set_state(State::RETRIEVED);
+    puck_in_processing_name_ = "";
+  }
 }
 
 void RingStation::new_machine_info(ConstMachine &machine)
