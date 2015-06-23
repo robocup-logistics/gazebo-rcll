@@ -56,3 +56,26 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
     }
   }
 }
+
+void RingStation::new_machine_info(ConstMachine &machine)
+{
+  if(machine.state() == "PREPARED")
+  {
+    switch(machine.instruction_rs().ring_color())
+    {
+      case llsf_msgs::RingColor::RING_BLUE:
+        color_to_put_ = gazsim_msgs::Color::BLUE;
+        break;
+      case llsf_msgs::RingColor::RING_GREEN:
+        color_to_put_ = gazsim_msgs::Color::GREEN;
+        break;
+      case llsf_msgs::RingColor::RING_ORANGE:
+        color_to_put_ = gazsim_msgs::Color::ORANGE;
+        break;
+      case llsf_msgs::RingColor::RING_YELLOW:
+        color_to_put_ = gazsim_msgs::Color::YELLOW;
+        break;
+    }
+    printf("%s is prepared to put %s on a workpiece\n", name_, gazsim_msgs::Color_Name(color_to_put_));
+  }
+}
