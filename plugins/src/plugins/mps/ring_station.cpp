@@ -27,6 +27,7 @@ using namespace gazebo;
 RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
   Mps(_parent,_sdf)
 {
+  add_base_publisher_ = node_->Advertise<llsf_msgs::MachineAddBase>(TOPIC_MACHINE_ADD_BASE);
 }
 
 void RingStation::on_puck_msg(ConstPosePtr &msg)
@@ -91,4 +92,17 @@ void RingStation::new_machine_info(ConstMachine &machine)
     }
     set_state(State::DELIVERED);
   }
+}
+
+void RingStation::add_base()
+{
+  printf("Adding Base to %s\n", name_.c_str());
+  llsf_msgs::MachineAddBase add_base_msg;
+  add_base_msg.set_machine_name(name_);
+  add_base_publisher_->Publish(add_base_msg);
+}
+
+math::Pose RingStation::add_base_pose()
+{
+  return get_puck_world_pose(-0.2,0);
 }

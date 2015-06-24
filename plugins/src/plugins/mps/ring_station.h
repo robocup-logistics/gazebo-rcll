@@ -23,6 +23,8 @@
 #ifndef RING_STATION_H
 #define RING_STATION_H
 
+#define TOPIC_MACHINE_ADD_BASE "~/LLSFRbSim/MachineAddBase/"
+
 #include "mps.h"
 
 namespace gazebo {
@@ -38,6 +40,11 @@ public:
   
   std::string puck_in_processing_name_;
   gazsim_msgs::Color color_to_put_;
+  
+  void add_base();
+  math::Pose add_base_pose();
+  
+  gazebo::transport::PublisherPtr add_base_publisher_;
 };
 
 }
