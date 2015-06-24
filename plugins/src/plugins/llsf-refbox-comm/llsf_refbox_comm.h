@@ -37,6 +37,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetGameState const> ConstSetGameState
 typedef const boost::shared_ptr<llsf_msgs::SetGamePhase const> ConstSetGamePhasePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
+typedef const boost::shared_ptr<llsf_msgs::MachineAddBase const> ConstMachineAddBasePtr;
 
 
 //config values
@@ -53,6 +54,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachin
 #define TOPIC_SET_GAME_PHASE "~/LLSFRbSim/SetGamePhase/"
 #define TOPIC_SET_TEAM_NAME "~/LLSFRbSim/SetTeamName/"
 #define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
+#define TOPIC_MACHINE_ADD_BASE "~/LLSFRbSim/MachineAddBase/"
 
 namespace protobuf_comm {
   class ProtobufStreamClient;
@@ -105,6 +107,7 @@ namespace gazebo
     gazebo::transport::SubscriberPtr set_game_phase_sub_;
     gazebo::transport::SubscriberPtr set_team_name_sub_;
     gazebo::transport::SubscriberPtr set_machine_state_sub_;
+    gazebo::transport::SubscriberPtr machine_add_base_sub_;
 
     //handler methods
     /* void on_puck_place_msg(ConstPlacePuckUnderMachinePtr &msg); */
@@ -114,6 +117,7 @@ namespace gazebo
     void on_set_game_phase_msg(ConstSetGamePhasePtr &msg);
     void on_set_team_name_msg(ConstSetTeamNamePtr &msg);
     void on_set_machine_state_msg(ConstSetMachineStatePtr &msg);
+    void on_machine_add_base_msg(ConstMachineAddBasePtr &msg);
 
     //helper variables
     bool connected_;
