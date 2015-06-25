@@ -51,25 +51,7 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 {
   printf("Loading Puck Plugin of model %s\n", _parent->GetName().c_str());
   // Store the pointer to the model
-  this->model_ = _parent;
-  // rename the model before doing anything
-  if(model_->GetName().find("puck")==std::string::npos)
-  {
-    //get the new puck number by listing the models in the world whose names begin with puck
-    physics::Model_V models = _parent->GetWorld()->GetModels();
-    unsigned int puck_count = 0;
-    for(physics::ModelPtr model:models)
-    {
-      if(model->GetName().find("puck") != std::string::npos)
-      {
-        puck_count++;
-      }
-    }
-    std::string new_name = "puck_" + std::to_string(puck_count);
-    printf("setting name for %s to %s\n",name().c_str(),new_name.c_str());
-    model_->SetName(new_name);
-  }
-  
+  this->model_ = _parent;  
 
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -183,7 +165,8 @@ void Puck::remove_cap()
 
 msgs::Visual Puck::create_visual_msg(std::string element_name, double element_height, gazsim_msgs::Color clr)
 {
-  std::string parent_name = "workpiece_base"; //model_->GetLink("cylinder")->GetParent()->GetName();
+  std::string parent_name = this->name().c_str();
+  //model_->GetLink("cylinder")->GetParent()->GetName();
   // create a massage for visual control
   gazebo::msgs::Visual visual_msg;
   // the parent of the new visual is the workpiece itself

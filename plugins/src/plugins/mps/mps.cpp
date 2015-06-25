@@ -19,6 +19,10 @@
  */
 
 #include <math.h>
+#include <iostream>
+#include <fstream>
+#include <fnmatch.h>
+#include <stdlib.h>
 
 #include "mps.h"
 
@@ -250,7 +254,34 @@ void Mps::spawn_puck(const math::Pose &spawn_pose)
 {
   printf("spawning puck for %s\n",name_.c_str());
   msgs::Factory new_puck_msg;
-  new_puck_msg.set_sdf_filename("model://workpiece_base");
+
+  //use the workpiece_base sdf and replace the model name
+  //get the new puck name
+  std::string new_name = "puck_" + std::to_string(rand() % 1000000);
+  //Get sdf content
+  std::string sdf_path = getenv("GAZEBO_RCLL");
+  sdf_path += "/models/workpiece_base/model.sdf";
+  std::ifstream raw_sdf_file(sdf_path.c_str());
+  //exchange name
+  std::string new_sdf;
+  if (raw_sdf_file.is_open()){
+    std::string raw_sdf((std::istreambuf_iterator<char>(raw_sdf_file)),
+                        std::istreambuf_iterator<char>());
+    std::string old_name = "workpiece_base";
+    std::size_t name_pos = raw_sdf.find(old_name);
+    if(name_pos ==  std::string::npos){
+      return;
+    }
+    new_sdf = raw_sdf.erase(name_pos, old_name.length()).insert(name_pos, new_name);
+  }
+  else{
+    printf("Cant find workpiece_base sdf file:%s", sdf_path.c_str());
+    return;
+  }
+    
+
+  new_puck_msg.set_sdf(new_sdf.c_str());
+  new_puck_msg.set_clone_model_name(new_name.c_str());
   msgs::Set(new_puck_msg.mutable_pose(),spawn_pose);
   factoryPub->Publish(new_puck_msg);
 }
