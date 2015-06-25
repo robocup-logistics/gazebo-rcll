@@ -32,6 +32,11 @@ RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
 
 void RingStation::on_puck_msg(ConstPosePtr &msg)
 {
+  if(pose_hit(math::Pose(msg->position().x(), msg->position().y(), msg->position().z(), 0,0,0), add_base_pose(),0.1))
+  {
+    add_base();
+    world_->GetEntity(msg->name())->SetWorldPose(get_puck_world_pose(-0.2,-0.5));
+  }
   //check if the puck is in the input area
   if(puck_in_input(msg) &&
      puck_in_processing_name_ == "")
