@@ -36,7 +36,7 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
 void CapStation::OnUpdate(const common::UpdateInfo &info)
 {
   Mps::OnUpdate(info);
-  if(info.simTime.Double() < SPAWN_PUCK_TIME)
+  if(model_->GetWorld()->GetSimTime().Double() - created_time_ < SPAWN_PUCK_TIME)
   {
     return;
   }
@@ -159,31 +159,31 @@ void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 
 math::Pose CapStation::shelf_left_pose()
 {
-  return get_puck_world_pose(-0.1, 0);
+  return get_puck_world_pose(-0.1, 0, BELT_HEIGHT + 0.005);
 }
 
 math::Pose CapStation::shelf_middle_pose()
 {
-  return get_puck_world_pose(-0.2, 0);
+  return get_puck_world_pose(-0.2, 0, BELT_HEIGHT + 0.005);
 }
 
 math::Pose CapStation::shelf_right_pose()
 {
-  return get_puck_world_pose(-0.3,0);
+  return get_puck_world_pose(-0.3,0, BELT_HEIGHT + 0.005);
 }
 
 
 bool CapStation::pose_in_shelf_left(const math::Pose &puck_pose)
 {
-  return pose_hit(puck_pose, shelf_left_pose(),0.10);
+  return pose_hit(puck_pose, shelf_left_pose(),0.05);
 }
 
 bool CapStation::pose_in_shelf_middle(const math::Pose &puck_pose)
 {
-  return pose_hit(puck_pose, shelf_middle_pose(),0.10);
+  return pose_hit(puck_pose, shelf_middle_pose(),0.05);
 }
 
 bool CapStation::pose_in_shelf_right(const math::Pose &puck_pose)
 {
-  return pose_hit(puck_pose, shelf_right_pose(),0.10);
+  return pose_hit(puck_pose, shelf_right_pose(),0.05);
 }

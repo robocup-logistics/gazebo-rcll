@@ -50,6 +50,7 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   //the namespace is set to the world name!
   this->node_->Init(model_->GetWorld()->GetName());
 
+  created_time_ = model_->GetWorld()->GetSimTime().Double();
   spawned_tags_last_ = model_->GetWorld()->GetSimTime().Double();
 
   //subscribe to machine info

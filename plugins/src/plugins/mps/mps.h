@@ -114,6 +114,7 @@ namespace gazebo
     transport::PublisherPtr visPub_;
     void spawnTag(std::string visual_name, std::string tag_name, float x, float y, float ori);
     double spawned_tags_last_;
+    double created_time_;
 
     ///centers of input and output areas (global)
     virtual float input_x();
