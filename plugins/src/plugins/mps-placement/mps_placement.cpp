@@ -147,19 +147,15 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
 
     msgs::Factory spawn_mps_msg;
     //get sdf, replaced name and set it to the factory message
-    printf("getting env\n");
     std::string sdf_path = getenv("GAZEBO_RCLL");
     sdf_path += "/models/" + mps_type + "/model.sdf";
-    printf("%s\n", sdf_path.c_str());
     std::ifstream raw_sdf_file(sdf_path.c_str());
     std::string new_sdf;
     if (raw_sdf_file.is_open()){
-      printf("openend\n");
       std::string raw_sdf((std::istreambuf_iterator<char>(raw_sdf_file)),
                     std::istreambuf_iterator<char>());
       std::size_t name_pos = raw_sdf.find(mps_type);
       if(name_pos ==  std::string::npos){
-        printf("Cant find mps name:%s", mps_type.c_str());
         return;
       }
       new_sdf = raw_sdf.erase(name_pos, mps_type.length()).insert(name_pos, mps_name);
