@@ -70,7 +70,8 @@ void CapStation::on_puck_msg(ConstPosePtr &msg)
   }
   else if(current_state_ == "PREPARED")
   {
-    if(puck_in_input(msg))
+    if(puck_in_input(msg)&&
+       !is_puck_hold(msg->name()))
     {
       set_state(State::AVAILABLE);
       std::string puck_name = msg->name();
