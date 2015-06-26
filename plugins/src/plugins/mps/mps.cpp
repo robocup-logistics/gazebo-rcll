@@ -304,5 +304,6 @@ math::Pose Mps::get_puck_world_pose(double long_side, double short_side, double 
 
 void Mps::on_joint_msg(ConstJointPtr &joint_msg)
 {
-  
+  hold_pucks[joint_msg->id()] = joint_msg->child();
+  //printf("%s got joint command on joint %i with child %s\n", name_.c_str(), joint_msg->id(), joint_msg->child().c_str());
 }

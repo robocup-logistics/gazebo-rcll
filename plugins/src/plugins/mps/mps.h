@@ -33,6 +33,7 @@
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <llsf_msgs/MachineCommands.pb.h>
 #include <gazsim_msgs/NewPuck.pb.h>
+#include <map>
 
 //amount of pucks to listen for
 #define NUMBER_PUCKS 20
@@ -152,6 +153,8 @@ namespace gazebo
     
     transport::SubscriberPtr joint_message_sub_;
     void on_joint_msg(ConstJointPtr &joint_msg);
+    
+    std::map<u_int32_t,std::string> hold_pucks;
   };
 }
 
