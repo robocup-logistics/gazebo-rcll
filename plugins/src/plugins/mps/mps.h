@@ -155,6 +155,7 @@ namespace gazebo
     void on_joint_msg(ConstJointPtr &joint_msg);
     
     std::map<u_int32_t,std::string> hold_pucks;
+    bool is_puck_hold(std::string puck_name);
   };
 }
 

@@ -307,3 +307,19 @@ void Mps::on_joint_msg(ConstJointPtr &joint_msg)
   hold_pucks[joint_msg->id()] = joint_msg->child();
   //printf("%s got joint command on joint %i with child %s\n", name_.c_str(), joint_msg->id(), joint_msg->child().c_str());
 }
+
+bool Mps::is_puck_hold(std::string puck_name)
+{
+  //printf("%s is testing if %s is hold\n", name_.c_str(), puck_name.c_str());
+  for(auto iter : hold_pucks)
+  {
+    //printf("%s is testing for %s\n", name_.c_str(), iter.second.c_str());
+    if(puck_name == iter.second.c_str())
+    {
+      //printf("%s is found %s in hold\n", name_.c_str(), iter.second.c_str());
+      return true;
+    }
+  }
+  //printf("%s did not find %s", name_.c_str(), puck_name.c_str());
+  return false;
+}
