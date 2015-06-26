@@ -155,6 +155,10 @@ void Puck::add_cap(gazsim_msgs::Color clr)
 
 void Puck::remove_cap()
 {
+  msgs::Visual vis_msg = create_visual_msg("cap", CAP_HEIGHT, gazsim_msgs::Color::RED);
+  vis_msg.set_visible(false);
+  
+  visual_pub_->Publish(vis_msg);
   gazsim_msgs::WorkpieceResult msg;
   msg.set_puck_name(name());
   msg.set_color(cap_color_);
