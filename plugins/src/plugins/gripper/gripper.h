@@ -34,6 +34,7 @@
 //config values
 #define TOPIC_SET_GRIPPER "~/RobotinoSim/SetGripper/"
 #define TOPIC_HOLDS_PUCK "~/RobotinoSim/GripperHasPuck/"
+#define TOPIC_JOINT "/GripperJoints/Holding"
 #define RADIUS_GRAB_AREA 0.05
 
 
@@ -77,6 +78,9 @@ namespace gazebo
         transport::SubscriberPtr set_gripper_sub_;
         /// Publisher for has_puck
         gazebo::transport::PublisherPtr has_puck_pub_;
+
+        /// Publisher to announce which puck is hold by the gripper
+        gazebo::transport::PublisherPtr joint_pub_;
 
         gazebo::physics::JointPtr grabJoint;
 
