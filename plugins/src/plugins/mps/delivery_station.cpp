@@ -32,7 +32,8 @@ DeliveryStation::DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr  _sd
 
 void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 {
-  if(puck_in_input(msg))
+  if(puck_in_input(msg) &&
+     !is_puck_hold(msg->name()))
   {
     physics::ModelPtr puck = world_->GetModel(msg->name());
     printf("%s got puck %s for gate %i\n",this->name_.c_str(), puck->GetName().c_str(), selected_gate_);
