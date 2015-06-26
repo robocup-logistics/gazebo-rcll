@@ -58,6 +58,7 @@
 #define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
 #define TOPIC_PUCK_COMMAND "~/pucks/cmd"
 #define TOPIC_PUCK_COMMAND_RESULT "~/pucks/cmd/result"
+#define TOPIC_JOINT "/GripperJoints/Holding"
 
 
 typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
@@ -148,6 +149,9 @@ namespace gazebo
     
     /// Publisher for puck command
     transport::PublisherPtr puck_cmd_pub_;
+    
+    transport::SubscriberPtr joint_message_sub_;
+    void on_joint_msg(ConstJointPtr &joint_msg);
   };
 }
 

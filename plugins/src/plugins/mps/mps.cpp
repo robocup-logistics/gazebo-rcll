@@ -66,6 +66,7 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   
   factoryPub = node_->Advertise<msgs::Factory>("~/factory");
   puck_cmd_pub_ = node_->Advertise<gazsim_msgs::WorkpieceCommand>(TOPIC_PUCK_COMMAND);
+  joint_message_sub_ = node_->Subscribe(TOPIC_JOINT, &Mps::on_joint_msg, this);
 }
 ///Destructor
 Mps::~Mps()
@@ -299,4 +300,9 @@ math::Pose Mps::get_puck_world_pose(double long_side, double short_side, double 
              + (BELT_OFFSET_SIDE + long_side)  * sin(mps_ori)
              + ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * cos(mps_ori);
   return math::Pose(x,y,height,0,0,0);
+}
+
+void Mps::on_joint_msg(ConstJointPtr &joint_msg)
+{
+  
 }
