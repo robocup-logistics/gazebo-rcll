@@ -40,7 +40,7 @@
 //how far is the center of the belt hsifted from the machine center
 #define BELT_OFFSET_SIDE 0.025
 //radius of the area where a workpiece is detected by the machine
-#define DETECT_TOLERANCE 0.03
+#define DETECT_TOLERANCE 0.06
 //radius of a workpiece
 #define PUCK_SIZE 0.02
 //height of a puck
