@@ -27,8 +27,8 @@ using namespace gazebo;
 CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   Mps(_parent,_sdf)
 {
-  spawn_puck(shelf_left_pose());
-  spawn_puck(shelf_middle_pose());
+  // spawn_puck(shelf_left_pose());
+  // spawn_puck(shelf_middle_pose());
   spawn_puck(shelf_right_pose());
   workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
 }
@@ -40,16 +40,16 @@ void CapStation::OnUpdate(const common::UpdateInfo &info)
   {
     return;
   }
-  if(puck_in_shelf_left_ && !pose_hit(puck_in_shelf_left_->GetWorldPose(),shelf_left_pose(),0.1))
-  {
-    spawn_puck(shelf_left_pose());
-    puck_in_shelf_left_ = NULL;
-  }
-  if(puck_in_shelf_middle_ && !pose_hit(puck_in_shelf_middle_->GetWorldPose(),shelf_middle_pose(),0.1))
-  {
-    spawn_puck(shelf_middle_pose());
-    puck_in_shelf_middle_ = NULL;
-  }
+  // if(puck_in_shelf_left_ && !pose_hit(puck_in_shelf_left_->GetWorldPose(),shelf_left_pose(),0.1))
+  // {
+  //   spawn_puck(shelf_left_pose());
+  //   puck_in_shelf_left_ = NULL;
+  // }
+  // if(puck_in_shelf_middle_ && !pose_hit(puck_in_shelf_middle_->GetWorldPose(),shelf_middle_pose(),0.1))
+  // {
+  //   spawn_puck(shelf_middle_pose());
+  //   puck_in_shelf_middle_ = NULL;
+  // }
   if(puck_in_shelf_right_ && !pose_hit(puck_in_shelf_right_->GetWorldPose(),shelf_right_pose(),0.1))
   {
     spawn_puck(shelf_right_pose());
