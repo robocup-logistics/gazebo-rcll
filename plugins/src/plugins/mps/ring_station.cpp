@@ -110,5 +110,5 @@ void RingStation::add_base()
 
 math::Pose RingStation::add_base_pose()
 {
-  return get_puck_world_pose(-0.2,0);
+  return get_puck_world_pose(-0.25,0);
 }
