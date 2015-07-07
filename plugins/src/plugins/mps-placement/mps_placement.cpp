@@ -24,6 +24,7 @@
 #include <fnmatch.h>
 #include <iostream>
 #include <fstream>
+#include <unistd.h>
 
 #include "mps_placement.h"
 
@@ -123,14 +124,14 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
     srand(random_seed_base_ * zone_cyan + random_seed_base_ / zone_cyan);
     float ori = rand() % 100 -50;
     ori *= 2.0 * M_PI / 50.0;
-      
-      
+
     if(zone > 12){
       //Mirrow mps on the Magenta half
       zone_mid_x = -zone_mid_x;
       ori -= M_PI / 2.0;
       ori = -ori;
       ori += M_PI / 2.0;
+      ori += M_PI;
     }
       
     printf("MpsPlacementPlugin: Spawning MPS %s into zone %d, (%f,%f, %f)\n", mps_name.c_str(), zone, zone_mid_x, zone_mid_y, ori);
