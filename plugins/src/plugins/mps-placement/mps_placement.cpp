@@ -114,6 +114,11 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
       zone_mid_y -= 0.25 * ZONE_HEIGHT;
     }
 
+    //create more space in front of the inserion area, so the bots can drive through
+    if(zone_x == 1 && zone_y == 0){
+      zone_mid_x -= 0.25 * ZONE_WIDTH;
+    }
+
     //randomize orientation
     srand(random_seed_base_ * zone_cyan + random_seed_base_ / zone_cyan);
     float ori = rand() % 100 -50;
