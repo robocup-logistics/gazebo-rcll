@@ -18,6 +18,9 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#ifndef MPS_H
+#define MPS_H
+
 #include <boost/bind.hpp>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
@@ -27,15 +30,21 @@
 #include <list>
 #include <string.h>
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
+#include <llsf_msgs/MachineInfo.pb.h>
+#include <llsf_msgs/MachineCommands.pb.h>
+#include <gazsim_msgs/NewPuck.pb.h>
+#include <map>
 
 //amount of pucks to listen for
 #define NUMBER_PUCKS 20
 //how far is the center of the belt hsifted from the machine center
 #define BELT_OFFSET_SIDE 0.025
 //radius of the area where a workpiece is detected by the machine
-#define DETECT_TOLERANCE 0.03
+#define DETECT_TOLERANCE 0.06
 //radius of a workpiece
 #define PUCK_SIZE 0.02
+//height of a puck
+#define PUCK_HEIGHT 0.0225
 //length of the belt to calculate pos of input/output area
 #define BELT_LENGTH 0.35
 //Height of the belt
@@ -46,33 +55,35 @@
 #define TAG_SIZE 0.135
 //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
 #define TAG_SPAWN_TIME 5.0
+#define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
+#define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
+#define TOPIC_PUCK_COMMAND "~/pucks/cmd"
+#define TOPIC_PUCK_COMMAND_RESULT "~/pucks/cmd/result"
+#define TOPIC_JOINT "/GripperJoints/Holding"
 
+
+typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
+typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
+typedef const llsf_msgs::Machine ConstMachine;
+typedef llsf_msgs::MachineState State;
+typedef const boost::shared_ptr<gazsim_msgs::NewPuck const> ConstNewPuckPtr;
 
 namespace gazebo
 {
-  typedef enum MachineType{
-    Base,
-    Cap,
-    Ring,
-    Delivery,
-    Unknown,
-  } MachineType;
   /**
    * Plugin to control a simulated MPS
    * @author Frederik Zwilling
    */
-  class Mps : public ModelPlugin
+  class Mps
   {
   public:
-    Mps();
-   ~Mps();
+    Mps(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
+    virtual ~Mps();
 
-    //Overridden ModelPlugin-Functions
-    virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
     virtual void OnUpdate(const common::UpdateInfo &);
     virtual void Reset();
 
-  private:
+  protected:
     /// Pointer to the gazbeo model
     physics::ModelPtr model_;
     /// Pointer to the update event connection
@@ -85,19 +96,67 @@ namespace gazebo
     // Mps Stuff:
     
     /// Subscriber to get puck positions
-    transport::SubscriberPtr puck_subs_[NUMBER_PUCKS];
+    std::vector<transport::SubscriberPtr> puck_subs_;
+    /// Subscriber to get machine infos
+    transport::SubscriberPtr machine_info_subscriber_;
 
     /// Handler for puck positions
-    void on_puck_msg(ConstPosePtr &msg);
+    virtual void on_puck_msg(ConstPosePtr &msg);
+    /// Handler for machine msgs
+    void on_machine_msg(ConstMachineInfoPtr &msg);
+    virtual void new_machine_info(ConstMachine &machine);
+    
+    transport::SubscriberPtr new_puck_subscriber_;
+    virtual void on_new_puck(ConstNewPuckPtr &msg);
+    
+    ///Publisher to send machine state
+    transport::PublisherPtr set_machne_state_pub_;
     
     ///Publisher to send spawn machine tags
     transport::PublisherPtr visPub_;
     void spawnTag(std::string visual_name, std::string tag_name, float x, float y, float ori);
     double spawned_tags_last_;
+    double created_time_;
 
     ///centers of input and output areas (global)
-    float input_x_, input_y_, output_x_, output_y_;
-    // the type of this mps
-    MachineType machine_type_;
+    virtual float input_x();
+    virtual float input_y();
+    virtual float output_x();
+    virtual float output_y();
+    
+    virtual math::Pose input();
+    virtual math::Pose output();
+    
+    /// convert puck pose from mps frame to world frame
+    math::Pose get_puck_world_pose(double long_side, double short_side, double height = BELT_HEIGHT);
+    
+    std::string current_state_;
+    
+    void set_state(State state);
+    
+    bool pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance = DETECT_TOLERANCE);
+    
+    bool puck_in_input(ConstPosePtr &pose);
+    bool puck_in_output(ConstPosePtr &pose);
+    bool puck_in_input(const math::Pose &pose);
+    bool puck_in_output(const math::Pose &pose);
+    
+    physics::WorldPtr world_;
+    
+    void spawn_puck(const math::Pose &spawn_pose);
+    
+    // Create a publisher on the ~/factory topic
+    transport::PublisherPtr factoryPub;
+    
+    /// Publisher for puck command
+    transport::PublisherPtr puck_cmd_pub_;
+    
+    transport::SubscriberPtr joint_message_sub_;
+    void on_joint_msg(ConstJointPtr &joint_msg);
+    
+    std::map<u_int32_t,std::string> hold_pucks;
+    bool is_puck_hold(std::string puck_name);
   };
 }
+
+#endif // MPS_H

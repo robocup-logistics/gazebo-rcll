@@ -61,12 +61,14 @@ namespace gazebo
     ///Node for communication
     transport::NodePtr node_;
     ///name of the puck and the communication channel
-    std::string name_;
+    inline std::string name();
 
     // Puck Stuff:
     
     /// Subscriber to get commands for model ring addition
     transport::SubscriberPtr command_subscriber;
+    
+    transport::PublisherPtr new_puck_publisher;
 
     /// Handler for command messages
     void on_command_msg(ConstWorkpieceCommandPtr &cmd);
@@ -74,14 +76,21 @@ namespace gazebo
     void add_ring(gazsim_msgs::Color clr);
     /// Add a cap on command
     void add_cap(gazsim_msgs::Color clr);
+    void remove_cap();
 
     /// The number of stored rings
     size_t ring_count_;
 
     /// Check, if we have a cap on top
     bool have_cap;
+    gazsim_msgs::Color cap_color_;
 
     /// Publisher to send visual changes to gazebo
     transport::PublisherPtr visual_pub_;
+    
+    /// Publisher to send command results
+    transport::PublisherPtr workpiece_result_pub_;
+    
+    msgs::Visual create_visual_msg(std::string element_name, double element_height, gazsim_msgs::Color clr);
   };
 }

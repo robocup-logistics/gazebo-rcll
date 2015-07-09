@@ -42,11 +42,14 @@ enum Color{
   BLUE = 2;
   GREY = 3;
   BLACK = 4;
+  YELLOW = 5;
+  ORANGE = 6;
 }
 
 enum Command{
   ADD_RING = 0;
   ADD_CAP = 1;
+  REMOVE_CAP = 2;
 }
 
 // Time stamp and duration structure.
@@ -56,5 +59,11 @@ message WorkpieceCommand {
 
   required Command command = 1;
   optional Color color = 2;
+  required string puck_name = 3;
 
+}
+
+message WorkpieceResult {
+  required Color color = 1;
+  required string puck_name = 2;
 }

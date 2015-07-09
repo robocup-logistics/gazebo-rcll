@@ -82,7 +82,7 @@
     </link>
 
     <!-- GPS plugin to let others know where this base is -->
-    <plugin name="GPS" filename="libgps.so"/>
     <plugin name="Puck" filename="libpuck.so"/>
+    <plugin name="GPS" filename="libgps.so"/>
   </model>
 </sdf>

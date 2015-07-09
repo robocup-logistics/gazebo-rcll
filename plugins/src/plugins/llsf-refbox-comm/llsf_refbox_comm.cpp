@@ -67,7 +67,8 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   set_game_state_sub_ = node_->Subscribe(TOPIC_SET_GAME_STATE, &LlsfRefboxCommPlugin::on_set_game_state_msg, this);
   set_game_phase_sub_ = node_->Subscribe(TOPIC_SET_GAME_PHASE, &LlsfRefboxCommPlugin::on_set_game_phase_msg, this);
   set_team_name_sub_ = node_->Subscribe(TOPIC_SET_TEAM_NAME, &LlsfRefboxCommPlugin::on_set_team_name_msg, this);  
-  set_machine_state_sub_ = node_->Subscribe(TOPIC_SET_MACHINE_STATE, &LlsfRefboxCommPlugin::on_set_machine_state_msg, this);  
+  set_machine_state_sub_ = node_->Subscribe(TOPIC_SET_MACHINE_STATE, &LlsfRefboxCommPlugin::on_set_machine_state_msg, this);
+  machine_add_base_sub_ = node_->Subscribe(TOPIC_MACHINE_ADD_BASE, &LlsfRefboxCommPlugin::on_machine_add_base_msg, this);
 
   //connect update function
   update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&LlsfRefboxCommPlugin::Update, this));
@@ -237,5 +238,15 @@ void LlsfRefboxCommPlugin::on_set_machine_state_msg(ConstSetMachineStatePtr &msg
     return;
   }
   llsf_msgs::SetMachineState to_rb = *msg;
+  client_->send(to_rb);
+}
+
+void LlsfRefboxCommPlugin::on_machine_add_base_msg(ConstMachineAddBasePtr &msg)
+{
+  if(!connected_)
+  {
+    return;
+  }
+  llsf_msgs::MachineAddBase to_rb = *msg;
   client_->send(to_rb);
 }

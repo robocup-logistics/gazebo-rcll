@@ -19,28 +19,20 @@
  */
 
 #include <math.h>
+#include <iostream>
+#include <fstream>
+#include <fnmatch.h>
+#include <stdlib.h>
 
 #include "mps.h"
 
 using namespace gazebo;
 
 // Register this plugin to make it available in the simulator
-GZ_REGISTER_MODEL_PLUGIN(Mps)
+//GZ_REGISTER_MODEL_PLUGIN(Mps)
 
 ///Constructor
-Mps::Mps()
-{
-}
-///Destructor
-Mps::~Mps()
-{
-  printf("Destructing Mps Plugin!\n");
-}
-
-/** on loading of the plugin
- * @param _parent Parent Model
- */
-void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/) 
+Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 {
   // Store the pointer to the model
   this->model_ = _parent;
@@ -58,62 +50,28 @@ void Mps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //the namespace is set to the world name!
   this->node_->Init(model_->GetWorld()->GetName());
 
+  created_time_ = model_->GetWorld()->GetSimTime().Double();
   spawned_tags_last_ = model_->GetWorld()->GetSimTime().Double();
 
-  //subscribe for puck locations
-  for(int i = 0; i < NUMBER_PUCKS; i++)
-  {
-    this->puck_subs_[i] = this->node_->Subscribe(std::string("~/puck_") + std::to_string(i) + "/gazsim/gps/" , &Mps::on_puck_msg, this);
-  }
+  //subscribe to machine info
+  this->machine_info_subscriber_ = this->node_->Subscribe(TOPIC_MACHINE_INFO, &Mps::on_machine_msg, this);
+  
+  this->new_puck_subscriber_ = node_->Subscribe("~/new_puck",&Mps::on_new_puck,this);
 
   //Create publisher to spawn tags
   visPub_ = this->node_->Advertise<msgs::Visual>("~/visual", /*number of lights*/ 3*12);
-
-  //compute locations of input and output (not sure about the sides jet)
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
-  input_x_ = mps_x
-    + BELT_OFFSET_SIDE  * cos(mps_ori)
-    + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
-  input_y_ = mps_y
-    + BELT_OFFSET_SIDE  * sin(mps_ori)
-    - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
-  output_x_ = mps_x
-    + BELT_OFFSET_SIDE  * cos(mps_ori)
-    - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
-  output_y_ = mps_y
-    + BELT_OFFSET_SIDE  * sin(mps_ori)
-    + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+  set_machne_state_pub_ = this->node_->Advertise<llsf_msgs::SetMachineState>(TOPIC_SET_MACHINE_STATE);
   
-  //set the machine type
-  printf("detected machine type: ");
-  if(this->name_.find("BS")!=std::string::npos)
-  {
-    this->machine_type_=MachineType::Base;
-    printf("base");
-  }
-  else if(this->name_.find("CS")!=std::string::npos)
-  {
-    this->machine_type_=MachineType::Cap;
-    printf("cap");
-  }
-  else if(this->name_.find("RS")!=std::string::npos)
-  {
-    this->machine_type_=MachineType::Ring;
-    printf("ring");
-  }
-  else if(this->name_.find("DS")!=std::string::npos)
-  {
-    this->machine_type_=MachineType::Delivery;
-    printf("deliv");
-  }
-  else
-  {
-    this->machine_type_=MachineType::Unknown;
-    printf("unknowen");
-  }
-  printf("\n");
+  world_ = model_->GetWorld();
+  
+  factoryPub = node_->Advertise<msgs::Factory>("~/factory");
+  puck_cmd_pub_ = node_->Advertise<gazsim_msgs::WorkpieceCommand>(TOPIC_PUCK_COMMAND);
+  joint_message_sub_ = node_->Subscribe(TOPIC_JOINT, &Mps::on_joint_msg, this);
+}
+///Destructor
+Mps::~Mps()
+{
+  printf("Destructing Mps Plugin for %s!\n",this->name_.c_str());
 }
 
 /** Called by the world update start event
@@ -135,45 +93,39 @@ void Mps::Reset()
 {
 }
 
-
 /** Functions for recieving puck locations Messages
  * @param msg message
  */ 
 void Mps::on_puck_msg(ConstPosePtr &msg)
 {
-  //printf("Got Msg from %s!!!", msg->name().c_str());
 
-  //check if the puck is in the input area
-  double dist = sqrt((msg->position().x() - input_x_) * (msg->position().x() - input_x_)
-		     + (msg->position().y() - input_y_) * (msg->position().y() - input_y_)
-		     + (msg->position().z() - BELT_HEIGHT) * (msg->position().z() - BELT_HEIGHT));
-  if(dist < DETECT_TOLERANCE)
+}
+
+void Mps::on_machine_msg(ConstMachineInfoPtr &msg)
+{
+  for(const llsf_msgs::Machine &machine: msg->machines())
   {
-    printf("Workpiece %s was inserted into %s.\n Telepoting it into output!\n", msg->name().c_str(), name_.c_str());
-    //teleport puck to output
-    model_->GetWorld()->GetEntity(msg->name())->SetWorldPose(math::Pose(output_x_, output_y_, BELT_HEIGHT, 0, 0, 0));
-    //when this is a ring station spawn a ring ontop of the puck
-    if(this->machine_type_==MachineType::Ring)
-    {
-      //write to the puck plugin
-      std::string topic_string = std::string("~/") + msg->name() + std::string("/cmd");
-      transport::PublisherPtr puck_cmd_pub = this->node_->Advertise<gazsim_msgs::WorkpieceCommand>(topic_string);
-      if(!puck_cmd_pub->HasConnections())
-      {
-        printf("cannot connect to puck %s on topic %s\n",msg->name().c_str(),topic_string.c_str());
-      }
-      else
-      {
-        //TODO: dont'spawn a fixed color, get color from better source
-        gazsim_msgs::WorkpieceCommand cmd;
-        cmd.set_command(gazsim_msgs::Command::ADD_RING);
-        cmd.set_color(gazsim_msgs::Color::BLUE);
-        puck_cmd_pub->Publish(cmd);
-      }
-      puck_cmd_pub.reset();
+    if(machine.name() == this->name_ &&
+       machine.state() != current_state_){
+      printf("new_info for %s, state: %s \n",machine.name().c_str(), machine.state().c_str());
+      new_machine_info(machine);
+      current_state_ = machine.state();
     }
   }
+}
+
+void Mps::new_machine_info(ConstMachine &machine)
+{
   
+}
+
+void Mps::set_state(State state)
+{
+  printf("Setting state for machine %s to %s \n", name_.c_str(), llsf_msgs::MachineState_Name(state).c_str());
+  llsf_msgs::SetMachineState set_state;
+  set_state.set_machine_name(name_);
+  set_state.set_state(state);
+  set_machne_state_pub_->Publish(set_state);
 }
 
 /**
@@ -206,4 +158,168 @@ void Mps::spawnTag(std::string visual_name, std::string tag_name, float x, float
   std::string *uri2 = msg.mutable_material()->mutable_script()->add_uri();
   *uri2 = "model://tags/materials/textures";
   visPub_->Publish(msg);
+}
+
+  //compute locations of input and output (not sure about the sides jet)
+float Mps::output_x()
+{
+  double mps_x = this->model_->GetWorldPose().pos.x;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  return mps_x
+      + BELT_OFFSET_SIDE  * cos(mps_ori)
+      + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+}
+
+float Mps::output_y()
+{
+  double mps_y = this->model_->GetWorldPose().pos.y;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  return mps_y
+      + BELT_OFFSET_SIDE  * sin(mps_ori)
+      - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+}
+
+float Mps::input_x()
+{
+  double mps_x = this->model_->GetWorldPose().pos.x;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  return mps_x
+      + BELT_OFFSET_SIDE  * cos(mps_ori)
+      - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+}
+
+float Mps::input_y()
+{
+  double mps_y = this->model_->GetWorldPose().pos.y;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  return mps_y
+    + BELT_OFFSET_SIDE  * sin(mps_ori)
+    + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+}
+
+math::Pose Mps::input()
+{
+  return math::Pose(input_x(), input_y(), BELT_HEIGHT,0,0,0);
+}
+
+math::Pose Mps::output()
+{
+  return math::Pose(output_x(), output_y(), BELT_HEIGHT,0,0,0);
+}
+
+bool Mps::pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance)
+{
+  double dist = sqrt((to_test.pos.x - reference.pos.x) * (to_test.pos.x - reference.pos.x)
+		     + (to_test.pos.y - reference.pos.y) * (to_test.pos.y - reference.pos.y)
+		     + (to_test.pos.z - reference.pos.z) * (to_test.pos.z - reference.pos.z));
+  return dist < tolerance;
+}
+
+bool Mps::puck_in_input(ConstPosePtr &pose)
+{
+  double dist = sqrt((pose->position().x() - input_x()) * (pose->position().x() - input_x())
+		     + (pose->position().y() - input_y()) * (pose->position().y() - input_y())
+		     + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
+  return dist < DETECT_TOLERANCE;
+}
+
+bool Mps::puck_in_output(ConstPosePtr &pose)
+{
+  double dist = sqrt((pose->position().x() - output_x()) * (pose->position().x() - output_x())
+		     + (pose->position().y() - output_y()) * (pose->position().y() - output_y())
+		     + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
+  return dist < DETECT_TOLERANCE;
+}
+
+bool Mps::puck_in_input(const math::Pose &pose)
+{
+  double dist = sqrt((pose.pos.x - input_x()) * (pose.pos.x - input_x())
+		     + (pose.pos.y - input_y()) * (pose.pos.y - input_y())
+		     + (pose.pos.z - BELT_HEIGHT) * (pose.pos.z - BELT_HEIGHT));
+  return dist < DETECT_TOLERANCE;
+}
+
+bool Mps::puck_in_output(const math::Pose &pose)
+{
+  double dist = sqrt((pose.pos.x - output_x()) * (pose.pos.x - output_x())
+		     + (pose.pos.y - output_y()) * (pose.pos.y - output_y())
+		     + (pose.pos.z - BELT_HEIGHT) * (pose.pos.z - BELT_HEIGHT));
+  return dist < DETECT_TOLERANCE;
+}
+
+void Mps::on_new_puck(ConstNewPuckPtr &msg)
+{
+    this->puck_subs_.push_back(this->node_->Subscribe(msg->gps_topic() , &Mps::on_puck_msg, this));
+}
+
+void Mps::spawn_puck(const math::Pose &spawn_pose)
+{
+  printf("spawning puck for %s\n",name_.c_str());
+  msgs::Factory new_puck_msg;
+
+  //use the workpiece_base sdf and replace the model name
+  //get the new puck name
+  std::string new_name = "puck_" + std::to_string(rand() % 1000000);
+  //Get sdf content
+  std::string sdf_path = getenv("GAZEBO_RCLL");
+  sdf_path += "/models/workpiece_base/model.sdf";
+  std::ifstream raw_sdf_file(sdf_path.c_str());
+  //exchange name
+  std::string new_sdf;
+  if (raw_sdf_file.is_open()){
+    std::string raw_sdf((std::istreambuf_iterator<char>(raw_sdf_file)),
+                        std::istreambuf_iterator<char>());
+    std::string old_name = "workpiece_base";
+    std::size_t name_pos = raw_sdf.find(old_name);
+    if(name_pos ==  std::string::npos){
+      return;
+    }
+    new_sdf = raw_sdf.erase(name_pos, old_name.length()).insert(name_pos, new_name);
+  }
+  else{
+    printf("Cant find workpiece_base sdf file:%s", sdf_path.c_str());
+    return;
+  }
+    
+
+  new_puck_msg.set_sdf(new_sdf.c_str());
+  new_puck_msg.set_clone_model_name(new_name.c_str());
+  msgs::Set(new_puck_msg.mutable_pose(),spawn_pose);
+  factoryPub->Publish(new_puck_msg);
+}
+
+math::Pose Mps::get_puck_world_pose(double long_side, double short_side, double height)
+{
+  double mps_x = this->model_->GetWorldPose().pos.x;
+  double mps_y = this->model_->GetWorldPose().pos.y;
+  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  double x = mps_x
+             + (BELT_OFFSET_SIDE + long_side)  * cos(mps_ori)
+             - ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * sin(mps_ori);
+  double y = mps_y
+             + (BELT_OFFSET_SIDE + long_side)  * sin(mps_ori)
+             + ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * cos(mps_ori);
+  return math::Pose(x,y,height,0,0,0);
+}
+
+void Mps::on_joint_msg(ConstJointPtr &joint_msg)
+{
+  hold_pucks[joint_msg->id()] = joint_msg->child();
+  //printf("%s got joint command on joint %i with child %s\n", name_.c_str(), joint_msg->id(), joint_msg->child().c_str());
+}
+
+bool Mps::is_puck_hold(std::string puck_name)
+{
+  //printf("%s is testing if %s is hold\n", name_.c_str(), puck_name.c_str());
+  for(auto iter : hold_pucks)
+  {
+    //printf("%s is testing for %s\n", name_.c_str(), iter.second.c_str());
+    if(puck_name == iter.second.c_str())
+    {
+      //printf("%s is found %s in hold\n", name_.c_str(), iter.second.c_str());
+      return true;
+    }
+  }
+  //printf("%s did not find %s", name_.c_str(), puck_name.c_str());
+  return false;
 }

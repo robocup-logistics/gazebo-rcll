@@ -62,7 +62,9 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 
     //create subscriber
     this->set_gripper_sub_ = this->node_->Subscribe(std::string(TOPIC_SET_GRIPPER), &Gripper::on_set_gripper_msg, this);
+
     has_puck_pub_ = this->node_->Advertise<msgs::Int>(TOPIC_HOLDS_PUCK);
+    joint_pub_ = this->node_->Advertise<msgs::Joint>(TOPIC_JOINT);
 
     robotino_ = model_->GetParentModel();
     robotino_link_ = robotino_->GetChildLink("robotino3::body");
@@ -216,6 +218,7 @@ physics::ModelPtr Gripper::getNearestPuck() {
 
 void Gripper::sendHasPuck(bool has_puck)
 {
+  //send msg to robot framework
   msgs::Int msg;
   if(has_puck){
     msg.set_data(1);
@@ -224,4 +227,18 @@ void Gripper::sendHasPuck(bool has_puck)
     msg.set_data(0);
   }
   has_puck_pub_->Publish(msg);
+  //send info to mps
+  msgs::Joint joint_msg;
+  joint_msg.set_name(name_);
+  joint_msg.set_id(grabJoint->GetId());
+  joint_msg.set_parent_id(grabJoint->GetId());
+  if(has_puck){
+    joint_msg.set_child_id(grippedPuck->GetId());
+    joint_msg.set_child(grippedPuck->GetName());
+  }
+  else{
+    joint_msg.set_child_id(0);
+    joint_msg.set_child("");
+  }
+  joint_pub_->Publish(joint_msg);
 }
