@@ -57,6 +57,29 @@ void CapStation::OnUpdate(const common::UpdateInfo &info)
   }
 }
 
+void CapStation::work_puck(std::string puck_name)
+{
+  set_state(State::AVAILABLE);
+  gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
+  cmd_msg.set_puck_name(puck_name);
+  switch(task_)
+  {
+    case llsf_msgs::CsOp::RETRIEVE_CAP:
+      printf("%s retrives cap from %s\n ", name_.c_str(), puck_name.c_str());
+      cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
+      break;
+    case llsf_msgs::CsOp::MOUNT_CAP:
+      printf("%s mounts cap on %s with color %s\n", name_.c_str(), puck_name.c_str(), gazsim_msgs::Color_Name(stored_cap_color_).c_str());
+      cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
+      cmd_msg.set_color(stored_cap_color_);
+      break;
+  }
+  //set_state(State::PROCESSED);
+  puck_cmd_pub_->Publish(cmd_msg);
+  world_->GetModel(puck_name)->SetWorldPose(output());
+  puck_in_processing_name_ = puck_name;
+}
+
 void CapStation::on_puck_msg(ConstPosePtr &msg)
 {
   if(current_state_ == "READY-AT-OUTPUT")
@@ -73,26 +96,7 @@ void CapStation::on_puck_msg(ConstPosePtr &msg)
     if(puck_in_input(msg)&&
        !is_puck_hold(msg->name()))
     {
-      set_state(State::AVAILABLE);
-      std::string puck_name = msg->name();
-      gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
-      cmd_msg.set_puck_name(puck_name);
-      switch(task_)
-      {
-        case llsf_msgs::CsOp::RETRIEVE_CAP:
-          printf("%s retrives cap from %s\n ", name_.c_str(), puck_name.c_str());
-          cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
-          break;
-        case llsf_msgs::CsOp::MOUNT_CAP:
-          printf("%s mounts cap on %s with color %s\n", name_.c_str(), puck_name.c_str(), gazsim_msgs::Color_Name(stored_cap_color_).c_str());
-          cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
-          cmd_msg.set_color(stored_cap_color_);
-          break;
-      }
-      //set_state(State::PROCESSED);
-      puck_cmd_pub_->Publish(cmd_msg);
-      world_->GetModel(puck_name)->SetWorldPose(output());
-      puck_in_processing_name_ = puck_name;
+      work_puck(msg->name());
     }
   }
 }

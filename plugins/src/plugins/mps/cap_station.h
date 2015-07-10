@@ -59,6 +59,8 @@ public:
   std::string puck_in_processing_name_;
   
   transport::SubscriberPtr workpiece_result_subscriber_;
+  
+  void work_puck(std::string puck_name);
 };
 
 }
