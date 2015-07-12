@@ -1,0 +1,22 @@
+
+/***************************************************************************
+ *  PuckDetectionResult.proto
+ *
+ *  Created: Mon Jan 27 11:23:43 2014
+ *  Copyright  2014 Frederik Zwilling
+ ****************************************************************************/
+
+
+package llsf_msgs;
+
+import "Pose3D.proto";
+
+message ConveyorVisionResult {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 302;
+  }
+
+  // List of all known pucks
+  required Pose3D positions = 1;
+}
