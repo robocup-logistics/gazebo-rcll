@@ -53,6 +53,11 @@ enum Command{
   DELIVER = 3;
 }
 
+enum Team {
+  CYAN = 0;
+  MAGENTA = 1;
+}
+
 // Time stamp and duration structure.
 // Can be used for absolute times or
 // durations alike.
@@ -61,6 +66,7 @@ message WorkpieceCommand {
   required Command command = 1;
   optional Color color = 2;
   required string puck_name = 3;
+  optional Team team_color = 4;
 
 }
 
