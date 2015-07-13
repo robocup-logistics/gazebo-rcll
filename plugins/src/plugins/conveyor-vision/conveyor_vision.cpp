@@ -33,7 +33,7 @@ ConveyorVision::ConveyorVision()
 
 ConveyorVision::~ConveyorVision()
 {
-  printf("Destructing Gyro Plugin!\n");
+  printf("Destructing Conveyor Vision Plugin!\n");
 }
 
 /** on loading of the plugin
@@ -46,7 +46,7 @@ void ConveyorVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 
   //get the model-name
   this->name_ = model_->GetName();
-  printf("Loading Gyro Plugin of model %s\n", name_.c_str());
+  printf("Loading Conveyor Vision Plugin of model %s\n", name_.c_str());
 
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
