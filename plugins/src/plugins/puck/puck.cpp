@@ -110,6 +110,7 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
     return;
   }
   printf("puck %s recieved command: ",this->name().c_str());
+  std::string ring_string = "";
   switch(cmd->command())
   {
     case gazsim_msgs::Command::ADD_RING:
@@ -123,6 +124,18 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
     case gazsim_msgs::Command::REMOVE_CAP:
       printf("remove cap, providing cap color %s\n", gazsim_msgs::Color_Name(this->cap_color_).c_str());
       remove_cap();
+      break;
+    case gazsim_msgs::Command::DELIVER:
+      for(size_t i = 0; i < ring_count_; i++)
+      {
+        ring_string += gazsim_msgs::Color_Name(ring_colors_[i]) + ", ";
+      }
+      printf("delivering a %s base with %zu rings, colored %s and a %s cap",
+	     gazsim_msgs::Color_Name(base_color_).c_str(),
+             ring_count_,
+             ring_string.c_str(),
+             gazsim_msgs::Color_Name(cap_color_).c_str());
+	     
       break;
     default:
       printf("unknowen");
