@@ -150,6 +150,8 @@ void Puck::add_ring(gazsim_msgs::Color clr)
   std::string ring_name = std::string("ring_") + std::to_string(this->ring_count_);
   
   msgs::Visual visual_msg = create_visual_msg(ring_name, RING_HEIGHT, clr);
+
+  ring_colors_.push_back(clr);
   
   // publish visual change
   this->visual_pub_->Publish(visual_msg);
