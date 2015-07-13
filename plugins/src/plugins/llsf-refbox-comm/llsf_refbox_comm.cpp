@@ -69,6 +69,7 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   set_team_name_sub_ = node_->Subscribe(TOPIC_SET_TEAM_NAME, &LlsfRefboxCommPlugin::on_set_team_name_msg, this);  
   set_machine_state_sub_ = node_->Subscribe(TOPIC_SET_MACHINE_STATE, &LlsfRefboxCommPlugin::on_set_machine_state_msg, this);
   machine_add_base_sub_ = node_->Subscribe(TOPIC_MACHINE_ADD_BASE, &LlsfRefboxCommPlugin::on_machine_add_base_msg, this);
+  set_order_deliverd_by_color_sub_ = node_->Subscribe(TOPIC_SET_ORDER_DELIVERY_BY_COLOR, &LlsfRefboxCommPlugin::on_set_order_delvered_by_color_msg, this);
 
   //connect update function
   update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&LlsfRefboxCommPlugin::Update, this));
@@ -248,5 +249,15 @@ void LlsfRefboxCommPlugin::on_machine_add_base_msg(ConstMachineAddBasePtr &msg)
     return;
   }
   llsf_msgs::MachineAddBase to_rb = *msg;
+  client_->send(to_rb);
+}
+
+void LlsfRefboxCommPlugin::on_set_order_delvered_by_color_msg(ConstSetOrderDeliveredByColorPtr &msg)
+{
+  if(!connected_)
+  {
+    return;
+  }
+  llsf_msgs::SetOrderDeliveredByColor to_rb = *msg;
   client_->send(to_rb);
 }

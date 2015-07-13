@@ -29,6 +29,7 @@
 #include <llsf_msgs/GameState.pb.h>
 #include <llsf_msgs/GameInfo.pb.h>
 #include <gazsim_msgs/SimTime.pb.h>
+#include <llsf_msgs/OrderInfo.pb.h>
 
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
@@ -38,6 +39,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetGamePhase const> ConstSetGamePhase
 typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
 typedef const boost::shared_ptr<llsf_msgs::MachineAddBase const> ConstMachineAddBasePtr;
+typedef const boost::shared_ptr<llsf_msgs::SetOrderDeliveredByColor const> ConstSetOrderDeliveredByColorPtr;
 
 
 //config values
@@ -55,6 +57,7 @@ typedef const boost::shared_ptr<llsf_msgs::MachineAddBase const> ConstMachineAdd
 #define TOPIC_SET_TEAM_NAME "~/LLSFRbSim/SetTeamName/"
 #define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
 #define TOPIC_MACHINE_ADD_BASE "~/LLSFRbSim/MachineAddBase/"
+#define TOPIC_SET_ORDER_DELIVERY_BY_COLOR "~/LLSFRbSim/DELIVERY"
 
 namespace protobuf_comm {
   class ProtobufStreamClient;
@@ -108,6 +111,7 @@ namespace gazebo
     gazebo::transport::SubscriberPtr set_team_name_sub_;
     gazebo::transport::SubscriberPtr set_machine_state_sub_;
     gazebo::transport::SubscriberPtr machine_add_base_sub_;
+    gazebo::transport::SubscriberPtr set_order_deliverd_by_color_sub_;
 
     //handler methods
     /* void on_puck_place_msg(ConstPlacePuckUnderMachinePtr &msg); */
@@ -118,6 +122,7 @@ namespace gazebo
     void on_set_team_name_msg(ConstSetTeamNamePtr &msg);
     void on_set_machine_state_msg(ConstSetMachineStatePtr &msg);
     void on_machine_add_base_msg(ConstMachineAddBasePtr &msg);
+    void on_set_order_delvered_by_color_msg(ConstSetOrderDeliveredByColorPtr &msg);
 
     //helper variables
     bool connected_;
