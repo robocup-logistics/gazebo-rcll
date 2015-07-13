@@ -85,6 +85,8 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   this->workpiece_result_pub_ = node_->Advertise<gazsim_msgs::WorkpieceResult>("~/pucks/cmd/result");
   
   base_color_ = gazsim_msgs::Color::RED;
+  
+  delivery_pub_ = node_->Advertise<llsf_msgs::SetOrderDeliveredByColor>(TOPIC_SET_ORDER_DELIVERY_BY_COLOR);
 }
 
 /** Called by the world update start event
@@ -99,8 +101,6 @@ void Puck::Reset()
 {
 }
 
-
-
 /** Functions for recieving puck locations Messages
  * @param ring the new ring to put on top
  */ 
@@ -111,7 +111,6 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
     return;
   }
   printf("puck %s recieved command: ",this->name().c_str());
-  std::string ring_string = "";
   switch(cmd->command())
   {
     case gazsim_msgs::Command::ADD_RING:
@@ -127,16 +126,7 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
       remove_cap();
       break;
     case gazsim_msgs::Command::DELIVER:
-      for(size_t i = 0; i < ring_count_; i++)
-      {
-        ring_string += gazsim_msgs::Color_Name(ring_colors_[i]) + ", ";
-      }
-      printf("delivering a %s base with %zu rings, colored %s and a %s cap\n",
-	     gazsim_msgs::Color_Name(base_color_).c_str(),
-             ring_count_,
-             ring_string.c_str(),
-             gazsim_msgs::Color_Name(cap_color_).c_str());
-	     
+      deliver();
       break;
     default:
       printf("unknowen");
@@ -247,4 +237,63 @@ msgs::Visual Puck::create_visual_msg(std::string element_name, double element_he
   // set the calculated pose for the visual
   msgs::Set(visual_msg.mutable_pose(),math::Pose(0,0,vis_middle,0,0,0));
   return visual_msg;
+}
+
+void Puck::deliver()
+{
+  std::string ring_string = "";
+  for(size_t i = 0; i < ring_count_; i++)
+  {
+    ring_string += gazsim_msgs::Color_Name(ring_colors_[i]) + ", ";
+  }
+  printf("delivering a %s base with %zu rings, colored %s and a %s cap\n",
+         gazsim_msgs::Color_Name(base_color_).c_str(),
+         ring_count_,
+         ring_string.c_str(),
+         gazsim_msgs::Color_Name(cap_color_).c_str());
+  llsf_msgs::SetOrderDeliveredByColor delivery_msg;
+  switch (base_color_)
+  {
+    case gazsim_msgs::Color::RED:
+      delivery_msg.set_base_color(llsf_msgs::BaseColor::BASE_RED);
+      break;
+    case gazsim_msgs::Color::BLACK:
+      delivery_msg.set_base_color(llsf_msgs::BaseColor::BASE_BLACK);
+      break;
+    default:
+      break;
+  }
+  for(size_t i=0; i < ring_count_; i++)
+  {
+    switch (ring_colors_[i]) {
+      case gazsim_msgs::Color::GREEN:
+        delivery_msg.add_ring_colors(llsf_msgs::RingColor::RING_GREEN);
+        break;
+      case gazsim_msgs::Color::BLUE:
+        delivery_msg.add_ring_colors(llsf_msgs::RingColor::RING_BLUE);
+        break;
+      case gazsim_msgs::Color::YELLOW:
+        delivery_msg.add_ring_colors(llsf_msgs::RingColor::RING_YELLOW);
+        break;
+      case gazsim_msgs::Color::ORANGE:
+        delivery_msg.add_ring_colors(llsf_msgs::RingColor::RING_ORANGE);
+        break;
+      default:
+        break;
+    }
+  }
+  if(have_cap)
+  {
+    switch (cap_color_) {
+      case gazsim_msgs::Color::GREY:
+        delivery_msg.set_cap_color(llsf_msgs::CapColor::CAP_GREY);
+        break;
+      case gazsim_msgs::Color::BLACK:
+        delivery_msg.set_cap_color(llsf_msgs::CapColor::CAP_BLACK);
+        break;
+      default:
+        break;
+    }
+  }
+  delivery_pub_->Publish(delivery_msg);
 }
