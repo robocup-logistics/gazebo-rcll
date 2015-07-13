@@ -50,6 +50,7 @@ enum Command{
   ADD_RING = 0;
   ADD_CAP = 1;
   REMOVE_CAP = 2;
+  DELIVER = 3;
 }
 
 // Time stamp and duration structure.
