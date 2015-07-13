@@ -85,6 +85,9 @@ namespace gazebo
     bool have_cap;
     gazsim_msgs::Color cap_color_;
 
+    /// The color of the base
+    gazsim_msgs::Color base_color_;
+
     /// Publisher to send visual changes to gazebo
     transport::PublisherPtr visual_pub_;
     
