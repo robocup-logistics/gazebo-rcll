@@ -100,3 +100,19 @@ message SetOrderDelivered {
   required Team team_color = 1;
   required uint32 order_id = 2;
 }
+
+
+message SetOrderDeliveredByColor {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 44;
+  }
+
+  required Team         team_color = 1;
+
+	/** Colors of delivered product. Zero,
+	 * or more rings orderd from bottom to top */
+  required BaseColor    base_color = 3;
+  repeated RingColor    ring_colors = 4;
+  required CapColor     cap_color = 5;
+}
