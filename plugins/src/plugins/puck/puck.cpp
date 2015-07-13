@@ -126,7 +126,7 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
       remove_cap();
       break;
     case gazsim_msgs::Command::DELIVER:
-      deliver();
+      deliver(cmd->team_color());
       break;
     default:
       printf("unknowen");
@@ -239,7 +239,7 @@ msgs::Visual Puck::create_visual_msg(std::string element_name, double element_he
   return visual_msg;
 }
 
-void Puck::deliver()
+void Puck::deliver(gazsim_msgs::Team team)
 {
   std::string ring_string = "";
   for(size_t i = 0; i < ring_count_; i++)
@@ -252,6 +252,15 @@ void Puck::deliver()
          ring_string.c_str(),
          gazsim_msgs::Color_Name(cap_color_).c_str());
   llsf_msgs::SetOrderDeliveredByColor delivery_msg;
+  switch (team)
+  {
+    case gazsim_msgs::Team::CYAN:
+      delivery_msg.set_team_color(llsf_msgs::Team::CYAN);
+      break;
+    case gazsim_msgs::Team::MAGENTA:
+      delivery_msg.set_team_color(llsf_msgs::Team::MAGENTA);
+      break;
+  }
   switch (base_color_)
   {
     case gazsim_msgs::Color::RED:

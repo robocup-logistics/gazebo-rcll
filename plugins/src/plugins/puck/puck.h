@@ -103,7 +103,7 @@ namespace gazebo
     
     msgs::Visual create_visual_msg(std::string element_name, double element_height, gazsim_msgs::Color clr);
     
-    void deliver();
+    void deliver(gazsim_msgs::Team team);
     transport::PublisherPtr delivery_pub_;
   };
 }
