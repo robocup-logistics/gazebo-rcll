@@ -88,6 +88,9 @@ namespace gazebo
     /// The color of the base
     gazsim_msgs::Color base_color_;
 
+    /// The ring colors
+    std::vector<gazsim_msgs::Color> ring_colors_;
+
     /// Publisher to send visual changes to gazebo
     transport::PublisherPtr visual_pub_;
     
