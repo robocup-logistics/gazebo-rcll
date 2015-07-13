@@ -84,6 +84,7 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   // publisher for workpiece command results
   this->workpiece_result_pub_ = node_->Advertise<gazsim_msgs::WorkpieceResult>("~/pucks/cmd/result");
   
+  base_color_ = gazsim_msgs::Color::RED;
 }
 
 /** Called by the world update start event
