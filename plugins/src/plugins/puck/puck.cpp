@@ -215,6 +215,12 @@ msgs::Visual Puck::create_visual_msg(std::string element_name, double element_he
       msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(0,0,0,0));
 
       break;
+    case gazsim_msgs::Color::YELLOW:
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(255, 255, 0));
+      break;
+    case gazsim_msgs::Color::ORANGE:
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(255, 127, 0));
+      break;
     case gazsim_msgs::Color::GREY:
     default:
       msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0.2,0.2,0.2));
