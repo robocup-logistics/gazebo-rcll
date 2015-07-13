@@ -131,7 +131,7 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
       {
         ring_string += gazsim_msgs::Color_Name(ring_colors_[i]) + ", ";
       }
-      printf("delivering a %s base with %zu rings, colored %s and a %s cap",
+      printf("delivering a %s base with %zu rings, colored %s and a %s cap\n",
 	     gazsim_msgs::Color_Name(base_color_).c_str(),
              ring_count_,
              ring_string.c_str(),
