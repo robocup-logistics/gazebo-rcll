@@ -36,17 +36,12 @@
 
 package llsf_msgs;
 
-import "Time.proto";
-
 option java_package = "org.robocup_logistics.llsf_msgs";
 option java_outer_classname = "Pose3DProtos";
 
 // Pose information in 3d euclidian space
 // Data is relative to ???
 message Pose3D {
-  // Time when this pose was measured
-  required Time   timestamp = 1;
-
   // X/Y coordinates in meters
   required float  x = 2;
   required float  y = 3;
