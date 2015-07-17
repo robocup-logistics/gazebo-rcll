@@ -107,18 +107,25 @@ void ConveyorVision::send_conveyor_result()
   {
     return;
   }
-  gazebo::math::Pose robot_pose = model_->GetWorldPose();
-  double look_pos_x = robot_pose.pos.x
-    + cos(robot_pose.rot.GetYaw()) * SEARCH_AREA_REL_X - sin(robot_pose.rot.GetYaw()) * SEARCH_AREA_REL_Y;
-  double look_pos_y = robot_pose.pos.y 
-    + sin(robot_pose.rot.GetYaw()) * SEARCH_AREA_REL_X + cos(robot_pose.rot.GetYaw()) * SEARCH_AREA_REL_Y;
-  gazebo::math::Pose look_pose = math::Pose(look_pos_x, look_pos_y, 0, 0, 0, 0);
-  //for(gazebo::physics::ModelPtr model: model_->GetWorld()->GetModels())
+  physics::LinkPtr camera_link = model_->GetLink("carologistics-robotino-3::conveyor_cam::link");
+  if(!camera_link){
+    printf("Can't find conveyor camera\n");
+    return;
+  }
+  gazebo::math::Pose camera_pose = camera_link->GetWorldPose();
+  double look_pos_x = camera_pose.pos.x
+    + cos(camera_pose.rot.GetYaw()) * SEARCH_AREA_REL_X - sin(camera_pose.rot.GetYaw()) * SEARCH_AREA_REL_Y;
+  double look_pos_y = camera_pose.pos.y 
+    + sin(camera_pose.rot.GetYaw()) * SEARCH_AREA_REL_X + cos(camera_pose.rot.GetYaw()) * SEARCH_AREA_REL_Y;
+  gazebo::math::Pose look_pose = math::Pose(look_pos_x, look_pos_y, BELT_HEIGHT, 0, 0, 0);
+
   gazebo::physics::Model_V models = model_->GetWorld()->GetModels();
   for(gazebo::physics::Model_V::iterator it = models.begin(); it != models.end(); it++)
   {
     gazebo::physics::ModelPtr model = *it;
-    if(is_machine(model) && look_pose.pos.Distance(model->GetWorldPose().pos) < RADIUS_DETECTION_AREA)
+    if(is_machine(model)
+       && look_pose.pos.Distance(model->GetWorldPose().pos + math::Vector3(0, 0, BELT_HEIGHT))
+          < RADIUS_DETECTION_AREA)
     {
       //check which side of the conveyor the bot is looking on
       math::Pose mps_pose = model->GetWorldPose();
@@ -136,20 +143,22 @@ void ConveyorVision::send_conveyor_result()
         + BELT_OFFSET_SIDE  * sin(mps_pose.rot.GetYaw())
         - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.rot.GetYaw());
       math::Pose output_pose = math::Pose(conv_output_x, conv_output_y, BELT_HEIGHT, 0, 0, 0);
-      math::Vector3 res;
-      if(input_pose.pos.Distance(robot_pose.pos) <
-         output_pose.pos.Distance(robot_pose.pos)){
-        // printf("looking at input\n");
-        res = input_pose.pos - robot_pose.pos;
+      math::Pose res;
+      if(input_pose.pos.Distance(camera_pose.pos) <
+         output_pose.pos.Distance(camera_pose.pos)){
+        //printf("looking at input\n");
+        res = input_pose - camera_pose;
       }
       else{
-        // printf("looking at output\n");
-        res = output_pose.pos - robot_pose.pos;
+        //printf("looking at output\n");
+        res = output_pose - camera_pose;
       }
+      //get position in the camera frame
+      //printf("conv-res: (%f,%f,%f)\n", res.pos.x, res.pos.y, res.pos.z);
       llsf_msgs::ConveyorVisionResult conv_msg;
       llsf_msgs::Pose3D *pose = new llsf_msgs::Pose3D();
-      pose->set_x(res.x);
-      pose->set_y(res.y);
+      pose->set_x(res.pos.x);
+      pose->set_y(res.pos.y);
       //pose->set_z(res.z);
       //set z to 0 so that no z alignment of the gripper is necessary
       pose->set_z(0);

@@ -79,6 +79,5 @@
     <plugin name="Gyro" filename="libgyro.so"/>
     <plugin name="GPS" filename="libgps.so"/>
     <plugin name="LightSignalDetection" filename="liblight_signal_detection.so"/>
-    <plugin name="ConveyorVision" filename="libconveyor_vision.so" />
   </model>
 </sdf>

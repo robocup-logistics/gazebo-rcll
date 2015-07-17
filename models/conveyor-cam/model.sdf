@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="conveyor_cam">
+    <static>true</static>
+    <link name="link">
+      <gravity>false</gravity>
+      <inertial>
+        <mass>0.02</mass>
+      </inertial>
+      <visual name="visual">
+	<pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+	    <size>0.025 0.09 0.03</size>
+	  </box>
+        </geometry>
+	<cast_shadows>false</cast_shadows>
+	<material>
+	  <ambient>0.0 0.0 0.0 0.1</ambient>
+	  <diffuse>0.0 0.0 0.0 0.11</diffuse>
+	</material>
+      </visual>
+    </link>
+    <plugin name="ConveyorVision" filename="libconveyor_vision.so" />
+  </model>
+</sdf>
