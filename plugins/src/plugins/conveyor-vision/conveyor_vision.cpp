@@ -21,6 +21,7 @@
 #include <math.h>
 
 #include "conveyor_vision.h"
+#include "../mps/mps.h"
 
 using namespace gazebo;
 
@@ -106,25 +107,54 @@ void ConveyorVision::send_conveyor_result()
   {
     return;
   }
-  gazebo::math::Pose bot_pose = model_->GetWorldPose();
+  gazebo::math::Pose robot_pose = model_->GetWorldPose();
+  double look_pos_x = robot_pose.pos.x
+    + cos(robot_pose.rot.GetYaw()) * SEARCH_AREA_REL_X - sin(robot_pose.rot.GetYaw()) * SEARCH_AREA_REL_Y;
+  double look_pos_y = robot_pose.pos.y 
+    + sin(robot_pose.rot.GetYaw()) * SEARCH_AREA_REL_X + cos(robot_pose.rot.GetYaw()) * SEARCH_AREA_REL_Y;
+  gazebo::math::Pose look_pose = math::Pose(look_pos_x, look_pos_y, 0, 0, 0, 0);
   //for(gazebo::physics::ModelPtr model: model_->GetWorld()->GetModels())
   gazebo::physics::Model_V models = model_->GetWorld()->GetModels();
   for(gazebo::physics::Model_V::iterator it = models.begin(); it != models.end(); it++)
   {
     gazebo::physics::ModelPtr model = *it;
-    if(is_machine(model) && dist(bot_pose, model->GetWorldPose()) < 1.5)
+    if(is_machine(model) && look_pose.pos.Distance(model->GetWorldPose().pos) < RADIUS_DETECTION_AREA)
     {
+      //check which side of the conveyor the bot is looking on
+      math::Pose mps_pose = model->GetWorldPose();
+      double conv_input_x = mps_pose.pos.x 
+        + BELT_OFFSET_SIDE  * cos(mps_pose.rot.GetYaw())
+        - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.rot.GetYaw());
+      double conv_input_y = mps_pose.pos.y
+        + BELT_OFFSET_SIDE  * sin(mps_pose.rot.GetYaw())
+        + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.rot.GetYaw());
+      math::Pose input_pose = math::Pose(conv_input_x, conv_input_y, BELT_HEIGHT, 0, 0, 0);
+      double conv_output_x = mps_pose.pos.x 
+        + BELT_OFFSET_SIDE  * cos(mps_pose.rot.GetYaw())
+        + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.rot.GetYaw());
+      double conv_output_y = mps_pose.pos.y
+        + BELT_OFFSET_SIDE  * sin(mps_pose.rot.GetYaw())
+        - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.rot.GetYaw());
+      math::Pose output_pose = math::Pose(conv_output_x, conv_output_y, BELT_HEIGHT, 0, 0, 0);
+      math::Vector3 res;
+      if(input_pose.pos.Distance(robot_pose.pos) <
+         output_pose.pos.Distance(robot_pose.pos)){
+        ;printf("looking at input\n");
+        res = input_pose.pos - robot_pose.pos;
+      }
+      else{
+        ;printf("looking at output\n");
+        res = output_pose.pos - robot_pose.pos;
+      }
       llsf_msgs::ConveyorVisionResult conv_msg;
       llsf_msgs::Pose3D *pose = new llsf_msgs::Pose3D();
-      gazebo::math::Pose res = model->GetWorldPose() - bot_pose;
-      res = res * bot_pose;
-      pose->set_x(res.pos.x);
-      pose->set_y(res.pos.y);
-      pose->set_z(res.pos.z);
-      pose->set_ori_x(res.rot.x);
-      pose->set_ori_y(res.rot.y);
-      pose->set_ori_z(res.rot.z);
-      pose->set_ori_w(res.rot.w);
+      pose->set_x(res.x);
+      pose->set_y(res.y);
+      pose->set_z(res.z);
+      pose->set_ori_x(0);
+      pose->set_ori_y(0);
+      pose->set_ori_z(0);
+      pose->set_ori_w(0);
       conv_msg.set_allocated_positions(pose);
       //send
       conveyor_pub_->Publish(conv_msg);

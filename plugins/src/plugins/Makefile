@@ -25,3 +25,4 @@ include $(BUILDSYSDIR)/rules.mk
 
 # Explicit dependencies
 carologistics-robotino: llsf
+conveyor-vision: mps

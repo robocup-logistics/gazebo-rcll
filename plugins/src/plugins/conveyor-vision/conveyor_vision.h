@@ -29,6 +29,12 @@
 #include <llsf_msgs/ConveyorVisionResult.pb.h>
 #include <llsf_msgs/Pose3D.pb.h>
 
+#define RADIUS_DETECTION_AREA 0.4
+//Search area where the robot is looking for the conveyor relative to the robots center
+#define SEARCH_AREA_REL_X 0.4
+#define SEARCH_AREA_REL_Y 0.0
+
+
 namespace gazebo
 {   
   /** @class Gyro
