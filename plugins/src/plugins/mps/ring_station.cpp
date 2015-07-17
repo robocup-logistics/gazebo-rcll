@@ -28,6 +28,7 @@ RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
   Mps(_parent,_sdf)
 {
   add_base_publisher_ = node_->Advertise<llsf_msgs::MachineAddBase>(TOPIC_MACHINE_ADD_BASE);
+  number_bases_ = 0;
 }
 
 void RingStation::on_puck_msg(ConstPosePtr &msg)
@@ -131,6 +132,7 @@ void RingStation::add_base()
   llsf_msgs::MachineAddBase add_base_msg;
   add_base_msg.set_machine_name(name_);
   add_base_publisher_->Publish(add_base_msg);
+  publish_indicator(true, number_bases_++);
 }
 
 math::Pose RingStation::add_base_pose()

@@ -44,6 +44,7 @@ public:
   
   void add_base();
   math::Pose add_base_pose();
+  u_int32_t number_bases_;
   
   gazebo::transport::PublisherPtr add_base_publisher_;
   void publish_indicator(bool active, int number);
