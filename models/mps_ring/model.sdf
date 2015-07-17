@@ -113,7 +113,7 @@
           </box>
         </geometry>
       </collision>
-      <visual name="base_1">
+      <visual name="base_0">
         <cast_shadows>false</cast_shadows>
         <geometry>
           <sphere>
@@ -121,7 +121,7 @@
           </sphere>
         </geometry>
       </visual>
-      <visual name="base_2">
+      <visual name="base_1">
         <cast_shadows>false</cast_shadows>
         <geometry>
           <sphere>
