@@ -72,6 +72,12 @@ void CapStation::work_puck(std::string puck_name)
       printf("%s mounts cap on %s with color %s\n", name_.c_str(), puck_name.c_str(), gazsim_msgs::Color_Name(stored_cap_color_).c_str());
       cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
       cmd_msg.set_color(stored_cap_color_);
+      
+      gazebo::msgs::Visual vis_msg;
+      vis_msg.set_parent_name(name_+"::body");
+      vis_msg.set_name(name_+"::body::have_cap");
+      gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(),gazebo::common::Color(0.3,0,0));
+      visPub_->Publish(vis_msg);
       break;
   }
   //set_state(State::PROCESSED);
@@ -170,6 +176,11 @@ void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
   {
     printf("%s got cap from %s with color %s\n",name_.c_str(), result->puck_name().c_str(), gazsim_msgs::Color_Name(result->color()).c_str());
     stored_cap_color_ = result->color();
+    gazebo::msgs::Visual vis_msg;
+    vis_msg.set_parent_name(name_+"::body");
+    vis_msg.set_name(name_+"::body::have_cap");
+    gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,0,0));
+    visPub_->Publish(vis_msg);
   }
 }
 
