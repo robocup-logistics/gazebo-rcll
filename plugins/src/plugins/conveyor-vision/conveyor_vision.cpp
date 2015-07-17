@@ -139,18 +139,20 @@ void ConveyorVision::send_conveyor_result()
       math::Vector3 res;
       if(input_pose.pos.Distance(robot_pose.pos) <
          output_pose.pos.Distance(robot_pose.pos)){
-        ;printf("looking at input\n");
+        // printf("looking at input\n");
         res = input_pose.pos - robot_pose.pos;
       }
       else{
-        ;printf("looking at output\n");
+        // printf("looking at output\n");
         res = output_pose.pos - robot_pose.pos;
       }
       llsf_msgs::ConveyorVisionResult conv_msg;
       llsf_msgs::Pose3D *pose = new llsf_msgs::Pose3D();
       pose->set_x(res.x);
       pose->set_y(res.y);
-      pose->set_z(res.z);
+      //pose->set_z(res.z);
+      //set z to 0 so that no z alignment of the gripper is necessary
+      pose->set_z(0);
       pose->set_ori_x(0);
       pose->set_ori_y(0);
       pose->set_ori_z(0);
