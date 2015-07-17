@@ -56,6 +56,23 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
   }
 }
 
+void RingStation::publish_indicator(bool active, int number)
+{
+  gazebo::msgs::Visual msg;
+  msg.set_parent_name(name_+"::body");
+  msg.set_name(name_+"::body::base_" + std::to_string(number));
+  gazebo::msgs::Set(msg.mutable_pose(), gazebo::math::Pose(-0.35 + (number*0.11),0,BELT_HEIGHT+0.3,0,0,0));
+  if(active)
+  {
+    msgs::Set(msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,0,0));
+  }
+  else
+  {
+    msgs::Set(msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(0.3,0,0));
+  }
+  visPub_->Publish(msg);
+}
+
 void RingStation::new_machine_info(ConstMachine &machine)
 {
   if(machine.state() == "PREPARED")
