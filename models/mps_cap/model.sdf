@@ -124,6 +124,15 @@
           </box>
         </geometry>
       </collision>
+      <visual name="have_cap">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <sphere>
+            <radius>0.05</radius>
+          </sphere>
+        </geometry>
+        <pose>0 0 1.22 0 0 0</pose>
+      </visual>
     </link>
 
     <include>
