@@ -116,6 +116,13 @@ void RingStation::new_machine_info(ConstMachine &machine)
     }
     set_state(State::DELIVERED);
   }
+  
+  // show number of bases
+  for(u_int32_t i=0; i < MAX_NUM_BASES; i++)
+  {
+    printf("%s with %i bases, base %i\n",name_.c_str(), machine.loaded_with(), i);
+    publish_indicator(i < machine.loaded_with(), i);
+  }
 }
 
 void RingStation::add_base()
