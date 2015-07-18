@@ -24,6 +24,7 @@
 #define RING_STATION_H
 
 #define TOPIC_MACHINE_ADD_BASE "~/LLSFRbSim/MachineAddBase/"
+#define MAX_NUM_BASES 3
 
 #include "mps.h"
 
@@ -43,8 +44,10 @@ public:
   
   void add_base();
   math::Pose add_base_pose();
+  u_int32_t number_bases_;
   
   gazebo::transport::PublisherPtr add_base_publisher_;
+  void publish_indicator(bool active, int number);
 };
 
 }

@@ -28,6 +28,7 @@ RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
   Mps(_parent,_sdf)
 {
   add_base_publisher_ = node_->Advertise<llsf_msgs::MachineAddBase>(TOPIC_MACHINE_ADD_BASE);
+  number_bases_ = 0;
 }
 
 void RingStation::on_puck_msg(ConstPosePtr &msg)
@@ -54,6 +55,23 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
     set_state(State::RETRIEVED);
     puck_in_processing_name_ = "";
   }
+}
+
+void RingStation::publish_indicator(bool active, int number)
+{
+  gazebo::msgs::Visual msg;
+  msg.set_parent_name(name_+"::body");
+  msg.set_name(name_+"::body::base_" + std::to_string(number));
+  gazebo::msgs::Set(msg.mutable_pose(), gazebo::math::Pose(-0.35 + (number*0.11),0,BELT_HEIGHT+0.3,0,0,0));
+  if(active)
+  {
+    msgs::Set(msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,0,0));
+  }
+  else
+  {
+    msgs::Set(msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(0.3,0,0));
+  }
+  visPub_->Publish(msg);
 }
 
 void RingStation::new_machine_info(ConstMachine &machine)
@@ -99,6 +117,13 @@ void RingStation::new_machine_info(ConstMachine &machine)
     }
     set_state(State::DELIVERED);
   }
+  
+  // show number of bases
+  number_bases_ = machine.loaded_with();
+  for(u_int32_t i=0; i < MAX_NUM_BASES; i++)
+  {
+    publish_indicator(i < machine.loaded_with(), i);
+  }
 }
 
 void RingStation::add_base()
@@ -107,6 +132,7 @@ void RingStation::add_base()
   llsf_msgs::MachineAddBase add_base_msg;
   add_base_msg.set_machine_name(name_);
   add_base_publisher_->Publish(add_base_msg);
+  publish_indicator(true, number_bases_++);
 }
 
 math::Pose RingStation::add_base_pose()

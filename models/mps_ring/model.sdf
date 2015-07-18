@@ -113,6 +113,30 @@
           </box>
         </geometry>
       </collision>
+      <visual name="base_0">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <sphere>
+            <radius>0.05</radius>
+          </sphere>
+        </geometry>
+      </visual>
+      <visual name="base_1">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <sphere>
+            <radius>0.05</radius>
+          </sphere>
+        </geometry>
+      </visual>
+      <visual name="base_2">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <sphere>
+            <radius>0.05</radius>
+          </sphere>
+        </geometry>
+      </visual>
     </link>
 
     <include>
