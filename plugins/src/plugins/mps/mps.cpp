@@ -252,7 +252,7 @@ void Mps::on_new_puck(ConstNewPuckPtr &msg)
     this->puck_subs_.push_back(this->node_->Subscribe(msg->gps_topic() , &Mps::on_puck_msg, this));
 }
 
-void Mps::spawn_puck(const math::Pose &spawn_pose)
+void Mps::spawn_puck(const math::Pose &spawn_pose, gazsim_msgs::Color base_color)
 {
   printf("spawning puck for %s\n",name_.c_str());
   msgs::Factory new_puck_msg;
@@ -275,6 +275,28 @@ void Mps::spawn_puck(const math::Pose &spawn_pose)
       return;
     }
     new_sdf = raw_sdf.erase(name_pos, old_name.length()).insert(name_pos, new_name);
+    std::string old_color = "1.0 0.35 0.0 1";
+    std::string new_color;
+    switch (base_color) {
+      case gazsim_msgs::Color::RED:
+        new_color = "1.0 0.0 0.0 1";
+        break;
+      case gazsim_msgs::Color::BLACK:
+        new_color = "0.2 0.2 0.2 1";
+        break;
+      case gazsim_msgs::Color::SILVER:
+        new_color = "0.8 0.8 0.8 1";
+        break;
+      default:
+        printf("%s sould spwan with an unsopported base color %s\n",new_name.c_str(), gazsim_msgs::Color_Name(base_color).c_str());
+        return;
+        break;
+    }
+    std::size_t color_pos;
+    while((color_pos = new_sdf.find(old_color)) != std::string::npos){
+      new_sdf = new_sdf.erase(color_pos, old_color.length()).insert(color_pos, new_color);
+      color_pos = new_sdf.find(old_color);
+    }
   }
   else{
     printf("Cant find workpiece_base sdf file:%s", sdf_path.c_str());
