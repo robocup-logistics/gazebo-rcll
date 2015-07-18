@@ -27,7 +27,10 @@
 #include <stack>
 #include <string.h>
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
+#include <llsf_msgs/OrderInfo.pb.h>
 
+
+typedef const boost::shared_ptr<llsf_msgs::SetOrderDeliveredByColor const> ConstSetOrderDeliveredByColorPtr;
 typedef const boost::shared_ptr<gazsim_msgs::WorkpieceCommand const> ConstWorkpieceCommandPtr;
 /// The height of one ring
 #define RING_HEIGHT 0.008 //meter
@@ -35,6 +38,7 @@ typedef const boost::shared_ptr<gazsim_msgs::WorkpieceCommand const> ConstWorkpi
 #define CAP_HEIGHT 0.004 //meter
 /// The height of the workpiece base
 #define WORKPIECE_HEIGHT 0.0225 //meter
+#define TOPIC_SET_ORDER_DELIVERY_BY_COLOR "~/LLSFRbSim/DELIVERY"
 
 namespace gazebo
 {
@@ -85,6 +89,12 @@ namespace gazebo
     bool have_cap;
     gazsim_msgs::Color cap_color_;
 
+    /// The color of the base
+    gazsim_msgs::Color base_color_;
+
+    /// The ring colors
+    std::vector<gazsim_msgs::Color> ring_colors_;
+
     /// Publisher to send visual changes to gazebo
     transport::PublisherPtr visual_pub_;
     
@@ -92,5 +102,8 @@ namespace gazebo
     transport::PublisherPtr workpiece_result_pub_;
     
     msgs::Visual create_visual_msg(std::string element_name, double element_height, gazsim_msgs::Color clr);
+    
+    void deliver(gazsim_msgs::Team team);
+    transport::PublisherPtr delivery_pub_;
   };
 }

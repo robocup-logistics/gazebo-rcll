@@ -37,6 +37,7 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
   {
     physics::ModelPtr puck = world_->GetModel(msg->name());
     printf("%s got puck %s for gate %i\n",this->name_.c_str(), puck->GetName().c_str(), selected_gate_);
+    bool successfull_deliver = true;
     switch(selected_gate_)
     {
       case 1:
@@ -51,9 +52,25 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
       default:
         printf("bad gateway for puck\n");
         puck->SetWorldPose(get_puck_world_pose(-0.5,0.5));
+        successfull_deliver = false;
         break;
     }
     set_state(State::AVAILABLE);
+    if(successfull_deliver)
+    {
+      gazsim_msgs::WorkpieceCommand cmd_msg;
+      cmd_msg.set_command(gazsim_msgs::Command::DELIVER);
+      cmd_msg.set_puck_name(msg->name());
+      if(name_[0] == 'C')
+      {
+        cmd_msg.set_team_color(gazsim_msgs::Team::CYAN);
+      }
+      else if(name_[0] == 'M')
+      {
+        cmd_msg.set_team_color(gazsim_msgs::Team::MAGENTA);
+      }
+      puck_cmd_pub_->Publish(cmd_msg);
+    }
   }
 }
 
