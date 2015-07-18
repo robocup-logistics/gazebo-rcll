@@ -31,6 +31,11 @@
       <uri>model://infrared_sensor</uri>
       <pose>0.21 0 0.08 0 0 0</pose>
     </include>
+    <include>
+      <name>conveyor_cam</name>
+      <uri>model://conveyor-cam</uri>
+      <pose>0.22 0 0.85 0 -0.3 0</pose>
+    </include>
 
     <joint name="sick_joint" type="revolute">
       <child>sick_laser::link</child>
@@ -84,6 +89,18 @@
       <child>infrared_sensor::link</child>
       <parent>robotino3::body</parent>
       <pose>0.21 0 0.02 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="conveor_cam_joint" type="revolute">
+      <child>conveyor_cam::link</child>
+      <parent>robotino3::body</parent>
+      <pose>0.23 0 0.02 0 0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
