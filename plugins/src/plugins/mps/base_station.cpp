@@ -65,7 +65,21 @@ void BaseStation::new_machine_info(ConstMachine &machine)
     {
       spawn_pose = math::Pose(0,0,0,0,0,0);
     }
-    spawn_puck(spawn_pose);
+    gazsim_msgs::Color spawn_clr;
+    switch(machine.instruction_bs().color()){
+      case llsf_msgs::BaseColor::BASE_BLACK:
+        spawn_clr = gazsim_msgs::Color::BLACK;
+        break;
+      case llsf_msgs::BaseColor::BASE_SILVER:
+        spawn_clr = gazsim_msgs::Color::SILVER;
+        break;
+      case llsf_msgs::BaseColor::BASE_RED:
+      default:
+        spawn_clr = gazsim_msgs::Color::RED;
+        break;
+    }
+
+    spawn_puck(spawn_pose, spawn_clr);
     have_puck_ = "workpiece_base";
     set_state(State::PROCESSED);
     set_state(State::DELIVERED);

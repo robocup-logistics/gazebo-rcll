@@ -143,7 +143,7 @@ namespace gazebo
     
     physics::WorldPtr world_;
     
-    void spawn_puck(const math::Pose &spawn_pose);
+    void spawn_puck(const math::Pose &spawn_pose, enum gazsim_msgs::Color base_color);
     
     // Create a publisher on the ~/factory topic
     transport::PublisherPtr factoryPub;

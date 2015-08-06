@@ -269,6 +269,8 @@ void Puck::deliver(gazsim_msgs::Team team)
     case gazsim_msgs::Color::BLACK:
       delivery_msg.set_base_color(llsf_msgs::BaseColor::BASE_BLACK);
       break;
+    case gazsim_msgs::Color::SILVER:
+      delivery_msg.set_base_color(llsf_msgs::BaseColor::BASE_SILVER);
     default:
       break;
   }

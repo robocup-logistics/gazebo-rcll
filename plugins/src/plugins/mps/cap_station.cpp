@@ -29,7 +29,7 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
 {
   // spawn_puck(shelf_left_pose());
   // spawn_puck(shelf_middle_pose());
-  spawn_puck(shelf_right_pose());
+  spawn_puck(shelf_right_pose(),gazsim_msgs::Color::RED);
   workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
 }
 
@@ -52,7 +52,7 @@ void CapStation::OnUpdate(const common::UpdateInfo &info)
   // }
   if(puck_in_shelf_right_ && !pose_hit(puck_in_shelf_right_->GetWorldPose(),shelf_right_pose(),0.1))
   {
-    spawn_puck(shelf_right_pose());
+    spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
     puck_in_shelf_right_ = NULL;
   }
 }
