@@ -31,6 +31,7 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   // spawn_puck(shelf_middle_pose());
   spawn_puck(shelf_right_pose(),gazsim_msgs::Color::RED);
   workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
+  stored_cap_color_ = gazsim_msgs::Color::NONE;
 }
 
 void CapStation::OnUpdate(const common::UpdateInfo &info)
@@ -67,21 +68,30 @@ void CapStation::work_puck(std::string puck_name)
     case llsf_msgs::CsOp::RETRIEVE_CAP:
       printf("%s retrives cap from %s\n ", name_.c_str(), puck_name.c_str());
       cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
+      puck_cmd_pub_->Publish(cmd_msg);
       break;
     case llsf_msgs::CsOp::MOUNT_CAP:
-      printf("%s mounts cap on %s with color %s\n", name_.c_str(), puck_name.c_str(), gazsim_msgs::Color_Name(stored_cap_color_).c_str());
-      cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
-      cmd_msg.set_color(stored_cap_color_);
+      if(stored_cap_color_ != gazsim_msgs::Color::NONE)
+      {
+	printf("%s mounts cap on %s with color %s\n", name_.c_str(), puck_name.c_str(), gazsim_msgs::Color_Name(stored_cap_color_).c_str());
+	cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
+	cmd_msg.set_color(stored_cap_color_);
       
-      gazebo::msgs::Visual vis_msg;
-      vis_msg.set_parent_name(name_+"::body");
-      vis_msg.set_name(name_+"::body::have_cap");
-      gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(),gazebo::common::Color(0.3,0,0));
-      visPub_->Publish(vis_msg);
+	gazebo::msgs::Visual vis_msg;
+	vis_msg.set_parent_name(name_+"::body");
+	vis_msg.set_name(name_+"::body::have_cap");
+	gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(),gazebo::common::Color(0.3,0,0));
+	visPub_->Publish(vis_msg);
+	puck_cmd_pub_->Publish(cmd_msg);
+	stored_cap_color_ = gazsim_msgs::Color::NONE;
+      }
+      else
+      {
+	printf("%s can't mount cap on %s without a cap loaded first\n", name_.c_str(), puck_name.c_str());
+      }
       break;
   }
   //set_state(State::PROCESSED);
-  puck_cmd_pub_->Publish(cmd_msg);
   world_->GetModel(puck_name)->SetWorldPose(output());
   puck_in_processing_name_ = puck_name;
 }
@@ -175,12 +185,15 @@ void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
   if(result->puck_name() == puck_in_processing_name_)
   {
     printf("%s got cap from %s with color %s\n",name_.c_str(), result->puck_name().c_str(), gazsim_msgs::Color_Name(result->color()).c_str());
-    stored_cap_color_ = result->color();
-    gazebo::msgs::Visual vis_msg;
-    vis_msg.set_parent_name(name_+"::body");
-    vis_msg.set_name(name_+"::body::have_cap");
-    gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,0,0));
-    visPub_->Publish(vis_msg);
+    if(result->color() != gazsim_msgs::Color::NONE)
+    {
+      stored_cap_color_ = result->color();
+      gazebo::msgs::Visual vis_msg;
+      vis_msg.set_parent_name(name_+"::body");
+      vis_msg.set_name(name_+"::body::have_cap");
+      gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,0,0));
+      visPub_->Publish(vis_msg);
+    }
   }
 }
 

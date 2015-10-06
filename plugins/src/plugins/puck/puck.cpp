@@ -122,8 +122,19 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
       this->add_cap(cmd->color());
       break;
     case gazsim_msgs::Command::REMOVE_CAP:
-      printf("remove cap, providing cap color %s\n", gazsim_msgs::Color_Name(this->cap_color_).c_str());
-      remove_cap();
+      if(have_cap)
+      {
+	printf("remove cap, providing cap color %s\n", gazsim_msgs::Color_Name(this->cap_color_).c_str());
+	remove_cap();
+      }
+      else
+      {
+	printf("Can't remove any cap from this workpiece\n");
+	gazsim_msgs::WorkpieceResult msg;
+	msg.set_puck_name(name());
+	msg.set_color(gazsim_msgs::Color::NONE);
+	this->workpiece_result_pub_->Publish(msg);
+      }      
       break;
     case gazsim_msgs::Command::DELIVER:
       deliver(cmd->team_color());
