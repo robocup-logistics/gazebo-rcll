@@ -124,10 +124,12 @@ gazebo::physics::JointPtr Gripper::getJointEndingWith(physics::ModelPtr model, s
 }
 
 void Gripper::close() {
-  if (grippedPuck)
-    return;
-
   std::cout << "Closing gripper!" << std::endl;
+
+  if (grippedPuck){
+    sendHasPuck(true);
+    return;
+  }
 
   grippedPuck = getNearestPuck();
   if (!grippedPuck){
