@@ -1,0 +1,51 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="tag">
+    <static>true</static>
+    <link name="link">
+      <pose>0 0 0 0 0 0 </pose>
+      <gravity>false</gravity>
+      <!-- White background for tag -->
+      
+      <visual name="tag_background">
+        <cast_shadows>false</cast_shadows>
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <plane>
+            <normal>0 0 1</normal>
+            <size>0.2 0.2</size>
+          </plane>
+        </geometry>
+	<material>	  
+          <script>
+            <uri>model://tag/materials/scripts</uri>
+            <uri>model://tag/materials/textures</uri>
+            <name>tag/empty</name>
+          </script>
+	</material>
+      </visual>
+      <!-- The visual tag pattern is changed by the plugin depending on the name of this model. So spawn it with the name tag_01 to let it have the patter with id 01. -->
+      <visual name="pattern">
+        <cast_shadows>false</cast_shadows>
+        <pose>0 0 0.001 0 0 0</pose>
+        <geometry>
+          <plane>
+            <normal>0 0 1</normal>
+            <size>0.135 0.135</size>
+          </plane>
+        </geometry>
+	<material>	  
+          <script>
+            <uri>model://tag/materials/scripts</uri>
+            <uri>model://tag/materials/textures</uri>
+            <name>tag/empty</name>
+          </script>
+	</material>
+      </visual>
+    </link>
+
+    <!-- Plugin to create the right pattern and publish the position -->
+    <plugin name="Tag" filename="libtag.so"/>
+
+  </model>
+</sdf>
