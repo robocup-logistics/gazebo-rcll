@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
   <model name="tag">
-    <static>true</static>
+    <static>false</static>
     <link name="link">
       <pose>0 0 0 0 0 0 </pose>
       <gravity>false</gravity>
@@ -38,7 +38,7 @@
           <script>
             <uri>model://tag/materials/scripts</uri>
             <uri>model://tag/materials/textures</uri>
-            <name>tag/empty</name>
+            <name>tag/tag_01</name>
           </script>
 	</material>
       </visual>

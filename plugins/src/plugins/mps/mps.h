@@ -114,7 +114,7 @@ namespace gazebo
     
     ///Publisher to send spawn machine tags
     transport::PublisherPtr visPub_;
-    void spawnTag(std::string visual_name, std::string tag_name, float x, float y, float ori);
+    void grabTag(std::string link_name, std::string tag_name, gazebo::physics::JointPtr joint);
     double spawned_tags_last_;
     double created_time_;
 
@@ -156,6 +156,13 @@ namespace gazebo
     
     std::map<u_int32_t,std::string> hold_pucks;
     bool is_puck_hold(std::string puck_name);
+
+    //stuff for grabing the tag to the right position
+    static gazebo::physics::LinkPtr getLinkEndingWith(physics::ModelPtr model, std::string link);
+    static gazebo::physics::JointPtr getJointEndingWith(physics::ModelPtr model, std::string link);
+    gazebo::physics::JointPtr tag_joint_input;
+    gazebo::physics::JointPtr tag_joint_output;
+    bool grabbed_tags_ = false;
   };
 }
 

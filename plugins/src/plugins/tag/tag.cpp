@@ -99,7 +99,7 @@ void Tag::OnUpdate(const common::UpdateInfo & /*_info*/)
     msgs::Set(msg.mutable_pose(), math::Pose(0, 0, 0.001, 0, 0, 0));
 
     //set right texture (here the model name has to be tag_id)
-    printf("Tag: creating tag pattern %s\n", name_.c_str());
+    // printf("Tag: creating tag pattern %s\n", name_.c_str());
     msg.mutable_material()->mutable_script()->set_name(std::string("tag/") + name_);
 
     std::string *uri1 = msg.mutable_material()->mutable_script()->add_uri();
