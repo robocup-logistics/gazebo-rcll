@@ -142,13 +142,10 @@ void Mps::set_state(State state)
  */
 void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::JointPtr joint)
 {
-  printf("MPS: looking for tag %s\n", tag_name.c_str());
   //get tag_id from tag_name
   std::map<std::string,std::string> name_id_match =  {{"C-CS1I","tag_01"},{"C-CS1O","tag_02"},{"C-CS2I","tag_17"},{"C-CS2O","tag_18"},{"C-RS1I","tag_33"},{"C-RS1O","tag_34"},{"C-RS2I","tag_177"},{"C-RS2O","tag_178"},{"C-BSI","tag_65"},{"C-BSO","tag_66"},{"C-DSI","tag_81"},{"C-DSO","tag_82"},{"M-CS1I","tag_97"},{"M-CS1O","tag_98"},{"M-CS2I","tag_113"},{"M-CS2O","tag_114"},{"M-RS1I","tag_129"},{"M-RS1O","tag_130"},{"M-RS2I","tag_145"},{"M-RS2O","tag_146"},{"M-BSI","tag_161"},{"M-BSO","tag_162"},{"M-DSI","tag_49"},{"M-DSO","tag_50"}};
   tag_name = name_id_match[tag_name];
-  printf("MPS: using tag %s\n", tag_name.c_str());
   
-
   //get link of mps
   gazebo::physics::LinkPtr gripperLink = getLinkEndingWith(model_,link_name.c_str());
   if(!gripperLink){
@@ -173,7 +170,6 @@ void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::
   math::Pose newPose = gripperPose;
   tag->SetWorldPose(newPose);
 
-  printf("MPS %s: attaching tag %s onto %s\n", name_.c_str(), tag_name.c_str(), link_name.c_str());
   joint->Load(gripperLink, tagLink, math::Pose(0, 0, 0, 0, 0, 0));
   joint->Attach(gripperLink, tagLink);
 
@@ -181,7 +177,7 @@ void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::
   joint->SetHighStop( 0, gazebo::math::Angle( 0.0f ) );
   joint->SetLowStop( 0, gazebo::math::Angle( 0.0f ) );
 
-  printf("MPS: attached tag %s\n", tag_name.c_str());
+  // printf("MPS %s: attached tag %s\n", name_.c_str(), tag_name.c_str());
 }
 
   //compute locations of input and output (not sure about the sides jet)
