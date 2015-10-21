@@ -46,6 +46,6 @@
 
     <!-- Plugin to create the right pattern and publish the position -->
     <plugin name="Tag" filename="libtag.so"/>
-
+    <plugin name="GPS" filename="libgps.so"/>
   </model>
 </sdf>
