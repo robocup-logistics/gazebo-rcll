@@ -1,6 +1,7 @@
 /***************************************************************************
  *  tag.h - Plugin to spawn the right tag pattern and publish the pose.
- *          The name of the spawned model has to be the tag_id to display
+ *          The name of the spawned model has to be something like
+ *            'prefix/tag_01/suffix' to display the right tag pattern
  *
  *  Created: Fri Oct 16 17:59:54 2015
  *  Copyright  2015  Frederik Zwilling
