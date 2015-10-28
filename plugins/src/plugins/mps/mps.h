@@ -54,7 +54,7 @@
 //Height of the center of the tag
 #define TAG_SIZE 0.135
 //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
-#define TAG_SPAWN_TIME 5.0
+#define TAG_SPAWN_TIME 10.0
 #define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
 #define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
 #define TOPIC_PUCK_COMMAND "~/pucks/cmd"
@@ -114,7 +114,7 @@ namespace gazebo
     
     ///Publisher to send spawn machine tags
     transport::PublisherPtr visPub_;
-    void spawnTag(std::string visual_name, std::string tag_name, float x, float y, float ori);
+    void grabTag(std::string link_name, std::string tag_name, gazebo::physics::JointPtr joint);
     double spawned_tags_last_;
     double created_time_;
 
@@ -156,6 +156,13 @@ namespace gazebo
     
     std::map<u_int32_t,std::string> hold_pucks;
     bool is_puck_hold(std::string puck_name);
+
+    //stuff for grabing the tag to the right position
+    static gazebo::physics::LinkPtr getLinkEndingWith(physics::ModelPtr model, std::string link);
+    static gazebo::physics::JointPtr getJointEndingWith(physics::ModelPtr model, std::string link);
+    gazebo::physics::JointPtr tag_joint_input;
+    gazebo::physics::JointPtr tag_joint_output;
+    bool grabbed_tags_ = false;
   };
 }
 

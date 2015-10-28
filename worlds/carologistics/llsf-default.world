@@ -131,19 +131,128 @@
       <pose>-4.5 1.0 0 0 0 -0.75</pose>
     </include>
 
-    <!-- Pucks  -->
-    <!-- <include> -->
-    <!--   <name>puck_0</name> -->
-    <!--   <uri>model://workpiece_base</uri> -->
-    <!--   <pose>0.97 2.5 0.92 0 0 0</pose> -->
-    <!-- </include> -->
-    <!-- <include> -->
-    <!--   <name>puck_1</name> -->
-    <!--   <uri>model://workpiece_base</uri> -->
-    <!--   <pose>0.97 2.6 0.92 0 0 0</pose> -->
-    <!-- </include> -->
-    <!-- Team Cyan -->
-    <!-- Team Magenta -->
+    <!-- Tags (are later grapped by the mps)  -->
+    <include>
+      <name>tag_01</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_02</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_17</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_18</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_33</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_34</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_177</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_178</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_65</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_66</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_81</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_82</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_97</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_98</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_113</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_114</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_129</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_130</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_145</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_146</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_161</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_162</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_49</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_50</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    
 
     <!-- Plugins for the world -->
     <plugin name="llsf_refbox_comm" filename="libllsf_refbox_comm.so" />

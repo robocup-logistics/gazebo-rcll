@@ -23,6 +23,7 @@
 #include <fstream>
 #include <fnmatch.h>
 #include <stdlib.h>
+#include <map>
 
 #include "mps.h"
 
@@ -67,6 +68,14 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   factoryPub = node_->Advertise<msgs::Factory>("~/factory");
   puck_cmd_pub_ = node_->Advertise<gazsim_msgs::WorkpieceCommand>(TOPIC_PUCK_COMMAND);
   joint_message_sub_ = node_->Subscribe(TOPIC_JOINT, &Mps::on_joint_msg, this);
+
+  //create joints to hold tags
+  tag_joint_input = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_);
+  tag_joint_input->SetName("tag_joint_input");
+  tag_joint_input->SetModel( model_);
+  tag_joint_output = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_);
+  tag_joint_output->SetName("tag_joint_output");
+  tag_joint_output->SetModel( model_);
 }
 ///Destructor
 Mps::~Mps()
@@ -78,12 +87,12 @@ Mps::~Mps()
  */
 void Mps::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-  if(model_->GetWorld()->GetSimTime().Double() - spawned_tags_last_ > TAG_SPAWN_TIME)
+  if(!grabbed_tags_ && model_->GetWorld()->GetSimTime().Double() - spawned_tags_last_ > TAG_SPAWN_TIME)
   {
     //Spawn tags (in Init is to early because it would be spawned at origin)
-    spawnTag("tag_input", name_ + "I" , 0, -0.176, 0);
-    spawnTag("tag_output", name_ + "O" , 0, 0.176, 3.14);
-    spawned_tags_last_ = model_->GetWorld()->GetSimTime().Double();
+    grabTag("mps_tag_input", name_ + "I", tag_joint_input);
+    grabTag("mps_tag_output", name_ + "O", tag_joint_output);
+    grabbed_tags_ = true;
   }
 }
 
@@ -129,35 +138,46 @@ void Mps::set_state(State state)
 }
 
 /**
- * Spawn tag on machine sides
+ * Find the tag with the id matching to the tag_name (e.g. C-BSI), grap it to mount it at the side of the mps (where the link link_name is placed)
  */
-void Mps::spawnTag(std::string visual_name, std::string tag_name, float x, float y, float ori)
+void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::JointPtr joint)
 {
-  //create message to return
-  msgs::Visual msg;
-
-  msgs::Geometry *geomMsg = msg.mutable_geometry();
-  geomMsg->set_type(msgs::Geometry::PLANE);
+  //get tag_id from tag_name
+  std::map<std::string,std::string> name_id_match =  {{"C-CS1I","tag_01"},{"C-CS1O","tag_02"},{"C-CS2I","tag_17"},{"C-CS2O","tag_18"},{"C-RS1I","tag_33"},{"C-RS1O","tag_34"},{"C-RS2I","tag_177"},{"C-RS2O","tag_178"},{"C-BSI","tag_65"},{"C-BSO","tag_66"},{"C-DSI","tag_81"},{"C-DSO","tag_82"},{"M-CS1I","tag_97"},{"M-CS1O","tag_98"},{"M-CS2I","tag_113"},{"M-CS2O","tag_114"},{"M-RS1I","tag_129"},{"M-RS1O","tag_130"},{"M-RS2I","tag_145"},{"M-RS2O","tag_146"},{"M-BSI","tag_161"},{"M-BSO","tag_162"},{"M-DSI","tag_49"},{"M-DSO","tag_50"}};
+  tag_name = name_id_match[tag_name];
   
-  msgs::Set(geomMsg->mutable_plane()->mutable_normal(), math::Vector3(0, 0, 1));
-  msgs::Set(geomMsg->mutable_plane()->mutable_size(), math::Vector2d(TAG_SIZE, TAG_SIZE));
-  msg.set_cast_shadows(false);
+  //get link of mps
+  gazebo::physics::LinkPtr gripperLink = getLinkEndingWith(model_,link_name.c_str());
+  if(!gripperLink){
+    printf("MPS: can't find mps link %s to attach tag\n", link_name.c_str());
+    return;
+  }
 
-  //construct full path to link that should contain the tag
-  std::string parent_link = name_ + "::mps_tags::link";
-  msg.set_parent_name(parent_link.c_str());
+  //find link of tag
+  gazebo::physics::ModelPtr tag = world_->GetModel(tag_name);
+  if(!tag){
+    printf("MPS: can't find tag with name %s\n", tag_name.c_str());
+    return;
+  }
+  gazebo::physics::LinkPtr tagLink = getLinkEndingWith(tag,"link");
+  if(!tagLink){
+    printf("MPS: can't find link of tag with name %s\n", tag_name.c_str());
+    return;
+  }
 
-  msg.set_name((parent_link + "::" + visual_name).c_str());
-  msgs::Set(msg.mutable_pose(), math::Pose(x, y, TAG_HEIGHT, 1.57, 0, ori));
+  //teleport tag to right position
+  math::Pose gripperPose = gripperLink->GetWorldPose();
+  math::Pose newPose = gripperPose;
+  tag->SetWorldPose(newPose);
 
-  //set right texture
-  msg.mutable_material()->mutable_script()->set_name(std::string("tag/") + tag_name);
+  joint->Load(gripperLink, tagLink, math::Pose(0, 0, 0, 0, 0, 0));
+  joint->Attach(gripperLink, tagLink);
 
-  std::string *uri1 = msg.mutable_material()->mutable_script()->add_uri();
-  *uri1 = "model://tags/materials/scripts";
-  std::string *uri2 = msg.mutable_material()->mutable_script()->add_uri();
-  *uri2 = "model://tags/materials/textures";
-  visPub_->Publish(msg);
+  joint->SetAxis(0,  gazebo::math::Vector3(0.0f,0.0f,1.0f) );
+  joint->SetHighStop( 0, gazebo::math::Angle( 0.0f ) );
+  joint->SetLowStop( 0, gazebo::math::Angle( 0.0f ) );
+
+  // printf("MPS %s: attached tag %s\n", name_.c_str(), tag_name.c_str());
 }
 
   //compute locations of input and output (not sure about the sides jet)
@@ -344,4 +364,28 @@ bool Mps::is_puck_hold(std::string puck_name)
   }
   //printf("%s did not find %s", name_.c_str(), puck_name.c_str());
   return false;
+}
+
+inline bool ends_with(std::string const & value, std::string const & ending)
+{
+  if (ending.size() > value.size()) return false;
+  return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
+gazebo::physics::LinkPtr Mps::getLinkEndingWith(physics::ModelPtr model, std::string ending) {
+  std::vector<gazebo::physics::LinkPtr> links = model->GetLinks();
+  for (unsigned int i=0; i<links.size(); i++) {
+    if (ends_with(links[i]->GetName(), ending))
+      return links[i];
+  }
+  return gazebo::physics::LinkPtr();
+}
+
+gazebo::physics::JointPtr Mps::getJointEndingWith(physics::ModelPtr model, std::string ending) {
+  std::vector<gazebo::physics::JointPtr> joints = model->GetJoints();
+  for (unsigned int i=0; i<joints.size(); i++) {
+    if (ends_with(joints[i]->GetName(), ending))
+      return joints[i];
+  }
+  return gazebo::physics::JointPtr();
 }

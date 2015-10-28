@@ -145,23 +145,12 @@
       <pose>-0.2905 -0.113 0.915 0 0 0</pose>
     </include>
 
-    <include>
-      <name>mps_tags</name>
-      <uri>model://tags</uri>
-      <pose>0.025 0 0 0 0 3.14</pose> <!-- The belt is somehow not centered in the models -->
-    </include>
-
-    <joint name="mps_tag_joint" type="revolute">
-      <parent>body</parent>
-      <child>mps_tags::link</child>
-      <axis>
-        <limit>
-          <lower>0</lower>
-          <upper>0</upper>
-        </limit>
-        <xyz>0 0 1</xyz>
-      </axis>
-    </joint>
+    <link name="mps_tag_output">
+      <pose>0.025 -0.175 0.54 1.57 0 0</pose>
+    </link>
+    <link name="mps_tag_input">
+      <pose>0.025 0.175 0.54 1.57 0 3.14</pose>
+    </link>
 
     <joint name="mps_light_joint" type="revolute">
       <parent>body</parent>
