@@ -107,6 +107,8 @@ void TagVision::OnUpdate(const common::UpdateInfo & /*_info*/)
   {
     last_sent_time_ = time;
     //compute tag-vision result
+    msgs::PosesStamped res;
+    msgs::Stamp(res.mutable_time());
     for (std::map<physics::ModelPtr, math::Pose>::iterator it=tag_poses_.begin(); it!=tag_poses_.end(); it++)
     {
       it->second = it->first->GetWorldPose();
@@ -116,10 +118,15 @@ void TagVision::OnUpdate(const common::UpdateInfo & /*_info*/)
 	 && rel_pos.pos.x > 0 && std::abs(std::asin(rel_pos.pos.Normalize().y)) < CAMERA_FOV / 2.0
 	 && std::abs(rel_pos.rot.GetYaw()) > 1.57)
       {
-	printf("TagVision: seeing tag %s\n pos: %f,%f angle: %f facing: (%f,%f,%f)\n\n", it->first->GetName().c_str(),
-	       rel_pos.pos.x, rel_pos.pos.y, std::asin(rel_pos.pos.Normalize().y), rel_pos.rot.GetRoll(), rel_pos.rot.GetPitch(), rel_pos.rot.GetYaw());
+	// printf("TagVision: seeing tag %s\n pos: %f,%f angle: %f facing: (%f,%f,%f)\n\n", it->first->GetName().c_str(), rel_pos.pos.x, rel_pos.pos.y, std::asin(rel_pos.pos.Normalize().y), rel_pos.rot.GetRoll(), rel_pos.rot.GetPitch(), rel_pos.rot.GetYaw());
+	//add tag to result
+	msgs::Pose* tag_pose = res.add_pose();
+	*tag_pose = msgs::Convert(rel_pos);
+	tag_pose->set_name(it->first->GetName());
+	tag_pose->set_id(get_tag_id_from_name(it->first->GetName()));
       }
     }
+    result_pub_->Publish(res);
   }
 }
 
@@ -135,11 +142,11 @@ void TagVision::Reset()
  */ 
 int TagVision::get_tag_id_from_name(std::string name)
 {
-  if(name_.find("tag_") == std::string::npos){
-    printf("Tag-Vision: can not get tag-id because the model name of %s has not the format 'prefix/tag_01/suffix'!!\n", name_.c_str());
+  if(name.find("tag_") == std::string::npos){
+    printf("Tag-Vision: can not get tag-id because the model name of %s has not the format 'prefix/tag_01/suffix'!!\n", name.c_str());
     return 0;
   }
-  std::string tag_id = name_.substr(name_.find("tag_") + 4);
+  std::string tag_id = name.substr(name.find("tag_") + 4);
   if(tag_id.find("/") != std::string::npos){
     tag_id = tag_id.substr(0, tag_id.find("/"));
   }

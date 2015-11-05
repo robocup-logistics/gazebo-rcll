@@ -32,7 +32,7 @@
 //config values
 #define TOPIC_TAG_SUFFIX "~/tag_145/gazsim/gps/"
 #define TAG_VISION_RESULT_TOPIC "~/tag-vision"
-#define SEND_INTERVAL 5 //0.1
+#define SEND_INTERVAL 0.1
 #define SEARCH_FOR_TAGS_INTERVAL 10
 #define MAX_VIEW_DISTANCE 6
 #define CAMERA_FOV 1.08
