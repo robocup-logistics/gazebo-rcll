@@ -19,6 +19,7 @@
 
 #include <math.h>
 #include <fnmatch.h>
+#include <vector>
 
 #include "tag-vision.h"
 
@@ -49,6 +50,21 @@ void TagVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   this->name_ = model_->GetName();
   printf("Loading TagVision Plugin of model %s\n", name_.c_str());
 
+  //get the right link where the camera would normally be
+  physics::Link_V links = model_->GetLinks();
+  for(unsigned int i = 0; i < links.size(); i++)
+  {
+    if(fnmatch("*tag_vision*",links[i]->GetName().c_str(),FNM_CASEFOLD) == 0)
+    {
+      link_ = links[i];
+      break;
+    }
+  }
+  if(!link_)
+  {
+    printf("TagVision: ERROR: Could not find associated link!\n");
+  }
+  
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
   this->update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&TagVision::OnUpdate, this, _1));
@@ -71,7 +87,7 @@ void TagVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //create publisher
   result_pub_ = this->node_->Advertise<msgs::PosesStamped>(TAG_VISION_RESULT_TOPIC);
   
-  robot_pose_ = model_->GetWorldPose();
+  link_pose_ = model_->GetWorldPose();
 }
 
 
@@ -102,7 +118,7 @@ void TagVision::OnUpdate(const common::UpdateInfo & /*_info*/)
     }
   }
 
-  robot_pose_ = model_->GetWorldPose();
+  link_pose_ = link_->GetWorldPose();
   if(time - last_sent_time_ > SEND_INTERVAL)
   {
     last_sent_time_ = time;
@@ -112,13 +128,22 @@ void TagVision::OnUpdate(const common::UpdateInfo & /*_info*/)
     for (std::map<physics::ModelPtr, math::Pose>::iterator it=tag_poses_.begin(); it!=tag_poses_.end(); it++)
     {
       it->second = it->first->GetWorldPose();
-      math::Pose rel_pos = it->second - robot_pose_;
+      math::Pose rel_pos = it->second - link_pose_;
       //check if tag is in range, in the camera field of view and faced to the robot
       if(rel_pos.pos.GetLength() < MAX_VIEW_DISTANCE
 	 && rel_pos.pos.x > 0 && std::abs(std::asin(rel_pos.pos.Normalize().y)) < CAMERA_FOV / 2.0
 	 && std::abs(rel_pos.rot.GetYaw()) > 1.57)
       {
-	// printf("TagVision: seeing tag %s\n pos: %f,%f angle: %f facing: (%f,%f,%f)\n\n", it->first->GetName().c_str(), rel_pos.pos.x, rel_pos.pos.y, std::asin(rel_pos.pos.Normalize().y), rel_pos.rot.GetRoll(), rel_pos.rot.GetPitch(), rel_pos.rot.GetYaw());
+        if(get_tag_id_from_name(it->first->GetName()) == 82)
+        {
+          printf("TagVision: seeing tag %s\n model-pos: (%f,%f,%f)\ntag-pos: (%f,%f,%f)\nrel-pos: (%f,%f,%f)\n angle: %f\n facing: (%f,%f,%f)\n\n",
+                 it->first->GetName().c_str(),
+                 link_pose_.pos.x, link_pose_.pos.y, link_pose_.pos.z,
+                 it->second.pos.x, it->second.pos.y, it->second.pos.z,
+                 rel_pos.pos.x, rel_pos.pos.y, rel_pos.pos.z,
+                 std::asin(rel_pos.pos.Normalize().y),
+                 rel_pos.rot.GetRoll(), rel_pos.rot.GetPitch(), rel_pos.rot.GetYaw());
+        }
 	//add tag to result
 	msgs::Pose* tag_pose = res.add_pose();
 	*tag_pose = msgs::Convert(rel_pos);

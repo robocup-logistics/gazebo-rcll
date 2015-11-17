@@ -71,7 +71,10 @@ namespace gazebo
     double last_searched_for_new_tags_time_;
 
     //robot position
-    math::Pose robot_pose_;
+    math::Pose link_pose_;
+
+    /// Pointer to the link where the camera should be
+    physics::LinkPtr link_;
 
     ///Subscriber to get tag-positions
     std::map<physics::ModelPtr, math::Pose> tag_poses_;
