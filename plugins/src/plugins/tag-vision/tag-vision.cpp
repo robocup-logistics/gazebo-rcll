@@ -38,6 +38,11 @@ TagVision::~TagVision()
   printf("Destructing TagVision Plugin!\n");
 }
 
+void print(std::string name, math::Pose pose)
+{
+  printf("TagVision: %s: (%f,%f,%f,%f,%f,%f)\n", name.c_str(), pose.pos.x, pose.pos.y, pose.pos.z, pose.rot.GetRoll(), pose.rot.GetPitch(), pose.rot.GetYaw());
+}
+
 /** on loading of the plugin
  * @param _parent Parent Model
  */
@@ -129,21 +134,13 @@ void TagVision::OnUpdate(const common::UpdateInfo & /*_info*/)
     {
       it->second = it->first->GetWorldPose();
       math::Pose rel_pos = it->second - link_pose_;
+      math::Pose rel_pos_normalized(rel_pos);
+      rel_pos_normalized.pos.Normalize();
       //check if tag is in range, in the camera field of view and faced to the robot
       if(rel_pos.pos.GetLength() < MAX_VIEW_DISTANCE
-	 && rel_pos.pos.x > 0 && std::abs(std::asin(rel_pos.pos.Normalize().y)) < CAMERA_FOV / 2.0
+	 && rel_pos.pos.x > 0 && std::abs(std::asin(rel_pos_normalized.pos.y)) < CAMERA_FOV / 2.0
 	 && std::abs(rel_pos.rot.GetYaw()) > 1.57)
       {
-        if(get_tag_id_from_name(it->first->GetName()) == 82)
-        {
-          printf("TagVision: seeing tag %s\n model-pos: (%f,%f,%f)\ntag-pos: (%f,%f,%f)\nrel-pos: (%f,%f,%f)\n angle: %f\n facing: (%f,%f,%f)\n\n",
-                 it->first->GetName().c_str(),
-                 link_pose_.pos.x, link_pose_.pos.y, link_pose_.pos.z,
-                 it->second.pos.x, it->second.pos.y, it->second.pos.z,
-                 rel_pos.pos.x, rel_pos.pos.y, rel_pos.pos.z,
-                 std::asin(rel_pos.pos.Normalize().y),
-                 rel_pos.rot.GetRoll(), rel_pos.rot.GetPitch(), rel_pos.rot.GetYaw());
-        }
 	//add tag to result
 	msgs::Pose* tag_pose = res.add_pose();
 	*tag_pose = msgs::Convert(rel_pos);
