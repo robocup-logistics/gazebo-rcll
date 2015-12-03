@@ -1,9 +1,8 @@
 #*****************************************************************************
-#               Makefile Build System for Fawkes: Gazebo plugin for conveyor-vision
+#               Makefile Build System for Fawkes: Gazebo plugin tag-vision
 #
-#   Created on Tue Jan 28 13:30:39 2014
-#   Copyright (C) 2011 by Tim Niemueller, AllemaniACs RoboCup Team
-#                         Frederik Zwilling
+#   Created on Fri Oct 16 16:53:24 2015
+#   Copyright (C) 2015 by Frederik Zwilling
 #
 ##*****************************************************************************
 #
@@ -23,16 +22,16 @@ include $(BUILDSYSDIR)/protobuf.mk
 GAZEBO_LIBDIR = $(LIBDIR)/gazebo
 LIBDIRS_BASE += $(GAZEBO_LIBDIR)
 
-LIBS_gazebo_libconveyor_vision = gazsim_msgs llsf_msgs
-OBJS_gazebo_libconveyor_vision = conveyor_vision.o
+LIBS_gazebo_libtag_vision = gazsim_msgs llsf_msgs
+OBJS_gazebo_libtag_vision = tag-vision.o
 
-OBJS_all    = $(OBJS_gazebo_libconveyor_vision)
+OBJS_all    = $(OBJS_gazebo_libtag_vision)
 
 ifeq ($(HAVE_GAZEBO)$(HAVE_PROTOBUF)$(HAVE_CPP11),111)
   CFLAGS  += $(CFLAGS_CPP11) $(CFLAGS_GAZEBO) $(CFLAGS_PROTOBUF)
   LDFLAGS += $(LDFLAGS_GAZEBO) $(LDFLAGS_PROTOBUF) -lm $(call boost-libs-ldflags,system) -lboost_system
 
-  LIBS_all = $(LIBDIR)/gazebo/libconveyor_vision.so
+  LIBS_all = $(LIBDIR)/gazebo/libtag_vision.so
 else
   ifneq ($(HAVE_GAZEBO),1)
     WARN_TARGETS += warning_gazebo
@@ -41,18 +40,18 @@ else
     WARN_TARGETS += warning_protobuf
   endif
   ifneq ($(HAVE_CPP11),1)
-    WARN_TARGETS += warning_cpp11
+    WARN_TARGETS = warning_cpp11
   endif
 endif
 
 ifeq ($(OBJSSUBMAKE),1)
 all: $(WARN_TARGETS)
-.PHONY: warning_gazebo warning_protobuf warning_cpp11
+.PHONY: warning_gazebo warning_protobuf
 warning_gazebo:
-	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-conveyor-vision Plugin$(TNORMAL) " \
+	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-tag_vision Plugin$(TNORMAL) " \
 		"(Gazebo Simulator not found)"
 warning_protobuf:
-	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-conveyor-vision Plugin$(TNORMAL) " \
+	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-tag_vision Plugin$(TNORMAL) " \
 		"(protobuf[-devel] not installed)"
 warning_cpp11:
 	$(SILENT)echo -e "$(INDENT_PRINT)--> $(TRED)Omitting gazebo-tag_vision Plugin$(TNORMAL) (C++11 support required)"

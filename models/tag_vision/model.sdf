@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="tag-vision">
+    <static>true</static>
+    <link name="link">
+      <gravity>false</gravity>
+      <inertial>
+        <mass>0.02</mass>
+      </inertial>
+    </link>
+
+    <plugin name="TagVision" filename="libtag_vision.so"/>
+  </model>
+</sdf>

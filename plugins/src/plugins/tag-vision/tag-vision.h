@@ -1,9 +1,7 @@
 /***************************************************************************
- *  tag.h - Plugin to spawn the right tag pattern and publish the pose.
- *          The name of the spawned model has to be something like
- *            'prefix/tag_01/suffix' to display the right tag pattern
+ *  tag-vision.h - provides ground truth tag-vision
  *
- *  Created: Fri Oct 16 17:59:54 2015
+ *  Created: Mon Mar 30 16:15:38 2015
  *  Copyright  2015  Frederik Zwilling
  ****************************************************************************/
 
@@ -20,9 +18,6 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
-#ifndef TAG_H
-#define TAG_H
-
 #include <boost/bind.hpp>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
@@ -30,26 +25,31 @@
 #include <stdio.h>
 #include <gazebo/transport/transport.hh>
 #include <list>
-#include <string.h>
+#include <map>
+#include <string>
+#include <llsf_msgs/MachineInfo.pb.h>
 
-
-#define TAG_SIZE 0.135
-//At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
-#define TAG_SPAWN_TIME 5.0
-#define TOPIC_TAG_POSE "/tag-pose"
+//config values
+#define TOPIC_TAG_SUFFIX "~/tag_145/gazsim/gps/"
+#define TAG_VISION_RESULT_TOPIC "~/tag-vision"
+#define SEND_INTERVAL 0.1
+#define SEARCH_FOR_TAGS_INTERVAL 10
+#define MAX_VIEW_DISTANCE 6
+#define CAMERA_FOV 1.08
 
 namespace gazebo
 {
   /**
-   * Plugin to spawn the right tag pattern and publish the pose
+   * Provides ground Truth position
    * @author Frederik Zwilling
    */
-  class Tag : public ModelPlugin
+  class TagVision : public ModelPlugin
   {
   public:
-    Tag();
-    ~Tag();
+    TagVision();
+   ~TagVision();
 
+    //Overridden ModelPlugin-Functions
     virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
     virtual void OnUpdate(const common::UpdateInfo &);
     virtual void Reset();
@@ -59,18 +59,28 @@ namespace gazebo
     physics::ModelPtr model_;
     /// Pointer to the update event connection
     event::ConnectionPtr update_connection_;
-    ///Node for communication
+    ///Node for communication to fawkes
     transport::NodePtr node_;
-    ///name of the tag and the communication channel
+    ///Node for communication in gazebo
+    transport::NodePtr world_node_;
+    ///name of the communication channel and the sensor
     std::string name_;
-    
-    ///Publisher to send spawn tag patterns
-    transport::PublisherPtr visPub_;
-    double spawned_tags_last_;
-    double created_time_;
-    
-    physics::WorldPtr world_;
+
+    ///time variable to send in intervals
+    double last_sent_time_;
+    double last_searched_for_new_tags_time_;
+
+    //robot position
+    math::Pose link_pose_;
+
+    /// Pointer to the link where the camera should be
+    physics::LinkPtr link_;
+
+    ///Subscriber to get tag-positions
+    std::map<physics::ModelPtr, math::Pose> tag_poses_;
+    ///Publisher for Detected tags
+    transport::PublisherPtr result_pub_;
+
+    int get_tag_id_from_name(std::string name);
   };
 }
-
-#endif // TAG_H

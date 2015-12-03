@@ -3,7 +3,7 @@
   <model name="tag">
     <static>false</static>
     <link name="link">
-      <pose>0 0 0 0 0 0 </pose>
+      <pose>0 0 0 1.57 0 1.57</pose>
       <gravity>false</gravity>
       <!-- White background for tag -->
       

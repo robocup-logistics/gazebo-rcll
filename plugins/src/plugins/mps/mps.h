@@ -54,7 +54,7 @@
 //Height of the center of the tag
 #define TAG_SIZE 0.135
 //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
-#define TAG_SPAWN_TIME 10.0
+#define TAG_SPAWN_TIME 40.0
 #define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
 #define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
 #define TOPIC_PUCK_COMMAND "~/pucks/cmd"

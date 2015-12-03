@@ -1,6 +1,7 @@
 /***************************************************************************
  *  tag.cpp - Plugin to spawn the right tag pattern and publish the pose
- *            The name of the spawned model has to be the tag_id to display
+ *            The name of the spawned model has to be something like
+ *            'prefix/tag_01/suffix' to display the right tag pattern
  *
  *  Created: Fri Oct 16 18:00:08 2015
  *  Copyright  2015  Frederik Zwilling
@@ -98,9 +99,18 @@ void Tag::OnUpdate(const common::UpdateInfo & /*_info*/)
     msg.set_name((parent_link + "::pattern").c_str());
     msgs::Set(msg.mutable_pose(), math::Pose(0, 0, 0.001, 0, 0, 0));
 
+    //get tag-id from name
+    if(name_.find("tag_") == std::string::npos){
+      printf("Tag: can not create tag pattern because the model name of %s has not the format 'prefix/tag_01/suffix'!!\n", name_.c_str());
+      return;
+    }
+    std::string tag_id = name_.substr(name_.find("tag_"));
+    if(tag_id.find("/") != std::string::npos){
+      tag_id = tag_id.substr(0, tag_id.find("/"));
+    }
+    // printf("Tag: creating tag pattern %s\n", tag_id.c_str());
     //set right texture (here the model name has to be tag_id)
-    // printf("Tag: creating tag pattern %s\n", name_.c_str());
-    msg.mutable_material()->mutable_script()->set_name(std::string("tag/") + name_);
+    msg.mutable_material()->mutable_script()->set_name(std::string("tag/") + tag_id);
 
     std::string *uri1 = msg.mutable_material()->mutable_script()->add_uri();
     *uri1 = "model://tag/materials/scripts";

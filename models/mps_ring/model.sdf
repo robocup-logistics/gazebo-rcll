@@ -145,11 +145,12 @@
       <pose>-0.2905 -0.113 0.915 0 0 0</pose>
     </include>
 
+
     <link name="mps_tag_output">
-      <pose>0.025 -0.175 0.54 1.57 0 0</pose>
+      <pose>0.025 -0.175 0.54 0 0 -1.57</pose>
     </link>
     <link name="mps_tag_input">
-      <pose>0.025 0.175 0.54 1.57 0 3.14</pose>
+      <pose>0.025 0.175 0.54 0 0 1.57</pose>
     </link>
 
     <joint name="mps_light_joint" type="revolute">

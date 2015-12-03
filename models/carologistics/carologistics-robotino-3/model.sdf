@@ -36,6 +36,11 @@
       <uri>model://conveyor-cam</uri>
       <pose>0.22 0 0.85 0 -0.3 0</pose>
     </include>
+    <include>
+      <name>tag_vision</name>
+      <uri>model://tag_vision</uri>
+      <pose>0.1 0 0.57 0 0 0</pose>
+    </include>
 
     <joint name="sick_joint" type="revolute">
       <child>sick_laser::link</child>
@@ -63,6 +68,18 @@
     </joint>
     <joint name="webcam_tag_sensor_joint" type="revolute">
       <child>webcam_tag::link</child>
+      <parent>robotino3::body</parent>
+      <pose>0.04 0 0.02 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+    <joint name="webcam_tag_vision_joint" type="revolute">
+      <child>tag_vision::link</child>
       <parent>robotino3::body</parent>
       <pose>0.04 0 0.02 0 0 0</pose>
       <axis>
