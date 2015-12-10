@@ -6,24 +6,19 @@ This repository includes the models, worlds and plugins to simulate the RoboCup 
 [Installing Gazebo](http://gazebosim.org)
 
 
-Clone this repository and then set the path to this database by editing the file `/usr/share/gazebo/setup.sh`.
-
-Add the following entries at the bottom of the file. Change the first line to the correct path of the repository:
+Clone this repository and then set the following environmental variables by adding them to your ~/.bashrc.
+You may have to change the path depending on where you cloned the repository.
 
 ```bash
-export GAZEBO_RCLL=/home/user/gazebo-rcll
-export GAZEBO_RESOURCE_PATH=$GAZEBO_RESOURCE_PATH:$GAZEBO_RCLL/worlds
+source /usr/share/gazebo/setup.sh
+export GAZEBO_RCLL=~/gazebo-rcll
 export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:$GAZEBO_RCLL/plugins/lib/gazebo
-export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$GAZEBO_RCLL/models
-# To include team specific models, also add for example this line:
-export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$GAZEBO_RCLL/models/bbu
+export GAZEBO_MODEL_PATH=$GAZEBO_RCLL/models
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$GAZEBO_RCLL/models/carologistics
 ```
 
-Make sure that the setup.sh is sourced in your .bashrc:
-`source /usr/share/gazebo/setup.sh`
-
 NOTE:
-If you add those entries only to your .bashrc file, the plugins will not be found when gazebo is started as a ROS node.
+When you want to start Gazebo as a ROS node you need to add those changes in the /usr/share/gazebo/setup.sh.
 
 Then you can start gazebo from the terminal.
 
