@@ -26,6 +26,12 @@ CFLAGS += $(CFLAGS_CPP11)
 LIBS_gazebo_libllsf_refbox_comm = fawkes_protobuf_comm llsf_msgs gazsim_msgs
 OBJS_gazebo_libllsf_refbox_comm = llsf_refbox_comm.o
 
+ifeq ($(HAVE_GAZEBO_6),1)
+  # workaround for missing libm in ignition-math pkgconfig file, cf.
+  # https://bitbucket.org/ignitionrobotics/ign-math/issues/36/ignition-math2pc-should-specify-lm
+  LIBS_gazebo_libllsf_refbox_comm += m
+endif
+
 OBJS_all = $(OBJS_gazebo_libllsf_refbox_comm)
 
 REQ_BOOST_LIBS = system
