@@ -186,19 +186,31 @@ msgs::Visual LightControl::create_vis_msg(std::string machine_name, Color color,
   case RED:
     {
       msg.set_name((parent_link + "::redon").c_str());
+#if GAZEBO_MAJOR_VERSION > 5
+      msgs::Set(msg.mutable_pose(), ignition::math::Pose3d(0, 0, 0.085, 0, 0, 0));
+#else
       msgs::Set(msg.mutable_pose(), math::Pose(0, 0, 0.085, 0, 0, 0));
+#endif
       break;
     }
   case YELLOW:
     {
       msg.set_name((parent_link + "::yellowon").c_str());
+#if GAZEBO_MAJOR_VERSION > 5
+      msgs::Set(msg.mutable_pose(), ignition::math::Pose3d(0, 0, 0.051, 0, 0, 0));
+#else
       msgs::Set(msg.mutable_pose(), math::Pose(0, 0, 0.051, 0, 0, 0));
+#endif
       break;
     }
   case GREEN:
     {
       msg.set_name((parent_link + "::greenon").c_str());
+#if GAZEBO_MAJOR_VERSION > 5
+      msgs::Set(msg.mutable_pose(), ignition::math::Pose3d(0, 0, 0.017, 0, 0, 0));
+#else
       msgs::Set(msg.mutable_pose(), math::Pose(0, 0, 0.017, 0, 0, 0));
+#endif
       break;
     }
   }

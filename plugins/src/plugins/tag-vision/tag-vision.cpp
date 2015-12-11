@@ -143,7 +143,11 @@ void TagVision::OnUpdate(const common::UpdateInfo & /*_info*/)
       {
 	//add tag to result
 	msgs::Pose* tag_pose = res.add_pose();
+#if GAZEBO_MAJOR_VERSION > 5
+	*tag_pose = msgs::Convert(rel_pos.Ign());
+#else
 	*tag_pose = msgs::Convert(rel_pos);
+#endif
 	tag_pose->set_name(it->first->GetName());
 	tag_pose->set_id(get_tag_id_from_name(it->first->GetName()));
       }
