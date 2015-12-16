@@ -246,7 +246,11 @@ msgs::Visual Puck::create_visual_msg(std::string element_name, double element_he
       break;
   }
   // set the calculated pose for the visual
-  msgs::Set(visual_msg.mutable_pose(),math::Pose(0,0,vis_middle,0,0,0));
+#if GAZEBO_MAJOR_VERSION > 5
+  msgs::Set(visual_msg.mutable_pose(), ignition::math::Pose3d(0,0,vis_middle,0,0,0));
+#else
+  msgs::Set(visual_msg.mutable_pose(), math::Pose(0,0,vis_middle,0,0,0));
+#endif
   return visual_msg;
 }
 

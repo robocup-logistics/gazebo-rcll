@@ -326,7 +326,11 @@ void Mps::spawn_puck(const math::Pose &spawn_pose, gazsim_msgs::Color base_color
 
   new_puck_msg.set_sdf(new_sdf.c_str());
   new_puck_msg.set_clone_model_name(new_name.c_str());
-  msgs::Set(new_puck_msg.mutable_pose(),spawn_pose);
+#if GAZEBO_MAJOR_VERSION > 5
+  msgs::Set(new_puck_msg.mutable_pose(), spawn_pose.Ign());
+#else
+  msgs::Set(new_puck_msg.mutable_pose(), spawn_pose);
+#endif
   factoryPub->Publish(new_puck_msg);
 }
 

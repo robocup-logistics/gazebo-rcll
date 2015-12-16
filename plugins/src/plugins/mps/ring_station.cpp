@@ -62,7 +62,11 @@ void RingStation::publish_indicator(bool active, int number)
   gazebo::msgs::Visual msg;
   msg.set_parent_name(name_+"::body");
   msg.set_name(name_+"::body::base_" + std::to_string(number));
+#if GAZEBO_MAJOR_VERSION > 5
+  gazebo::msgs::Set(msg.mutable_pose(), ignition::math::Pose3d(-0.35 + (number*0.11),0,BELT_HEIGHT+0.3,0,0,0));
+#else
   gazebo::msgs::Set(msg.mutable_pose(), gazebo::math::Pose(-0.35 + (number*0.11),0,BELT_HEIGHT+0.3,0,0,0));
+#endif
   if(active)
   {
     msgs::Set(msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,0,0));
