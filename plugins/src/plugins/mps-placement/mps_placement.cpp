@@ -172,8 +172,13 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
     }
     spawn_mps_msg.set_sdf(new_sdf.c_str());
     spawn_mps_msg.set_clone_model_name(mps_name.c_str());
+#if GAZEBO_MAJOR_VERSION > 5
+    msgs::Set(spawn_mps_msg.mutable_pose(),
+              ignition::math::Pose3d(zone_mid_x, zone_mid_y, 0, 0, 0, ori));
+#else
     msgs::Set(spawn_mps_msg.mutable_pose(),
               math::Pose(zone_mid_x, zone_mid_y, 0, 0, 0, ori));
+#endif
     factoryPub->Publish(spawn_mps_msg);
   }
   printf("MpsPlacementPlugin: All machines placed\n");
@@ -204,7 +209,11 @@ void MpsPlacementPlugin::spawn_mps(const math::Pose &spawn_pose, std::string mod
   printf("spawning mps %s\n", model_name.c_str());
   msgs::Factory spawn_msg;
   spawn_msg.set_sdf_filename(model_name.c_str());
-  msgs::Set(spawn_msg.mutable_pose(),spawn_pose);
+#if GAZEBO_MAJOR_VERSION >5
+  msgs::Set(spawn_msg.mutable_pose(), spawn_pose.Ign());
+#else
+  msgs::Set(spawn_msg.mutable_pose(), spawn_pose);
+#endif
   factoryPub->Publish(spawn_msg);
 }
 

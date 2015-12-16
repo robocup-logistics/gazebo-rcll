@@ -88,8 +88,13 @@ void Tag::OnUpdate(const common::UpdateInfo & /*_info*/)
     msgs::Geometry *geomMsg = msg.mutable_geometry();
     geomMsg->set_type(msgs::Geometry::PLANE);
   
+#if GAZEBO_MAJOR_VERSION > 5
+    msgs::Set(geomMsg->mutable_plane()->mutable_normal(), ignition::math::Vector3d(0, 0, 1));
+    msgs::Set(geomMsg->mutable_plane()->mutable_size(), ignition::math::Vector2d(TAG_SIZE, TAG_SIZE));
+#else
     msgs::Set(geomMsg->mutable_plane()->mutable_normal(), math::Vector3(0, 0, 1));
     msgs::Set(geomMsg->mutable_plane()->mutable_size(), math::Vector2d(TAG_SIZE, TAG_SIZE));
+#endif
     msg.set_cast_shadows(false);
 
     //construct full path to link that should contain the tag
@@ -97,7 +102,11 @@ void Tag::OnUpdate(const common::UpdateInfo & /*_info*/)
     msg.set_parent_name(parent_link.c_str());
 
     msg.set_name((parent_link + "::pattern").c_str());
+#if GAZEBO_MAJOR_VERSION > 5
+    msgs::Set(msg.mutable_pose(), ignition::math::Pose3d(0, 0, 0.001, 0, 0, 0));
+#else
     msgs::Set(msg.mutable_pose(), math::Pose(0, 0, 0.001, 0, 0, 0));
+#endif
 
     //get tag-id from name
     if(name_.find("tag_") == std::string::npos){
