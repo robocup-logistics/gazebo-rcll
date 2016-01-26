@@ -31,6 +31,7 @@ GZ_REGISTER_MODEL_PLUGIN(Gripper)
 ///Constructor
 Gripper::Gripper()
 {
+  last_action_rcvd_ = NOTHING;
 }
 ///Destructor
 Gripper::~Gripper()
@@ -79,7 +80,17 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 /** Called by the world update start event
  */
 void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
-{}
+{
+  if (last_action_rcvd_ == CLOSE)
+  {
+    this->close();
+  }
+  else if (last_action_rcvd_ == OPEN)
+  {
+    this->open();
+  }
+  last_action_rcvd_ = NOTHING;
+}
 
 /** on Gazebo reset
  */
@@ -94,9 +105,9 @@ void Gripper::Reset()
 void Gripper::on_set_gripper_msg(ConstIntPtr &msg)
 {
   if (msg->data() == 0)
-    this->close();
+    last_action_rcvd_ = CLOSE;
   else
-    this->open();
+    last_action_rcvd_ = OPEN;
 }
 
 inline bool ends_with(std::string const & value, std::string const & ending)

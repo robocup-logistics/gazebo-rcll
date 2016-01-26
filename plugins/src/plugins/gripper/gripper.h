@@ -38,6 +38,12 @@
 #define RADIUS_GRAB_AREA 0.05
 
 
+enum ActionOnUpdate{
+  NOTHING = 0,
+  OPEN = 1,
+  CLOSE = 2
+} typedef ActionOnUpdate;
+
 namespace gazebo
 {
   /**
@@ -94,5 +100,7 @@ namespace gazebo
     void sendHasPuck(bool has_puck);
 
     gazebo::physics::ModelPtr getNearestPuck();
+
+    ActionOnUpdate last_action_rcvd_;
   };
 }
