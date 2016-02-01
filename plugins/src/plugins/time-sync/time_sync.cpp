@@ -54,6 +54,7 @@ void TimesyncPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   
   //connect update function
   update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&TimesyncPlugin::Update, this));
+  last_time_sync_ = world_->GetSimTime().Double();
   printf("Timesync-Plugin loaded!\n");
 }
 
