@@ -27,34 +27,40 @@ using namespace gazebo;
 CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   Mps(_parent,_sdf)
 {
-  // spawn_puck(shelf_left_pose());
-  // spawn_puck(shelf_middle_pose());
-  spawn_puck(shelf_right_pose(),gazsim_msgs::Color::RED);
+  spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
+  spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
+  spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
   workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
   stored_cap_color_ = gazsim_msgs::Color::NONE;
+  puck_spawned_time_ = created_time_;
 }
 
 void CapStation::OnUpdate(const common::UpdateInfo &info)
 {
   Mps::OnUpdate(info);
-  if(model_->GetWorld()->GetSimTime().Double() - created_time_ < SPAWN_PUCK_TIME)
+  if(model_->GetWorld()->GetSimTime().Double() - puck_spawned_time_ < SPAWN_PUCK_TIME)
   {
     return;
   }
-  // if(puck_in_shelf_left_ && !pose_hit(puck_in_shelf_left_->GetWorldPose(),shelf_left_pose(),0.1))
-  // {
-  //   spawn_puck(shelf_left_pose());
-  //   puck_in_shelf_left_ = NULL;
-  // }
-  // if(puck_in_shelf_middle_ && !pose_hit(puck_in_shelf_middle_->GetWorldPose(),shelf_middle_pose(),0.1))
-  // {
-  //   spawn_puck(shelf_middle_pose());
-  //   puck_in_shelf_middle_ = NULL;
-  // }
+
+  if(puck_in_shelf_left_ && !pose_hit(puck_in_shelf_left_->GetWorldPose(),shelf_left_pose(),0.1))
+  {
+    puck_in_shelf_left_ = NULL;
+  }
+  if(puck_in_shelf_middle_ && !pose_hit(puck_in_shelf_middle_->GetWorldPose(),shelf_middle_pose(),0.1))
+  {
+    puck_in_shelf_middle_ = NULL;
+  }
   if(puck_in_shelf_right_ && !pose_hit(puck_in_shelf_right_->GetWorldPose(),shelf_right_pose(),0.1))
   {
-    spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
     puck_in_shelf_right_ = NULL;
+  }
+  if(!puck_in_shelf_right_ && !puck_in_shelf_middle_ && !puck_in_shelf_left_){
+    //shelf is empty -> refill
+    spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
+    spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
+    spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
+    puck_spawned_time_ = model_->GetWorld()->GetSimTime().Double();
   }
 }
 

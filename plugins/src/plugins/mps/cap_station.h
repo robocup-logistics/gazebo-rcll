@@ -60,6 +60,8 @@ public:
   
   transport::SubscriberPtr workpiece_result_subscriber_;
   
+  double puck_spawned_time_;
+  
   void work_puck(std::string puck_name);
 };
 
