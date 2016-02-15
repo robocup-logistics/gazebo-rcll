@@ -29,17 +29,18 @@
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <llsf_msgs/GameState.pb.h>
+#include <configurable/configurable.h>
 
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
 typedef const boost::shared_ptr<llsf_msgs::GameState const> ConstGameStatePtr;
 
 //config values
-#define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
-#define TOPIC_GAME_STATE "~/LLSFRbSim/GameState/"
-#define WAIT_TIME_BEFORE_PLACEMENT 15
-#define ZONE_HEIGHT 1.5
-#define ZONE_WIDTH 2.0
+#define TOPIC_MACHINE_INFO config->get_string("plugins/mps-placement/topic_machine_info").c_str()
+#define TOPIC_GAME_STATE config->get_string("plugins/mps-placement/topic_game_state").c_str()
+#define WAIT_TIME_BEFORE_PLACEMENT config->get_int("plugins/mps-placement/wait_time_before_placement")
+#define ZONE_HEIGHT config->get_float("plugins/mps-placement/zone_height")
+#define ZONE_WIDTH config->get_float("plugins/mps-placement/zone_width")
 
 
 namespace gazebo
@@ -48,7 +49,7 @@ namespace gazebo
    * Plugin to place the MPSs as specified by the refbox
    * @author Frederik Zwilling
    */
-  class MpsPlacementPlugin : public WorldPlugin
+  class MpsPlacementPlugin : public WorldPlugin, public gazebo_rcll::ConfigurableAspect
   {
   public:
     MpsPlacementPlugin();

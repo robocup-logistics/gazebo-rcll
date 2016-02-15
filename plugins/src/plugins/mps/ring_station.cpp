@@ -124,7 +124,7 @@ void RingStation::new_machine_info(ConstMachine &machine)
   
   // show number of bases
   number_bases_ = machine.loaded_with();
-  for(u_int32_t i=0; i < MAX_NUM_BASES; i++)
+  for(u_int32_t i=0; i < (u_int32_t) MAX_NUM_BASES; i++)
   {
     publish_indicator(i < machine.loaded_with(), i);
   }

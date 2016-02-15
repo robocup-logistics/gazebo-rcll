@@ -29,13 +29,14 @@
 #include <fnmatch.h>
 
 #include <boost/thread/mutex.hpp>
+#include <configurable/configurable.h>
 
 
 //config values
-#define TOPIC_SET_GRIPPER "~/RobotinoSim/SetGripper/"
-#define TOPIC_HOLDS_PUCK "~/RobotinoSim/GripperHasPuck/"
-#define TOPIC_JOINT "/GripperJoints/Holding"
-#define RADIUS_GRAB_AREA 0.05
+#define TOPIC_SET_GRIPPER config->get_string("plugins/gripper/topic-set-gripper").c_str()
+#define TOPIC_HOLDS_PUCK config->get_string("plugins/gripper/topic-holds-puck").c_str()
+#define TOPIC_JOINT config->get_string("plugins/gripper/topic-joint").c_str()
+#define RADIUS_GRAB_AREA config->get_float("plugins/gripper/radius-grab-area")
 
 
 enum ActionOnUpdate{
@@ -50,7 +51,7 @@ namespace gazebo
    * Provides gripper simulation
    * @author Stefan Profanter
    */
-  class Gripper : public ModelPlugin
+  class Gripper : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
   {
   public:
     Gripper();

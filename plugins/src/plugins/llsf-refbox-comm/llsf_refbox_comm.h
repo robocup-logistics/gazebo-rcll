@@ -30,6 +30,7 @@
 #include <llsf_msgs/GameInfo.pb.h>
 #include <gazsim_msgs/SimTime.pb.h>
 #include <llsf_msgs/OrderInfo.pb.h>
+#include <configurable/configurable.h>
 
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
@@ -43,21 +44,21 @@ typedef const boost::shared_ptr<llsf_msgs::SetOrderDeliveredByColor const> Const
 
 
 //config values
-#define PROTO_DIR "/plugins/src/libs/llsf_msgs"
-#define REFBOX_HOST "127.0.0.1"
-#define REFBOX_PORT 4444
-#define RECONNECT_INTERVAL 10 //in s
+#define PROTO_DIR config->get_string("plugins/llsf-refbox-comm/proto-dir").c_str()
+#define REFBOX_HOST config->get_string("plugins/llsf-refbox-comm/refbox-host").c_str()
+#define REFBOX_PORT config->get_int("plugins/llsf-refbox-comm/refbox-port")
+#define RECONNECT_INTERVAL config->get_int("plugins/llsf-refbox-comm/reconnect-interval") //in s
 //Max number of reconnect attempts (due to crash when tried to connect often)
-#define RECONNECT_ATTEMPTS 50
-#define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
-#define TOPIC_GAME_STATE "~/LLSFRbSim/GameState/"
-#define TOPIC_TIME "~/gazsim/time-sync/"
-#define TOPIC_SET_GAME_STATE "~/LLSFRbSim/SetGameState/"
-#define TOPIC_SET_GAME_PHASE "~/LLSFRbSim/SetGamePhase/"
-#define TOPIC_SET_TEAM_NAME "~/LLSFRbSim/SetTeamName/"
-#define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
-#define TOPIC_MACHINE_ADD_BASE "~/LLSFRbSim/MachineAddBase/"
-#define TOPIC_SET_ORDER_DELIVERY_BY_COLOR "~/LLSFRbSim/DELIVERY"
+#define RECONNECT_ATTEMPTS config->get_int("plugins/llsf-refbox-comm/reconnect-attempts")
+#define TOPIC_MACHINE_INFO config->get_string("plugins/llsf-refbox-comm/topic-machine-info").c_str()
+#define TOPIC_GAME_STATE config->get_string("plugins/llsf-refbox-comm/topic-game-state").c_str()
+#define TOPIC_TIME config->get_string("plugins/llsf-refbox-comm/topic-time").c_str()
+#define TOPIC_SET_GAME_STATE config->get_string("plugins/llsf-refbox-comm/topic-set-game-state").c_str()
+#define TOPIC_SET_GAME_PHASE config->get_string("plugins/llsf-refbox-comm/topic-set-game-phase").c_str()
+#define TOPIC_SET_TEAM_NAME config->get_string("plugins/llsf-refbox-comm/topic-set-team-name").c_str()
+#define TOPIC_SET_MACHINE_STATE config->get_string("plugins/llsf-refbox-comm/topic-set-machine-state").c_str()
+#define TOPIC_MACHINE_ADD_BASE config->get_string("plugins/llsf-refbox-comm/topic-machine-add-base").c_str()
+#define TOPIC_SET_ORDER_DELIVERY_BY_COLOR config->get_string("plugins/llsf-refbox-comm/topic-set-order-delivery-by-color").c_str()
 
 namespace protobuf_comm {
   class ProtobufStreamClient;
@@ -69,7 +70,7 @@ namespace gazebo
    * World plugin for the refbox connection in the llsf
    * Basically it gets the peer msgs from the refbox and publishes these msgs in gazebo
    */
-  class LlsfRefboxCommPlugin : public WorldPlugin
+  class LlsfRefboxCommPlugin : public WorldPlugin, public gazebo_rcll::ConfigurableAspect
   {
   public:
     ///Constructor

@@ -23,7 +23,7 @@ GAZEBO_LIBDIR = $(LIBDIR)/gazebo
 LIBDIRS_BASE += $(GAZEBO_LIBDIR)
 
 LIBS_gazebo_libtag = gazsim_msgs\
-                     llsf_msgs
+                     llsf_msgs configurable
 OBJS_gazebo_libtag = tag.o
 
 OBJS_all    = $(OBJS_gazebo_libtag)

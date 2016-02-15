@@ -167,6 +167,7 @@ void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::
 
   //teleport tag to right position
   math::Pose gripperPose = gripperLink->GetWorldPose();
+  printf("Teleport Tag to %f\n", gripperPose.pos.x);
   math::Pose newPose = gripperPose;
   tag->SetWorldPose(newPose);
 
@@ -229,6 +230,8 @@ math::Pose Mps::output()
 
 bool Mps::pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance)
 {
+  if (tolerance == -1.0)
+    tolerance = DETECT_TOLERANCE;
   double dist = sqrt((to_test.pos.x - reference.pos.x) * (to_test.pos.x - reference.pos.x)
 		     + (to_test.pos.y - reference.pos.y) * (to_test.pos.y - reference.pos.y)
 		     + (to_test.pos.z - reference.pos.z) * (to_test.pos.z - reference.pos.z));
@@ -336,6 +339,8 @@ void Mps::spawn_puck(const math::Pose &spawn_pose, gazsim_msgs::Color base_color
 
 math::Pose Mps::get_puck_world_pose(double long_side, double short_side, double height)
 {
+  if(height == -1.0)
+    height = BELT_HEIGHT;
   double mps_x = this->model_->GetWorldPose().pos.x;
   double mps_y = this->model_->GetWorldPose().pos.y;
   double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;

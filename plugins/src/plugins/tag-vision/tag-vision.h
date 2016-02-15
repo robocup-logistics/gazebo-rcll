@@ -28,14 +28,15 @@
 #include <map>
 #include <string>
 #include <llsf_msgs/MachineInfo.pb.h>
+#include <configurable/configurable.h>
 
 //config values
-#define TOPIC_TAG_SUFFIX "~/tag_145/gazsim/gps/"
-#define TAG_VISION_RESULT_TOPIC "~/tag-vision"
-#define SEND_INTERVAL 0.1
-#define SEARCH_FOR_TAGS_INTERVAL 10
-#define MAX_VIEW_DISTANCE 6
-#define CAMERA_FOV 1.08
+#define TOPIC_TAG_SUFFIX config->get_string("plugins/tag-vision/topic_tag_suffix").c_str()
+#define TAG_VISION_RESULT_TOPIC config->get_string("plugins/tag-vision/tag_vision_result_topic").c_str()
+#define SEND_INTERVAL config->get_float("plugins/tag-vision/send_interval")
+#define SEARCH_FOR_TAGS_INTERVAL config->get_int("plugins/tag-vision/search_for_tags_interval")
+#define MAX_VIEW_DISTANCE config->get_int("plugins/tag-vision/max_view_distance")
+#define CAMERA_FOV config->get_float("plugins/tag-vision/camera_fov")
 
 namespace gazebo
 {
@@ -43,7 +44,7 @@ namespace gazebo
    * Provides ground Truth position
    * @author Frederik Zwilling
    */
-  class TagVision : public ModelPlugin
+  class TagVision : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
   {
   public:
     TagVision();

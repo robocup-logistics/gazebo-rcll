@@ -20,7 +20,7 @@ include $(BASEDIR)/etc/buildsys/config.mk
 include $(BUILDSYSDIR)/gazebo.mk
 include $(BUILDSYSDIR)/protobuf.mk
 
-LIBS_gazebo_libllsf =	gazsim_msgs llsf_msgs
+LIBS_gazebo_libllsf =	gazsim_msgs llsf_msgs configurable
 OBJS_gazebo_libllsf =	llsf_world.o refbox_comm.o data_table.o rfid_sensors.o \
 			simulation_control.o field_referee.o puck_localization.o \
 			time_sync.o light_control.o

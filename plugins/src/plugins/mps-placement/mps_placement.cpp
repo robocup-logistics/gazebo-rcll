@@ -29,6 +29,7 @@
 #include "mps_placement.h"
 
 using namespace gazebo;
+using namespace gazebo_rcll;
 
 ///Constructor
 MpsPlacementPlugin::MpsPlacementPlugin()

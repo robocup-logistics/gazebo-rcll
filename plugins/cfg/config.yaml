@@ -10,3 +10,106 @@ include:
 ---
 # Main configuration document
 
+plugins:
+  llsf-refbox-comm:
+    proto-dir: "/plugins/src/libs/llsf_msgs"
+    refbox-host: "127.0.0.1"
+    refbox-port: 4444
+    reconnect-interval: 10
+    reconnect-attempts: 50
+    topic-machine-info: "~/LLSFRbSim/MachineInfo/"
+    topic-game-state: "~/LLSFRbSim/GameState/"
+    topic-time: "~/gazsim/time-sync/"
+    topic-set-game-state: "~/LLSFRbSim/SetGameState/"
+    topic-set-game-phase: "~/LLSFRbSim/SetGamePhase/"
+    topic-set-team-name: "~/LLSFRbSim/SetTeamName/"
+    topic-set-machine-state: "~/LLSFRbSim/SetMachineState/"
+    topic-machine-add-base: "~/LLSFRbSim/MachineAddBase/"
+    topic-set-order-delivery-by-color: "~/LLSFRbSim/DELIVERY"
+
+  mps-placement:
+    topic_machine_info: "~/LLSFRbSim/MachineInfo/"
+    topic_game_state: "~/LLSFRbSim/GameState/"
+    wait_time_before_placement: 15
+    zone_height: 1.5
+    zone_width: 2.0
+
+  mps:
+    #amount of pucks to listen for
+    number_pucks: 20
+    #how far is the center of the belt hsifted from the machine center
+    belt_offset_side: 0.025
+    #radius of the area where a workpiece is detected by the machine
+    detect_tolerance: 0.06
+    #radius of a workpiece
+    puck_size: 0.02
+    #height of a puck
+    puck_height: 0.0225
+    #length of the belt to calculate pos of input/output area
+    belt_length: 0.35
+    #Height of the belt
+    belt_height: 0.92
+    #Height of the center of the tag
+    tag_height: 0.54
+    #Height of the center of the tag
+    tag_size: 0.135
+    # At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
+    tag_spawn_time: 40.0
+    topic_set_machine_state: "~/LLSFRbSim/SetMachineState/"
+    topic_machine_info: "~/LLSFRbSim/MachineInfo/"
+    topic_puck_command: "~/pucks/cmd"
+    topic_puck_command_result: "~/pucks/cmd/result"
+    topic_joint: "/GripperJoints/Holding"
+
+    cap-station:
+      spawn_puck_time: 20
+
+    ring-station:
+      topic_machine_add_base: "~/LLSFRbSim/MachineAddBase/"
+      max_num_bases: 3
+
+  puck:
+    #The height of one ring
+    ring_height: 0.008
+    #The height of one cap
+    cap_height: 0.004
+    #The height of the workpiece base
+    workpiece_height: 0.0225
+    topic_set_order_delivery_by_color: "~/LLSFRbSim/DELIVERY"
+
+  tag-vision:
+    topic_tag_suffix: "~/tag_145/gazsim/gps/"
+    tag_vision_result_topic: "~/tag-vision"
+    send_interval: 0.1
+    search_for_tags_interval: 10
+    max_view_distance: 6
+    camera_fov: 1.08
+
+  tag:
+    tag_size: 0.135
+    #At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
+    tag_spawn_time: 5.0
+    topic_tag_pose: "/tag-pose"
+
+  conveyor-vision:
+    radius-detection-area: 0.4
+    search-area-rel-x: 0.4
+    search-area-rel-y: 0.0
+    
+  gripper:
+    topic-set-gripper: "~/RobotinoSim/SetGripper/"
+    topic-holds-puck: "~/RobotinoSim/GripperHasPuck/"
+    topic-joint: "/GripperJoints/Holding"
+    radius-grab-area: 0.05
+
+  light-control:
+    topic-machine-info: "~/LLSFRbSim/MachineInfo/"
+
+  light-signal-detection:
+    topic-machine-info: "~/LLSFRbSim/MachineInfo/"
+    radius-detection-area: 0.4
+    search-area-rel-x: 0.6
+    search-area-rel-y: 0.4
+    send-interval: 0.5
+    visibility-history-increase-per-second: 30
+

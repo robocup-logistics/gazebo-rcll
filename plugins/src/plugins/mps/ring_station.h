@@ -23,8 +23,8 @@
 #ifndef RING_STATION_H
 #define RING_STATION_H
 
-#define TOPIC_MACHINE_ADD_BASE "~/LLSFRbSim/MachineAddBase/"
-#define MAX_NUM_BASES 3
+#define TOPIC_MACHINE_ADD_BASE config->get_string("plugins/mps/ring-station/topic_machine_add_base").c_str()
+#define MAX_NUM_BASES config->get_int("plugins/mps/ring-station/max_num_bases")
 
 #include "mps.h"
 

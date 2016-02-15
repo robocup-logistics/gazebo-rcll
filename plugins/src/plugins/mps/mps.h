@@ -34,32 +34,33 @@
 #include <llsf_msgs/MachineCommands.pb.h>
 #include <gazsim_msgs/NewPuck.pb.h>
 #include <map>
+#include <configurable/configurable.h>
 
 //amount of pucks to listen for
-#define NUMBER_PUCKS 20
+#define NUMBER_PUCKS config->get_int("plugins/mps/number_pucks")
 //how far is the center of the belt hsifted from the machine center
-#define BELT_OFFSET_SIDE 0.025
+#define BELT_OFFSET_SIDE config->get_float("plugins/mps/belt_offset_side")
 //radius of the area where a workpiece is detected by the machine
-#define DETECT_TOLERANCE 0.06
+#define DETECT_TOLERANCE config->get_float("plugins/mps/detect_tolerance")
 //radius of a workpiece
-#define PUCK_SIZE 0.02
+#define PUCK_SIZE config->get_float("plugins/mps/puck_size")
 //height of a puck
-#define PUCK_HEIGHT 0.0225
+#define PUCK_HEIGHT config->get_float("plugins/mps/puck_height")
 //length of the belt to calculate pos of input/output area
-#define BELT_LENGTH 0.35
+#define BELT_LENGTH config->get_float("plugins/mps/belt_length")
 //Height of the belt
-#define BELT_HEIGHT 0.92
+#define BELT_HEIGHT config->get_float("plugins/mps/belt_height")
 //Height of the center of the tag
-#define TAG_HEIGHT 0.54
+#define TAG_HEIGHT config->get_float("plugins/mps/tag_height")
 //Height of the center of the tag
-#define TAG_SIZE 0.135
+#define TAG_SIZE config->get_float("plugins/mps/tag_size")
 //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
-#define TAG_SPAWN_TIME 40.0
-#define TOPIC_SET_MACHINE_STATE "~/LLSFRbSim/SetMachineState/"
-#define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
-#define TOPIC_PUCK_COMMAND "~/pucks/cmd"
-#define TOPIC_PUCK_COMMAND_RESULT "~/pucks/cmd/result"
-#define TOPIC_JOINT "/GripperJoints/Holding"
+#define TAG_SPAWN_TIME config->get_float("plugins/mps/tag_spawn_time")
+#define TOPIC_SET_MACHINE_STATE config->get_string("plugins/mps/topic_set_machine_state").c_str()
+#define TOPIC_MACHINE_INFO config->get_string("plugins/mps/topic_machine_info").c_str()
+#define TOPIC_PUCK_COMMAND config->get_string("plugins/mps/topic_puck_command").c_str()
+#define TOPIC_PUCK_COMMAND_RESULT config->get_string("plugins/mps/topic_puck_command_result").c_str()
+#define TOPIC_JOINT config->get_string("plugins/mps/topic_joint").c_str()
 
 
 typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
@@ -74,7 +75,7 @@ namespace gazebo
    * Plugin to control a simulated MPS
    * @author Frederik Zwilling
    */
-  class Mps
+  class Mps: public gazebo_rcll::ConfigurableAspect
   {
   public:
     Mps(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
@@ -128,13 +129,13 @@ namespace gazebo
     virtual math::Pose output();
     
     /// convert puck pose from mps frame to world frame
-    math::Pose get_puck_world_pose(double long_side, double short_side, double height = BELT_HEIGHT);
+    math::Pose get_puck_world_pose(double long_side, double short_side, double height = -1.0);
     
     std::string current_state_;
     
     void set_state(State state);
     
-    bool pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance = DETECT_TOLERANCE);
+    bool pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance = -1.0);
     
     bool puck_in_input(ConstPosePtr &pose);
     bool puck_in_output(ConstPosePtr &pose);

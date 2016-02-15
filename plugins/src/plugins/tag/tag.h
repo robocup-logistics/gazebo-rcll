@@ -31,12 +31,13 @@
 #include <gazebo/transport/transport.hh>
 #include <list>
 #include <string.h>
+#include <configurable/configurable.h>
 
 
-#define TAG_SIZE 0.135
+#define TAG_SIZE config->get_float("plugins/tag/tag_size")
 //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
-#define TAG_SPAWN_TIME 5.0
-#define TOPIC_TAG_POSE "/tag-pose"
+#define TAG_SPAWN_TIME config->get_float("plugins/tag/tag_spawn_time")
+#define TOPIC_TAG_POSE config->get_string("plugins/tag/topic_tag_pose").c_str()
 
 namespace gazebo
 {
@@ -44,7 +45,7 @@ namespace gazebo
    * Plugin to spawn the right tag pattern and publish the pose
    * @author Frederik Zwilling
    */
-  class Tag : public ModelPlugin
+  class Tag : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
   {
   public:
     Tag();
