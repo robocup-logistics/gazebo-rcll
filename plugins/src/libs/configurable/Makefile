@@ -1,8 +1,8 @@
 #*****************************************************************************
-#                  Makefile Build System for Fawkes: Libraries
+#           Makefile Build System for Fawkes: Configuration Utils
 #                            -------------------
-#   Created on Tue Nov 07 16:12:59 2006
-#   copyright (C) 2006-2011 by Tim Niemueller, AllemaniACs RoboCup Team
+#   Created on Sun Jan 07 14:56:02 2007
+#   Copyright (C) 2006-2007 by Tim Niemueller, AllemaniACs RoboCup Team
 #
 #*****************************************************************************
 #
@@ -13,19 +13,15 @@
 #
 #*****************************************************************************
 
-BASEDIR = ../..
+BASEDIR = ../../..
 include $(BASEDIR)/etc/buildsys/config.mk
 
-SUBDIRS = gazsim_msgs llsf_msgs protobuf_comm \
-	  core utils config configurable
+LIBS_libconfigurable = stdc++ config
+OBJS_libconfigurable = configurable.o
 
-# Explicit dependencies, this is needed to have make bail out if there is any
-# error. This is also necessary for working parallel build (i.e. for dual core)
-utils: core
-config: core utils
-configurable: config
+OBJS_all = $(OBJS_libconfigurable)
 
+LIBS_all  = $(LIBDIR)/libconfigurable.so
 
-include $(BUILDSYSDIR)/rules.mk
-
+include $(BUILDSYSDIR)/base.mk
 
