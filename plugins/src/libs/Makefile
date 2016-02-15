@@ -16,7 +16,8 @@
 BASEDIR = ../..
 include $(BASEDIR)/etc/buildsys/config.mk
 
-SUBDIRS = gazsim_msgs llsf_msgs protobuf_comm
+SUBDIRS = gazsim_msgs llsf_msgs protobuf_comm \
+	  core utils config
 
 
 include $(BUILDSYSDIR)/rules.mk

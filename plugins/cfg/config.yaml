@@ -1,0 +1,12 @@
+%YAML 1.2
+%TAG ! tag:fawkesrobotics.org,cfg/
+---
+# Configuration meta information document
+include:
+  # reads files ending in .yaml from conf.d config subdir
+  # - !ignore-missing conf.d/
+  # Reads the host-specific configuration file, no failure if missing
+  - !host-specific host.yaml
+---
+# Main configuration document
+
