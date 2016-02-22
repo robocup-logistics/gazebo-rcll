@@ -42,6 +42,23 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   this->name_ = model_->GetName();
   printf("Loading Mps Plugin of model %s\n", name_.c_str());
 
+  number_pucks_ = config->get_int("plugins/mps/number_pucks");
+  belt_offset_side_ = config->get_float("plugins/mps/belt_offset_side");
+  detect_tolerance_ = config->get_float("plugins/mps/detect_tolerance");
+  puck_size_ = config->get_float("plugins/mps/puck_size");
+  puck_height_ = config->get_float("plugins/mps/puck_height");
+  belt_length_ = config->get_float("plugins/mps/belt_length");
+  belt_height_ = config->get_float("plugins/mps/belt_height");
+  tag_height_ = config->get_float("plugins/mps/tag_height");
+  tag_size_ = config->get_float("plugins/mps/tag_size");
+  tag_spawn_time_ = config->get_float("plugins/mps/tag_spawn_time");
+  topic_set_machine_state_ = config->get_string("plugins/mps/topic_set_machine_state").c_str();
+  topic_machine_info_ = config->get_string("plugins/mps/topic_machine_info").c_str();
+  topic_puck_command_ = config->get_string("plugins/mps/topic_puck_command").c_str();
+  topic_puck_command_result_ = config->get_string("plugins/mps/topic_puck_command_result").c_str();
+  topic_joint_ = config->get_string("plugins/mps/topic_joint").c_str();
+
+  
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
   this->update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&Mps::OnUpdate, this, _1));

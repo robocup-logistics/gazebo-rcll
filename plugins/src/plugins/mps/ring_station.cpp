@@ -108,7 +108,7 @@ void RingStation::new_machine_info(ConstMachine &machine)
     //write to the puck plugin
     if(!puck_cmd_pub_->HasConnections())
     {
-      printf("cannot connect to puck %s on topic %s\n",puck_in_processing_name_.c_str(),TOPIC_PUCK_COMMAND);
+      printf("cannot connect to puck %s on topic %s\n",puck_in_processing_name_.c_str(),topic_puck_command_.c_str());
     }
     else
     {

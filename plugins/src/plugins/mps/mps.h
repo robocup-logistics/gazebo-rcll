@@ -37,30 +37,30 @@
 #include <configurable/configurable.h>
 
 //amount of pucks to listen for
-#define NUMBER_PUCKS config->get_int("plugins/mps/number_pucks")
+#define NUMBER_PUCKS number_pucks_
 //how far is the center of the belt hsifted from the machine center
-#define BELT_OFFSET_SIDE config->get_float("plugins/mps/belt_offset_side")
+#define BELT_OFFSET_SIDE belt_offset_side_
 //radius of the area where a workpiece is detected by the machine
-#define DETECT_TOLERANCE config->get_float("plugins/mps/detect_tolerance")
+#define DETECT_TOLERANCE detect_tolerance_
 //radius of a workpiece
-#define PUCK_SIZE config->get_float("plugins/mps/puck_size")
+#define PUCK_SIZE puck_size_
 //height of a puck
-#define PUCK_HEIGHT config->get_float("plugins/mps/puck_height")
+#define PUCK_HEIGHT puck_height_
 //length of the belt to calculate pos of input/output area
-#define BELT_LENGTH config->get_float("plugins/mps/belt_length")
-//Height of the belt
-#define BELT_HEIGHT config->get_float("plugins/mps/belt_height")
-//Height of the center of the tag
-#define TAG_HEIGHT config->get_float("plugins/mps/tag_height")
-//Height of the center of the tag
-#define TAG_SIZE config->get_float("plugins/mps/tag_size")
-//At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
-#define TAG_SPAWN_TIME config->get_float("plugins/mps/tag_spawn_time")
-#define TOPIC_SET_MACHINE_STATE config->get_string("plugins/mps/topic_set_machine_state").c_str()
-#define TOPIC_MACHINE_INFO config->get_string("plugins/mps/topic_machine_info").c_str()
-#define TOPIC_PUCK_COMMAND config->get_string("plugins/mps/topic_puck_command").c_str()
-#define TOPIC_PUCK_COMMAND_RESULT config->get_string("plugins/mps/topic_puck_command_result").c_str()
-#define TOPIC_JOINT config->get_string("plugins/mps/topic_joint").c_str()
+#define BELT_LENGTH belt_length_
+//height of the belt
+#define BELT_HEIGHT belt_height_
+//height of the center of the tag
+#define TAG_HEIGHT tag_height_
+//height of the center of the tag
+#define TAG_SIZE tag_size_
+//at what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
+#define TAG_SPAWN_TIME tag_spawn_time_
+#define TOPIC_SET_MACHINE_STATE topic_set_machine_state_ 
+#define TOPIC_MACHINE_INFO topic_machine_info_ 
+#define TOPIC_PUCK_COMMAND topic_puck_command_ 
+#define TOPIC_PUCK_COMMAND_RESULT topic_puck_command_result_
+#define TOPIC_JOINT topic_joint_
 
 
 typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
@@ -164,6 +164,32 @@ namespace gazebo
     gazebo::physics::JointPtr tag_joint_input;
     gazebo::physics::JointPtr tag_joint_output;
     bool grabbed_tags_ = false;
+
+    //config values:
+    int number_pucks_;
+    //how far is the center of the belt hsifted from the machine center
+    float belt_offset_side_;
+    //radius of the area where a workpiece is detected by the machine
+    float detect_tolerance_;
+    //radius of a workpiece
+    float puck_size_;
+    //height of a puck
+    float puck_height_;
+    //length of the belt to calculate pos of input/output area
+    float belt_length_;
+    //Height of the belt
+    float belt_height_;
+    //Height of the center of the tag
+    float tag_height_;
+    //Height of the center of the tag
+    float tag_size_;
+    //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
+    float tag_spawn_time_;
+    std::string topic_set_machine_state_;
+    std::string topic_machine_info_;
+    std::string topic_puck_command_;
+    std::string topic_puck_command_result_;
+    std::string topic_joint_;
   };
 }
 
