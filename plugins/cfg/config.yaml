@@ -113,3 +113,5 @@ plugins:
     send-interval: 0.5
     visibility-history-increase-per-second: 30
 
+  depthcam:
+    topic-pcl: "~/depthcam-pcl/"
