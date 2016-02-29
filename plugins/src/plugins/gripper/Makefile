@@ -22,7 +22,7 @@ include $(BUILDSYSDIR)/protobuf.mk
 GAZEBO_LIBDIR = $(LIBDIR)/gazebo
 LIBDIRS_BASE += $(GAZEBO_LIBDIR)
 
-LIBS_gazebo_libgripper = gazsim_msgs
+LIBS_gazebo_libgripper = gazsim_msgs configurable
 OBJS_gazebo_libgripper = gripper.o
 
 OBJS_all    = $(OBJS_gazebo_libgripper)

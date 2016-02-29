@@ -23,7 +23,7 @@ include $(BUILDSYSDIR)/boost.mk
 
 CFLAGS += $(CFLAGS_CPP11)
 
-LIBS_gazebo_libllsf_refbox_comm = fawkes_protobuf_comm llsf_msgs gazsim_msgs
+LIBS_gazebo_libllsf_refbox_comm = fawkes_protobuf_comm llsf_msgs gazsim_msgs configurable
 OBJS_gazebo_libllsf_refbox_comm = llsf_refbox_comm.o
 
 ifeq ($(HAVE_GAZEBO_6),1)

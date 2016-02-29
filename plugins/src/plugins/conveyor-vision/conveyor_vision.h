@@ -28,11 +28,12 @@
 #include <string.h>
 #include <llsf_msgs/ConveyorVisionResult.pb.h>
 #include <llsf_msgs/Pose3D.pb.h>
+#include <configurable/configurable.h>
 
-#define RADIUS_DETECTION_AREA 0.4
+#define RADIUS_DETECTION_AREA config->get_float("plugins/conveyor-vision/radius-detection-area")
 //Search area where the robot is looking for the conveyor relative to the robots center
-#define SEARCH_AREA_REL_X 0.4
-#define SEARCH_AREA_REL_Y 0.0
+#define SEARCH_AREA_REL_X config->get_float("plugins/conveyor-vision/search-area-rel-x")
+#define SEARCH_AREA_REL_Y config->get_float("plugins/conveyor-vision/search-area-rel-y")
 
 
 namespace gazebo
@@ -41,7 +42,7 @@ namespace gazebo
    * Plugin for a conveyor vision sensor on a model
    * @author Randolph Maaßen
    */
-  class ConveyorVision : public ModelPlugin
+  class ConveyorVision : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
   {
   public:
     ///Constructor

@@ -108,7 +108,7 @@ void RingStation::new_machine_info(ConstMachine &machine)
     //write to the puck plugin
     if(!puck_cmd_pub_->HasConnections())
     {
-      printf("cannot connect to puck %s on topic %s\n",puck_in_processing_name_.c_str(),TOPIC_PUCK_COMMAND);
+      printf("cannot connect to puck %s on topic %s\n",puck_in_processing_name_.c_str(),topic_puck_command_.c_str());
     }
     else
     {
@@ -124,7 +124,7 @@ void RingStation::new_machine_info(ConstMachine &machine)
   
   // show number of bases
   number_bases_ = machine.loaded_with();
-  for(u_int32_t i=0; i < MAX_NUM_BASES; i++)
+  for(u_int32_t i=0; i < (u_int32_t) MAX_NUM_BASES; i++)
   {
     publish_indicator(i < machine.loaded_with(), i);
   }

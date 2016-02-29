@@ -27,19 +27,20 @@
 #include <list>
 #include <string.h>
 #include <llsf_msgs/MachineInfo.pb.h>
+#include <configurable/configurable.h>
 
 
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
 
 //config values
-#define TOPIC_MACHINE_INFO "~/LLSFRbSim/MachineInfo/"
-#define RADIUS_DETECTION_AREA 0.4
+#define TOPIC_MACHINE_INFO config->get_string("plugins/light-signal-detection/topic-machine-info").c_str()
+#define RADIUS_DETECTION_AREA config->get_float("plugins/light-signal-detection/radius-detection-area")
 //Search area where the robot is looking for the signal relative to the robots center
-#define SEARCH_AREA_REL_X 0.6
-#define SEARCH_AREA_REL_Y 0.4
-#define SEND_INTERVAL 0.5
-#define VISIBILITY_HISTORY_INCREASE_PER_SECOND 30 //usually camera frame rate
+#define SEARCH_AREA_REL_X config->get_float("plugins/light-signal-detection/search-area-rel-x")
+#define SEARCH_AREA_REL_Y config->get_float("plugins/light-signal-detection/search-area-rel-y")
+#define SEND_INTERVAL config->get_float("plugins/light-signal-detection/send-interval")
+#define VISIBILITY_HISTORY_INCREASE_PER_SECOND config->get_int("plugins/light-signal-detection/visibility-history-increase-per-second") //usually camera frame rate
 
 
 namespace gazebo
@@ -48,7 +49,7 @@ namespace gazebo
    * Provides ground Truth position
    * @author Frederik Zwilling
    */
-  class LightSignalDetection : public ModelPlugin
+  class LightSignalDetection : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
   {
   public:
     LightSignalDetection();

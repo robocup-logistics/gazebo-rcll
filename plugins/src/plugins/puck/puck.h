@@ -28,17 +28,19 @@
 #include <string.h>
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
 #include <llsf_msgs/OrderInfo.pb.h>
+#include <configurable/configurable.h>
 
 
 typedef const boost::shared_ptr<llsf_msgs::SetOrderDeliveredByColor const> ConstSetOrderDeliveredByColorPtr;
 typedef const boost::shared_ptr<gazsim_msgs::WorkpieceCommand const> ConstWorkpieceCommandPtr;
+
 /// The height of one ring
-#define RING_HEIGHT 0.008 //meter
+#define RING_HEIGHT config->get_float("plugins/puck/ring_height")
 /// The height of one cap
-#define CAP_HEIGHT 0.004 //meter
+#define CAP_HEIGHT config->get_float("plugins/puck/cap_height")
 /// The height of the workpiece base
-#define WORKPIECE_HEIGHT 0.0225 //meter
-#define TOPIC_SET_ORDER_DELIVERY_BY_COLOR "~/LLSFRbSim/DELIVERY"
+#define WORKPIECE_HEIGHT config->get_float("plugins/puck/workpiece_height")
+#define TOPIC_SET_ORDER_DELIVERY_BY_COLOR config->get_string("plugins/puck/topic_set_order_delivery_by_color").c_str()
 
 namespace gazebo
 {
@@ -46,7 +48,7 @@ namespace gazebo
    * Plugin to control a simulated Puck
    * @author Randolph Maaßen
    */
-  class Puck : public ModelPlugin
+  class Puck : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
   {
   public:
     Puck();

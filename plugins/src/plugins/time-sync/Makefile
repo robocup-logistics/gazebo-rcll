@@ -19,7 +19,7 @@ include $(BASEDIR)/etc/buildsys/config.mk
 include $(BUILDSYSDIR)/gazebo.mk
 include $(BUILDSYSDIR)/protobuf.mk
 
-LIBS_gazebo_libtimesync =	gazsim_msgs
+LIBS_gazebo_libtimesync =	gazsim_msgs configurable
 OBJS_gazebo_libtimesync =	time_sync.o
 
 OBJS_all    = $(OBJS_gazebo_libtimesync)

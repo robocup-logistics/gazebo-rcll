@@ -23,7 +23,7 @@ GAZEBO_LIBDIR = $(LIBDIR)/gazebo
 LIBDIRS_BASE += $(GAZEBO_LIBDIR)
 
 LIBS_gazebo_libmps = gazsim_msgs\
-                     llsf_msgs
+                     llsf_msgs configurable
 OBJS_gazebo_libmps = mps.o\
                      mps_loader.o\
                      base_station.o\

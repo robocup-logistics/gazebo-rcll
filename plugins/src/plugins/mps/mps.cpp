@@ -42,6 +42,23 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   this->name_ = model_->GetName();
   printf("Loading Mps Plugin of model %s\n", name_.c_str());
 
+  number_pucks_ = config->get_int("plugins/mps/number_pucks");
+  belt_offset_side_ = config->get_float("plugins/mps/belt_offset_side");
+  detect_tolerance_ = config->get_float("plugins/mps/detect_tolerance");
+  puck_size_ = config->get_float("plugins/mps/puck_size");
+  puck_height_ = config->get_float("plugins/mps/puck_height");
+  belt_length_ = config->get_float("plugins/mps/belt_length");
+  belt_height_ = config->get_float("plugins/mps/belt_height");
+  tag_height_ = config->get_float("plugins/mps/tag_height");
+  tag_size_ = config->get_float("plugins/mps/tag_size");
+  tag_spawn_time_ = config->get_float("plugins/mps/tag_spawn_time");
+  topic_set_machine_state_ = config->get_string("plugins/mps/topic_set_machine_state").c_str();
+  topic_machine_info_ = config->get_string("plugins/mps/topic_machine_info").c_str();
+  topic_puck_command_ = config->get_string("plugins/mps/topic_puck_command").c_str();
+  topic_puck_command_result_ = config->get_string("plugins/mps/topic_puck_command_result").c_str();
+  topic_joint_ = config->get_string("plugins/mps/topic_joint").c_str();
+
+  
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
   this->update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&Mps::OnUpdate, this, _1));
@@ -167,6 +184,7 @@ void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::
 
   //teleport tag to right position
   math::Pose gripperPose = gripperLink->GetWorldPose();
+  printf("Teleport Tag to %f\n", gripperPose.pos.x);
   math::Pose newPose = gripperPose;
   tag->SetWorldPose(newPose);
 
@@ -229,6 +247,8 @@ math::Pose Mps::output()
 
 bool Mps::pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance)
 {
+  if (tolerance == -1.0)
+    tolerance = DETECT_TOLERANCE;
   double dist = sqrt((to_test.pos.x - reference.pos.x) * (to_test.pos.x - reference.pos.x)
 		     + (to_test.pos.y - reference.pos.y) * (to_test.pos.y - reference.pos.y)
 		     + (to_test.pos.z - reference.pos.z) * (to_test.pos.z - reference.pos.z));
@@ -336,6 +356,8 @@ void Mps::spawn_puck(const math::Pose &spawn_pose, gazsim_msgs::Color base_color
 
 math::Pose Mps::get_puck_world_pose(double long_side, double short_side, double height)
 {
+  if(height == -1.0)
+    height = BELT_HEIGHT;
   double mps_x = this->model_->GetWorldPose().pos.x;
   double mps_y = this->model_->GetWorldPose().pos.y;
   double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;

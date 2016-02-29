@@ -26,6 +26,7 @@
 #include <gazebo/transport/transport.hh>
 #include <list>
 #include <string.h>
+#include <configurable/configurable.h>
 
 namespace gazebo
 {   
@@ -33,7 +34,7 @@ namespace gazebo
    * Plugin for a gyro sensor on a model
    * @author Frederik Zwilling
    */
-  class Gyro : public ModelPlugin
+  class Gyro : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
   {
   public:
     ///Constructor

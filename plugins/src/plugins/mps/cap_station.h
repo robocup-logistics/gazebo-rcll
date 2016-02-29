@@ -25,7 +25,7 @@
 
 #include "mps.h"
 
-#define SPAWN_PUCK_TIME 20
+#define SPAWN_PUCK_TIME config->get_int("plugins/mps/cap-station/spawn_puck_time")
 
 typedef const boost::shared_ptr<const gazsim_msgs::WorkpieceResult> ConstWorkpieceResultPtr;
 
