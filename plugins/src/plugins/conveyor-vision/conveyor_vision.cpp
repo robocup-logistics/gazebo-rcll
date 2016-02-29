@@ -58,6 +58,17 @@ void ConveyorVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //the namespace is set to the model name!
   this->node_->Init(model_->GetWorld()->GetName()+"/"+name_);
 
+  //load config values
+  number_pucks_ = config->get_int("plugins/mps/number_pucks");
+  belt_offset_side_ = config->get_float("plugins/mps/belt_offset_side");
+  detect_tolerance_ = config->get_float("plugins/mps/detect_tolerance");
+  puck_size_ = config->get_float("plugins/mps/puck_size");
+  puck_height_ = config->get_float("plugins/mps/puck_height");
+  belt_length_ = config->get_float("plugins/mps/belt_length");
+  belt_height_ = config->get_float("plugins/mps/belt_height");
+  tag_height_ = config->get_float("plugins/mps/tag_height");
+  tag_size_ = config->get_float("plugins/mps/tag_size");
+
 
   //create publisher
   this->conveyor_pub_ = this->node_->Advertise<llsf_msgs::ConveyorVisionResult>("~/RobotinoSim/ConveyorVisionResult/");

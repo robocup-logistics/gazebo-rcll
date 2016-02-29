@@ -34,6 +34,24 @@
 //Search area where the robot is looking for the conveyor relative to the robots center
 #define SEARCH_AREA_REL_X config->get_float("plugins/conveyor-vision/search-area-rel-x")
 #define SEARCH_AREA_REL_Y config->get_float("plugins/conveyor-vision/search-area-rel-y")
+//amount of pucks to listen for
+#define NUMBER_PUCKS number_pucks_
+//how far is the center of the belt hsifted from the machine center
+#define BELT_OFFSET_SIDE belt_offset_side_
+//radius of the area where a workpiece is detected by the machine
+#define DETECT_TOLERANCE detect_tolerance_
+//radius of a workpiece
+#define PUCK_SIZE puck_size_
+//height of a puck
+#define PUCK_HEIGHT puck_height_
+//length of the belt to calculate pos of input/output area
+#define BELT_LENGTH belt_length_
+//height of the belt
+#define BELT_HEIGHT belt_height_
+//height of the center of the tag
+#define TAG_HEIGHT tag_height_
+//height of the center of the tag
+#define TAG_SIZE tag_size_
 
 
 namespace gazebo
@@ -66,6 +84,26 @@ namespace gazebo
     ///name of the gyro and the communication channel
     std::string name_;
 
+    //config values:
+    int number_pucks_;
+    //how far is the center of the belt hsifted from the machine center
+    float belt_offset_side_;
+    //radius of the area where a workpiece is detected by the machine
+    float detect_tolerance_;
+    //radius of a workpiece
+    float puck_size_;
+    //height of a puck
+    float puck_height_;
+    //length of the belt to calculate pos of input/output area
+    float belt_length_;
+    //Height of the belt
+    float belt_height_;
+    //Height of the center of the tag
+    float tag_height_;
+    //Height of the center of the tag
+    float tag_size_;
+
+    
     ///time variable to send in intervals
     double last_sent_time_;
 
