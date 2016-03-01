@@ -21,6 +21,7 @@ SUBDIRS = gazsim_msgs llsf_msgs protobuf_comm \
 
 # Explicit dependencies, this is needed to have make bail out if there is any
 # error. This is also necessary for working parallel build (i.e. for dual core)
+all:
 utils: core
 config: core utils
 configurable: config
