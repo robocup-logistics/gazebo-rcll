@@ -64,24 +64,24 @@
 
     <!-- Machines (should later be spawned by a world plugin according to the refbox) -->
     <include>
-      <name>C-BS</name>
-      <uri>model://mps_base</uri>
-      <pose>-5 4.9 0 0 0 0</pose>
-    </include>
-    <include>
-      <name>M-BS</name>
-      <uri>model://mps_base</uri>
-      <pose>5 4.9 0 0 0 0</pose>
-    </include>
-
-    <include>
       <name>C-CS1</name>
       <uri>model://mps_cap</uri>
-      <pose>-1 5.0 0 0 0 1.4</pose>
+      <pose>-4.5 4.9 0 0 0 -1.6</pose>
     </include>
     <include>
       <name>M-CS1</name>
       <uri>model://mps_cap</uri>
+      <pose>4.5 4.9 0 0 0 1.6</pose>
+    </include>
+
+    <include>
+      <name>M-DS</name>
+      <uri>model://mps_delivery</uri>
+      <pose>-1 5.0 0 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>C-DS</name>
+      <uri>model://mps_delivery</uri>
       <pose>1 5.0 0 0 0 -1.4</pose>
     </include>
 
@@ -121,13 +121,13 @@
 
 
     <include>
-      <name>C-DS</name>
-      <uri>model://mps_delivery</uri>
+      <name>C-BS</name>
+      <uri>model://mps_base</uri>
       <pose>4.5 1.0 0 0 0 0.75</pose>
     </include>
     <include>
-      <name>M-DS</name>
-      <uri>model://mps_delivery</uri>
+      <name>M-BS</name>
+      <uri>model://mps_base</uri>
       <pose>-4.5 1.0 0 0 0 -0.75</pose>
     </include>
 
