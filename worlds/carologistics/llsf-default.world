@@ -66,12 +66,12 @@
     <include>
       <name>C-CS1</name>
       <uri>model://mps_cap</uri>
-      <pose>-4.5 4.9 0 0 0 -1.6</pose>
+      <pose>-4.5 5.1 0 0 0 -1.6</pose>
     </include>
     <include>
       <name>M-CS1</name>
       <uri>model://mps_cap</uri>
-      <pose>4.5 4.9 0 0 0 1.6</pose>
+      <pose>4.5 5.1 0 0 0 1.6</pose>
     </include>
 
     <include>
