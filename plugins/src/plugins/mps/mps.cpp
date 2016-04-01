@@ -32,6 +32,17 @@ using namespace gazebo;
 // Register this plugin to make it available in the simulator
 //GZ_REGISTER_MODEL_PLUGIN(Mps)
 
+const std::map<std::string,std::string> Mps::name_id_match =
+	{{"C-CS1I","tag_01"},{"C-CS1O","tag_02"},{"C-CS2I","tag_17"},
+	 {"C-CS2O","tag_18"},{"C-RS1I","tag_33"},{"C-RS1O","tag_34"},
+	 {"C-RS2I","tag_177"},{"C-RS2O","tag_178"},{"C-BSI","tag_65"},
+	 {"C-BSO","tag_66"},{"C-DSI","tag_81"},{"C-DSO","tag_82"},
+	 {"M-CS1I","tag_97"},{"M-CS1O","tag_98"},{"M-CS2I","tag_113"},
+	 {"M-CS2O","tag_114"},{"M-RS1I","tag_129"},{"M-RS1O","tag_130"},
+	 {"M-RS2I","tag_145"},{"M-RS2O","tag_146"},{"M-BSI","tag_161"},
+	 {"M-BSO","tag_162"},{"M-DSI","tag_49"},{"M-DSO","tag_50"}
+	};
+
 ///Constructor
 Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 {
@@ -104,12 +115,23 @@ Mps::~Mps()
  */
 void Mps::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-  if(!grabbed_tags_ && model_->GetWorld()->GetSimTime().Double() - spawned_tags_last_ > TAG_SPAWN_TIME)
+  if(!grabbed_tags_)
   {
-    //Spawn tags (in Init is to early because it would be spawned at origin)
-    grabTag("mps_tag_input", name_ + "I", tag_joint_input);
-    grabTag("mps_tag_output", name_ + "O", tag_joint_output);
-    grabbed_tags_ = true;
+	  std::string input_tag_name = name_id_match.at(name_ + "I");
+	  std::string output_tag_name = name_id_match.at(name_ + "O");
+
+	  physics::BasePtr input_tag = model_->GetWorld()->GetByName(input_tag_name);
+	  physics::BasePtr output_tag = model_->GetWorld()->GetByName(output_tag_name);
+
+	  if (input_tag && output_tag) {
+		  //Spawn tags (in Init is to early because it would be spawned at origin)
+		  printf("***** %s: Grabbing Tags\n", name_.c_str());
+		  grabTag("mps_tag_input", name_ + "I", tag_joint_input);
+		  grabTag("mps_tag_output", name_ + "O", tag_joint_output);
+		  grabbed_tags_ = true;
+	  } else {
+		  printf("***** %s: Tags not there, yet\n", name_.c_str());
+	  }
   }
 }
 
@@ -160,9 +182,8 @@ void Mps::set_state(State state)
 void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::JointPtr joint)
 {
   //get tag_id from tag_name
-  std::map<std::string,std::string> name_id_match =  {{"C-CS1I","tag_01"},{"C-CS1O","tag_02"},{"C-CS2I","tag_17"},{"C-CS2O","tag_18"},{"C-RS1I","tag_33"},{"C-RS1O","tag_34"},{"C-RS2I","tag_177"},{"C-RS2O","tag_178"},{"C-BSI","tag_65"},{"C-BSO","tag_66"},{"C-DSI","tag_81"},{"C-DSO","tag_82"},{"M-CS1I","tag_97"},{"M-CS1O","tag_98"},{"M-CS2I","tag_113"},{"M-CS2O","tag_114"},{"M-RS1I","tag_129"},{"M-RS1O","tag_130"},{"M-RS2I","tag_145"},{"M-RS2O","tag_146"},{"M-BSI","tag_161"},{"M-BSO","tag_162"},{"M-DSI","tag_49"},{"M-DSO","tag_50"}};
-  tag_name = name_id_match[tag_name];
-  
+	tag_name = name_id_match.at(tag_name);
+
   //get link of mps
   gazebo::physics::LinkPtr gripperLink = getLinkEndingWith(model_,link_name.c_str());
   if(!gripperLink){

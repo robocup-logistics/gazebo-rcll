@@ -85,6 +85,9 @@ namespace gazebo
     virtual void Reset();
 
   protected:
+    static const std::map<std::string,std::string> name_id_match;
+
+
     /// Pointer to the gazbeo model
     physics::ModelPtr model_;
     /// Pointer to the update event connection
