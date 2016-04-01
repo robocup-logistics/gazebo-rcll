@@ -68,15 +68,9 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   // initialize without rings or cap
   this->ring_count_ = 0;
   this->have_cap = false;
+  this->announced_ = false;
   
   this->new_puck_publisher = this->node_->Advertise<gazsim_msgs::NewPuck>("~/new_puck");
-  gazsim_msgs::NewPuck new_puck_msg;
-  
-  new_puck_msg.set_puck_name(name());
-  new_puck_msg.set_gps_topic("~/"+name()+"/gazsim/gps/");
-  new_puck_publisher->Publish(new_puck_msg);
-  
-  
   
   // subscribe for puck commands
   this->command_subscriber = this->node_->Subscribe(std::string("~/pucks/cmd"), &Puck::on_command_msg, this);
@@ -93,6 +87,15 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
  */
 void Puck::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
+	if (! announced_) {
+		gazsim_msgs::NewPuck new_puck_msg;
+  
+		new_puck_msg.set_puck_name(name());
+		new_puck_msg.set_gps_topic("~/"+name()+"/gazsim/gps/");
+		new_puck_publisher->Publish(new_puck_msg);
+
+		announced_ = true;
+	}
 }
 
 /** on Gazebo reset

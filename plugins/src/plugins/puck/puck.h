@@ -69,6 +69,9 @@ namespace gazebo
     ///name of the puck and the communication channel
     inline std::string name();
 
+    /// Flag whether model has bene announced, yet.
+    bool announced_;
+    
     // Puck Stuff:
     
     /// Subscriber to get commands for model ring addition
