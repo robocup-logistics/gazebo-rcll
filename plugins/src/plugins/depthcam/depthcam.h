@@ -27,7 +27,7 @@
 #include <list>
 #include <map>
 #include <string>
-#include <gazebo/plugins/DepthCameraPlugin.hh>
+#include <gazebo/rendering/DepthCamera.hh>
 #include <gazebo/sensors/sensors.hh>
 #include <configurable/configurable.h>
 
