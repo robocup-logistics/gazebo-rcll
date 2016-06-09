@@ -173,7 +173,7 @@ void ConveyorVision::send_conveyor_result()
       //pose->set_z(res.z);
       //set z to 0.005 as default so that no z alignment of the gripper is necessary
       //TODO: simulate z movement of the gripper to make this flexible
-      pose->set_z(0.005);
+      pose->set_z(0.000);
       pose->set_ori_x(0);
       pose->set_ori_y(0);
       pose->set_ori_z(0);
