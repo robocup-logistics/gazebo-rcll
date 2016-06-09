@@ -338,18 +338,22 @@ void Mps::spawn_puck(const math::Pose &spawn_pose, gazsim_msgs::Color base_color
     new_sdf = raw_sdf.erase(name_pos, old_name.length()).insert(name_pos, new_name);
     std::string old_color = "1.0 0.35 0.0 1";
     std::string new_color;
+    std::string color_string;
     switch (base_color) {
       case gazsim_msgs::Color::RED:
         new_color = "1.0 0.0 0.0 1";
+        color_string = "RED";
         break;
       case gazsim_msgs::Color::BLACK:
         new_color = "0.2 0.2 0.2 1";
+        color_string = "BLACK";
         break;
       case gazsim_msgs::Color::SILVER:
         new_color = "0.8 0.8 0.8 1";
+        color_string = "SILVER";
         break;
       default:
-        printf("%s sould spwan with an unsopported base color %s\n",new_name.c_str(), gazsim_msgs::Color_Name(base_color).c_str());
+        printf("%s should spawn with an unsupported base color %s\n",new_name.c_str(), gazsim_msgs::Color_Name(base_color).c_str());
         return;
         break;
     }
@@ -358,6 +362,11 @@ void Mps::spawn_puck(const math::Pose &spawn_pose, gazsim_msgs::Color base_color
       new_sdf = new_sdf.erase(color_pos, old_color.length()).insert(color_pos, new_color);
       color_pos = new_sdf.find(old_color);
     }
+    std::string plugin_string = "<plugin name=\"Puck\" filename=\"libpuck.so\"/>";
+    std::size_t string_pos = new_sdf.find(plugin_string);
+    new_sdf = new_sdf.erase(string_pos, plugin_string.length())
+              .insert(string_pos, "<plugin name=\"Puck\" filename=\"libpuck.so\"><baseColor>" + color_string + "</baseColor></plugin>");
+
   }
   else{
     printf("Cant find workpiece_base sdf file:%s", sdf_path.c_str());

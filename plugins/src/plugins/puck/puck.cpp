@@ -47,7 +47,7 @@ inline std::string Puck::name()
 /** on loading of the plugin
  * @param _parent Parent Model
  */
-void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
+void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 {
   printf("Loading Puck Plugin of model %s\n", _parent->GetName().c_str());
   // Store the pointer to the model
@@ -78,7 +78,23 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   // publisher for workpiece command results
   this->workpiece_result_pub_ = node_->Advertise<gazsim_msgs::WorkpieceResult>("~/pucks/cmd/result");
   
-  base_color_ = gazsim_msgs::Color::RED;
+  if (!_sdf->HasElement("baseColor")) {
+    printf("SDF for base has no baseColor configured, defaulting to RED!\n");
+    base_color_ = gazsim_msgs::Color::RED;
+  } else {
+    std::string config_color = _sdf->GetElement("baseColor")->Get<std::string>();
+    if (config_color == "RED") {
+      base_color_ = gazsim_msgs::Color::RED;
+    } else if (config_color == "BLACK") {
+      base_color_ = gazsim_msgs::Color::BLACK;
+    } else if (config_color == "SILVER") {
+      base_color_ = gazsim_msgs::Color::SILVER;
+    } else {
+      printf("SDF for base has no baseColor configured, defaulting to RED!\n");
+      base_color_ = gazsim_msgs::Color::RED;
+    }
+    printf("Base spawns in color %s\n", config_color.c_str());
+  }
   
   delivery_pub_ = node_->Advertise<llsf_msgs::SetOrderDeliveredByColor>(TOPIC_SET_ORDER_DELIVERY_BY_COLOR);
 }
