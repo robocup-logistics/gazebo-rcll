@@ -48,18 +48,30 @@ void DepthCam::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
 {
   // DepthCameraPlugin::Load(_sensor, _sdf);
   //get the model-name
+#if GAZEBO_MAJOR_VERSION >= 7
+  name_ = _sensor->Name();
+#else
   name_ = _sensor->GetName();
+#endif
   printf("DepthCam: Loading plugin of sensor %s\n", name_.c_str());
   
   //Create the communication Node for communication with fawkes
   node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the model name!
+#if GAZEBO_MAJOR_VERSION >= 7
+  node_->Init(_sensor->WorldName()+"/"+name_);
+#else
   node_->Init(_sensor->GetWorldName()+"/"+name_);
+#endif
 
   //Create the communication Node in gazbeo
   world_node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the world name!
+#if GAZEBO_MAJOR_VERSION >= 7
+  world_node_->Init(_sensor->WorldName());
+#else
   world_node_->Init(_sensor->GetWorldName());
+#endif
 
   //read config values
   pcl_topic_ = config->get_string("plugins/depthcam/topic-pcl");
@@ -67,9 +79,15 @@ void DepthCam::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
   //create publisher
   pcl_pub_ = node_->Advertise<msgs::PointCloud>(pcl_topic_.c_str());
 
+#if GAZEBO_MAJOR_VERSION >= 7
+  // They switched from boost:shared_ptr<T> to std::shared_ptr<T>
+  parentSensor = std::dynamic_pointer_cast<sensors::DepthCameraSensor>(_sensor);
+  depthCamera = parentSensor->DepthCamera();
+#else
   parentSensor =
     boost::dynamic_pointer_cast<sensors::DepthCameraSensor>(_sensor);
   depthCamera = parentSensor->GetDepthCamera();
+#endif
 
   if (!parentSensor)
   {
@@ -77,10 +95,17 @@ void DepthCam::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
     return;
   }
 
+#if GAZEBO_MAJOR_VERSION >= 7
+  width_ = depthCamera->ImageWidth();
+  height_ = depthCamera->ImageHeight();
+  depth_ = depthCamera->ImageDepth();
+  format_ = depthCamera->ImageFormat();
+#else
   width_ = depthCamera->GetImageWidth();
   height_ = depthCamera->GetImageHeight();
   depth_ = depthCamera->GetImageDepth();
   format_ = depthCamera->GetImageFormat();
+#endif
 
   // newDepthFrameConnection = depthCamera->ConnectNewDepthFrame(
   //     boost::bind(&DepthCam::OnNewDepthFrame,
