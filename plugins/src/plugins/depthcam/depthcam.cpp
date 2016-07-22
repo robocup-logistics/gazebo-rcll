@@ -79,13 +79,15 @@ void DepthCam::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
   //create publisher
   pcl_pub_ = node_->Advertise<msgs::PointCloud>(pcl_topic_.c_str());
 
-#if GAZEBO_MAJOR_VERSION >= 7
-  // They switched from boost:shared_ptr<T> to std::shared_ptr<T>
+  //Adding those 2 lines enables, that the compiler uses the correct
+  //one. Gazebo uses boost::shared_ptr up to version 5.2.1. Since
+  //version 5.3.0 it uses std::shared_ptr.
+  using boost::dynamic_pointer_cast;
+  using std::dynamic_pointer_cast;
   parentSensor = std::dynamic_pointer_cast<sensors::DepthCameraSensor>(_sensor);
+#if GAZEBO_MAJOR_VERSION >= 7
   depthCamera = parentSensor->DepthCamera();
 #else
-  parentSensor =
-    boost::dynamic_pointer_cast<sensors::DepthCameraSensor>(_sensor);
   depthCamera = parentSensor->GetDepthCamera();
 #endif
 
