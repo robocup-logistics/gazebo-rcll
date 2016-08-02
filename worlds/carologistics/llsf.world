@@ -9,6 +9,11 @@
       <real_time_update_rate>300</real_time_update_rate>
     </physics>
 
+    <scene>
+      <ambient>0.5 0.5 0.5 1.0</ambient>
+      <shadows>0</shadows>
+    </scene>
+
     <gui>
       <camera name="user camera">
 	<pose>1 -2 9.5 0 1.1 1.56</pose>
