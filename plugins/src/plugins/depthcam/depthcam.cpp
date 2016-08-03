@@ -20,6 +20,7 @@
 
 #include <math.h>
 #include <fnmatch.h>
+#include <memory>
 #include <vector>
 
 #include "depthcam.h"
@@ -83,8 +84,10 @@ void DepthCam::Load(sensors::SensorPtr _sensor, sdf::ElementPtr _sdf)
   //one. Gazebo uses boost::shared_ptr up to version 5.2.1. Since
   //version 5.3.0 it uses std::shared_ptr.
   using boost::dynamic_pointer_cast;
+#if __cplusplus >= 201103L
   using std::dynamic_pointer_cast;
-  parentSensor = std::dynamic_pointer_cast<sensors::DepthCameraSensor>(_sensor);
+#endif
+  parentSensor = dynamic_pointer_cast<sensors::DepthCameraSensor>(_sensor);
 #if GAZEBO_MAJOR_VERSION >= 7
   depthCamera = parentSensor->DepthCamera();
 #else
