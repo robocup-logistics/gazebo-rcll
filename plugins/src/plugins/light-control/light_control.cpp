@@ -78,6 +78,10 @@ void LightControl::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 
   world_ = model_->GetWorld();
   last_sent_time_ = world_->GetSimTime().Double();
+
+  //initially turn lights off
+  prev_state_red_ = prev_state_yellow_ = prev_state_green_ = ON;
+  state_red_ = state_yellow_ = state_green_ = OFF;
 }
 
 /** Called by the world update start event
@@ -96,11 +100,11 @@ void LightControl::OnUpdate(const common::UpdateInfo & /*_info*/)
     return;
   }
   last_sent_time_ = time;
+
   
-  //turn off yellow
-  visPub_->Publish(create_vis_msg(machine_name_, RED, state_red_));
-  visPub_->Publish(create_vis_msg(machine_name_, YELLOW, state_yellow_));
-  visPub_->Publish(create_vis_msg(machine_name_, GREEN, state_green_));
+  change_light(machine_name_, RED, state_red_, prev_state_red_);
+  change_light(machine_name_, YELLOW, state_yellow_, prev_state_yellow_);
+  change_light(machine_name_, GREEN, state_green_, prev_state_green_);
 }
 
 /** on Gazebo reset
@@ -150,9 +154,16 @@ void LightControl::on_light_msg(ConstMachineInfoPtr &msg)
 
 
 //creates all needed visual messages
-msgs::Visual LightControl::create_vis_msg(std::string machine_name, Color color, LightState state)
+void LightControl::change_light(std::string machine_name, Color color, LightState &state, LightState &prev_state)
 {
-  //create message to return
+  //is there a change?
+  if(state != BLINK && state == prev_state)
+  {
+    return;
+  }
+  prev_state = state;
+  
+  //create message to send
   msgs::Visual msg;
 
   //resolve BLINK (Machines Blink at 2Hz)
@@ -272,5 +283,5 @@ msgs::Visual LightControl::create_vis_msg(std::string machine_name, Color color,
     }
   }
 
-  return msg;
+  visPub_->Publish(msg);
 }

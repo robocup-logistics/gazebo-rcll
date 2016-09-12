@@ -89,6 +89,7 @@ namespace gazebo
     // Light_Control Stuff:
 
     LightState state_red_, state_yellow_, state_green_;
+    LightState prev_state_red_, prev_state_yellow_, prev_state_green_;
 
     /// Subscriber to get msgs about the light status
     transport::SubscriberPtr light_msg_sub_;
@@ -98,7 +99,7 @@ namespace gazebo
 
     ///Publisher to send visual changes to gazebo
     transport::PublisherPtr visPub_;
-    msgs::Visual create_vis_msg(std::string machine_name, Color color, LightState state);
+    void change_light(std::string machine_name, Color color, LightState &state, LightState &prev_state);
 
     ///time variable to send in intervals
     double last_sent_time_;
