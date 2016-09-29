@@ -229,7 +229,6 @@ void LightControl::change_light(std::string machine_name, Color color, LightStat
 
   if(state == ON)
   {
-    msg.set_transparency(0.0);
     msg.set_visible(true);
     switch(color)
       {
@@ -255,7 +254,6 @@ void LightControl::change_light(std::string machine_name, Color color, LightStat
   }
   else
   {
-    msg.set_transparency(0.0);
     msg.set_visible(false);
     switch(color)
       {
