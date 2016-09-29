@@ -162,15 +162,6 @@ void LightControl::change_light(std::string machine_name, Color color, LightStat
     return;
   }
   prev_state = state;
-
-#if GAZEBO_MAJOR_VERSION > 5
-  //disable blinking
-  if(state == BLINK)
-  {
-    // workaround to avoid huge fps drop when sending visual messages
-    return;
-  }
-#endif
   
   //create message to send
   msgs::Visual msg;
