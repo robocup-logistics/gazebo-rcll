@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+	<model name="top_camera">
+		<static>true</static>
+
+		<link name="body">
+			<pose>0 2.5 100 0 1.57 1.57</pose>
+
+			<gravity>false</gravity>
+
+			<inertial>
+				<mass>0.02</mass>
+			</inertial>
+
+			<visual name="visual">
+				<pose>0 0 0 0 1.6 0</pose>
+				<geometry>
+					<cylinder>
+						<length>0.02</length>
+						<radius>0.03</radius>
+					</cylinder>
+				</geometry>
+				<cast_shadows>false</cast_shadows>
+				<material>
+					<ambient>0.0 0.0 0.0 0.1</ambient>
+					<diffuse>0.0 0.0 0.0 0.11</diffuse>
+				</material>
+			</visual>
+
+			<sensor type="camera" name="top_camera">
+				<update_rate>30.0</update_rate>
+				<camera name="top_camera">
+					<horizontal_fov>0.13</horizontal_fov>
+					<image>
+						<width>1200</width>
+						<height>700</height>
+						<format>R8G8B8</format>
+					</image>
+					<clip>
+						<near>0.02</near>
+						<far>300</far>
+					</clip>
+				</camera>
+				<plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+					<alwaysOn>true</alwaysOn>
+					<updateRate>0.0</updateRate>
+					<cameraName>gazebo/camera/top_camera</cameraName>
+					<imageTopicName>image_raw</imageTopicName>
+					<cameraInfoTopicName>camera_info</cameraInfoTopicName>
+					<frameName>top_camera_link</frameName>
+					<hackBaseline>0.07</hackBaseline>
+					<distortionK1>0.0</distortionK1>
+					<distortionK2>0.0</distortionK2>
+					<distortionK3>0.0</distortionK3>
+					<distortionT1>0.0</distortionT1>
+					<distortionT2>0.0</distortionT2>
+				</plugin>
+			</sensor>
+		</link>
+	</model>
+</sdf>
