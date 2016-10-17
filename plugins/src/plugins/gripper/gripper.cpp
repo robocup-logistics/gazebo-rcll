@@ -190,7 +190,7 @@ void Gripper::open() {
 void Gripper::setPuckPose(){
   if (!grippedPuck)
     return;
-  math::Pose gripperPose = model_->GetLink("carologistics-robotino-3::gripper::link")->GetWorldPose();
+  math::Pose gripperPose = model_->GetLink("gripper::link")->GetWorldPose();
   math::Pose newPose = gripperPose;
 
   // printf("gripper pos: (%f,%f,%f)", newPose.pos.x, newPose.pos.y, newPose.rot.GetYaw());
@@ -203,7 +203,7 @@ void Gripper::setPuckPose(){
 physics::ModelPtr Gripper::getNearestPuck() {
 
   physics::ModelPtr nearest;
-  math::Pose gripperPose = model_->GetLink("carologistics-robotino-3::gripper::link")->GetWorldPose();
+  math::Pose gripperPose = model_->GetLink("gripper::link")->GetWorldPose();
   double distance = DBL_MAX;
   unsigned int modelCount = model_->GetWorld()->GetModelCount();
   physics::ModelPtr tmp;
