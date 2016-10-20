@@ -262,17 +262,23 @@ void Gripper::sendHasPuck(bool has_puck)
  */
 gazebo::physics::LinkPtr Gripper::getGripperLink()
 {
+  // XXX: Switch to 'constexpr linkLen = length("gripper::link")' in c++11
+  static const short int linkLen = strlen("gripper::link");
+
+  // Search for gripper in model
   physics::LinkPtr res = model_->GetLink("gripper::link");
   if(res)
     return res;
-  //search for gripper link in included submodels
+
+  // Search for gripper link in included submodels
   std::vector<physics::LinkPtr> links = model_->GetLinks();
   for(std::vector<physics::LinkPtr>::iterator it = links.begin(); it != links.end(); it++)
   {
     printf("Checking %s\n", (*it)->GetName().c_str());
-    if((*it)->GetName().find("gripper::link") != std::string::npos)
+    if((*it)->GetName().rfind("gripper::link", (*it)->GetName().length()-linkLen) != std::string::npos)
       return (*it);
   }
   printf("Could not find gripper link of model %s\n", name_.c_str());
-  return NULL;
+
+  return res;
 }
