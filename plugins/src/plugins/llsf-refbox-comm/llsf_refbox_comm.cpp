@@ -28,13 +28,9 @@
 
 using namespace gazebo;
 
-LlsfRefboxCommPlugin::LlsfRefboxCommPlugin() : WorldPlugin() 
+LlsfRefboxCommPlugin::LlsfRefboxCommPlugin() : WorldPlugin()
 {
-  //Init the communication Node
-  this->node_ = transport::NodePtr(new transport::Node());
-  this->node_->Init("LLSF");
-
-  //resolve path to proto dirs by using the environmental variable $GAZEBO_RCLL
+  // Resolve path to proto dirs by using the environmental variable $GAZEBO_RCLL
   const char * folder_path = ::getenv("GAZEBO_RCLL");
   if ( folder_path == 0 ) {
     printf("\n\n\nCan not find $GAZEBO_RCLL. Please set it in your .bashrc to the path to the gazebo-rcll folder.\n\n\n");
@@ -45,7 +41,7 @@ LlsfRefboxCommPlugin::LlsfRefboxCommPlugin() : WorldPlugin()
   }
 }
 
-LlsfRefboxCommPlugin::~LlsfRefboxCommPlugin() 
+LlsfRefboxCommPlugin::~LlsfRefboxCommPlugin()
 {
 }
 
@@ -56,7 +52,12 @@ LlsfRefboxCommPlugin::~LlsfRefboxCommPlugin()
 void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
   world_ = _world;
-  
+
+  // Init the communication Node
+  this->node_ = transport::NodePtr(new transport::Node());
+  // The namespace is set to the world name!
+  this->node_->Init(world_->GetName());
+
   //create publisher and subscriber for connection with gazebo node
   machine_info_pub_ = node_->Advertise<llsf_msgs::MachineInfo>(TOPIC_MACHINE_INFO);
   game_state_pub_ = node_->Advertise<llsf_msgs::GameState>(TOPIC_GAME_STATE);

@@ -17,6 +17,10 @@
 .*.swp
 .*.swo
 
+# CTags files
+.tags_sorted_by_file
+.tags
+
 # Specific paths, _ variants for cross compilation environments
 /plugins/lib/
 /plugins/lib_*/

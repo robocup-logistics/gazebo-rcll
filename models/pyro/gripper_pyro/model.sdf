@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+	<model name="gripper_pyro">
+		<link name="link">
+		</link>
+
+		<plugin name="gripper" filename="libgripper.so"/>
+	</model>
+</sdf>

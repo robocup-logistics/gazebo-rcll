@@ -190,7 +190,7 @@ void Gripper::open() {
 void Gripper::setPuckPose(){
   if (!grippedPuck)
     return;
-  math::Pose gripperPose = model_->GetLink("carologistics-robotino-3::gripper::link")->GetWorldPose();
+  math::Pose gripperPose = getGripperLink()->GetWorldPose();
   math::Pose newPose = gripperPose;
 
   // printf("gripper pos: (%f,%f,%f)", newPose.pos.x, newPose.pos.y, newPose.rot.GetYaw());
@@ -203,7 +203,7 @@ void Gripper::setPuckPose(){
 physics::ModelPtr Gripper::getNearestPuck() {
 
   physics::ModelPtr nearest;
-  math::Pose gripperPose = model_->GetLink("carologistics-robotino-3::gripper::link")->GetWorldPose();
+  math::Pose gripperPose = getGripperLink()->GetWorldPose();
   double distance = DBL_MAX;
   unsigned int modelCount = model_->GetWorld()->GetModelCount();
   physics::ModelPtr tmp;
@@ -254,4 +254,25 @@ void Gripper::sendHasPuck(bool has_puck)
     joint_msg.set_child("");
   }
   joint_pub_->Publish(joint_msg);
+}
+
+/**
+ * Get the link of the gripper, which could be directly included in the model or in a submodel
+ * (e.g. when having a model robotino-number-1 which includes a team specific robotino model that contains the gripper)
+ */
+gazebo::physics::LinkPtr Gripper::getGripperLink()
+{
+  physics::LinkPtr res = model_->GetLink("gripper::link");
+  if(res)
+    return res;
+  //search for gripper link in included submodels
+  std::vector<physics::LinkPtr> links = model_->GetLinks();
+  for(std::vector<physics::LinkPtr>::iterator it = links.begin(); it != links.end(); it++)
+  {
+    printf("Checking %s\n", (*it)->GetName().c_str());
+    if((*it)->GetName().find("gripper::link") != std::string::npos)
+      return (*it);
+  }
+  printf("Could not find gripper link of model %s\n", name_.c_str());
+  return NULL;
 }

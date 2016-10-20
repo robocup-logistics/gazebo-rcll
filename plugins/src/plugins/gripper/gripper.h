@@ -103,5 +103,7 @@ namespace gazebo
     gazebo::physics::ModelPtr getNearestPuck();
 
     ActionOnUpdate last_action_rcvd_;
+
+    gazebo::physics::LinkPtr getGripperLink();
   };
 }
