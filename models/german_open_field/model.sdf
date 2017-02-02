@@ -22,17 +22,18 @@
         </surface>
       </collision>
       <visual name="carpet">
+        <pose>0 -0.1 0 0 0 0</pose>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <plane>
             <normal>0 0 1</normal>
-            <size>12 7</size>
+            <size>12 7.2</size>
           </plane>
         </geometry>
         <material>
           <script>
-            <uri>model://logistics_league_field/materials/scripts/</uri>
-            <uri>model://logistics_league_field/materials/textures/</uri>
+            <uri>model://german_open_field/materials/scripts/</uri>
+            <uri>model://german_open_field/materials/textures/</uri>
             <name>Logistics_League_Field/Image</name>
           </script>
         </material>
