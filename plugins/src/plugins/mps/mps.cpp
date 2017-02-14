@@ -77,10 +77,10 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   //Create the communication Node for communication with fawkes
   this->node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the world name!
-  this->node_->Init(model_->GetWorld()->GetName());
+  this->node_->Init(model_->GetWorld()->GZWRAP_NAME());
 
-  created_time_ = model_->GetWorld()->GetSimTime().Double();
-  spawned_tags_last_ = model_->GetWorld()->GetSimTime().Double();
+  created_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
+  spawned_tags_last_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 
   //subscribe to machine info
   this->machine_info_subscriber_ = this->node_->Subscribe(TOPIC_MACHINE_INFO, &Mps::on_machine_msg, this);
@@ -98,10 +98,11 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   joint_message_sub_ = node_->Subscribe(TOPIC_JOINT, &Mps::on_joint_msg, this);
 
   //create joints to hold tags
-  tag_joint_input = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_);
+  tag_joint_input = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint( "revolute", model_);
   tag_joint_input->SetName("tag_joint_input");
   tag_joint_input->SetModel( model_);
-  tag_joint_output = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_);
+
+  tag_joint_output = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint( "revolute", model_);
   tag_joint_output->SetName("tag_joint_output");
   tag_joint_output->SetModel( model_);
 }
@@ -120,8 +121,8 @@ void Mps::OnUpdate(const common::UpdateInfo & /*_info*/)
 	  std::string input_tag_name = name_id_match.at(name_ + "I");
 	  std::string output_tag_name = name_id_match.at(name_ + "O");
 
-	  physics::BasePtr input_tag = model_->GetWorld()->GetByName(input_tag_name);
-	  physics::BasePtr output_tag = model_->GetWorld()->GetByName(output_tag_name);
+	  physics::BasePtr input_tag = model_->GetWorld()->GZWRAP_BASE_BY_NAME(input_tag_name);
+	  physics::BasePtr output_tag = model_->GetWorld()->GZWRAP_BASE_BY_NAME(output_tag_name);
 
 	  if (input_tag && output_tag) {
 		  //Spawn tags (in Init is to early because it would be spawned at origin)
@@ -192,7 +193,7 @@ void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::
   }
 
   //find link of tag
-  gazebo::physics::ModelPtr tag = world_->GetModel(tag_name);
+  gazebo::physics::ModelPtr tag = world_->GZWRAP_MODEL_BY_NAME(tag_name);
   if(!tag){
     printf("MPS: can't find tag with name %s\n", tag_name.c_str());
     return;
@@ -204,17 +205,23 @@ void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::
   }
 
   //teleport tag to right position
-  math::Pose gripperPose = gripperLink->GetWorldPose();
-  printf("Teleport Tag to %f\n", gripperPose.pos.x);
-  math::Pose newPose = gripperPose;
-  tag->SetWorldPose(newPose);
+  gzwrap::Pose3d gripperPose = gripperLink->GZWRAP_WORLD_POSE();
+  printf("Teleport Tag to %f\n", gripperPose.GZWRAP_POS.GZWRAP_X);
+  tag->SetWorldPose(gripperPose);
 
-  joint->Load(gripperLink, tagLink, math::Pose(0, 0, 0, 0, 0, 0));
+  joint->Load(gripperLink, tagLink, gzwrap::Pose3d());
   joint->Attach(gripperLink, tagLink);
 
-  joint->SetAxis(0,  gazebo::math::Vector3(0.0f,0.0f,1.0f) );
+  joint->SetAxis(0, gzwrap::Vector3d::UnitZ);
+
+#if GAZEBO_MAJOR_VERSION >= 8
+  joint->SetUpperLimit(0, 0);
+  joint->SetLowerLimit(0, 0);
+#else
   joint->SetHighStop( 0, gazebo::math::Angle( 0.0f ) );
   joint->SetLowStop( 0, gazebo::math::Angle( 0.0f ) );
+#endif
+
 
   // printf("MPS %s: attached tag %s\n", name_.c_str(), tag_name.c_str());
 }
@@ -222,8 +229,8 @@ void Mps::grabTag(std::string link_name, std::string tag_name, gazebo::physics::
   //compute locations of input and output (not sure about the sides jet)
 float Mps::output_x()
 {
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  double mps_x = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X;
+  double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
   return mps_x
       + BELT_OFFSET_SIDE  * cos(mps_ori)
       + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
@@ -231,8 +238,8 @@ float Mps::output_x()
 
 float Mps::output_y()
 {
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  double mps_y = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y;
+  double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
   return mps_y
       + BELT_OFFSET_SIDE  * sin(mps_ori)
       - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
@@ -240,8 +247,8 @@ float Mps::output_y()
 
 float Mps::input_x()
 {
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  double mps_x = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X;
+  double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
   return mps_x
       + BELT_OFFSET_SIDE  * cos(mps_ori)
       - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
@@ -249,32 +256,28 @@ float Mps::input_x()
 
 float Mps::input_y()
 {
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+  double mps_y = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y;
+  double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
   return mps_y
     + BELT_OFFSET_SIDE  * sin(mps_ori)
     + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
 }
 
-math::Pose Mps::input()
-{
-  return math::Pose(input_x(), input_y(), BELT_HEIGHT,0,0,0);
-}
 
-math::Pose Mps::output()
-{
-  return math::Pose(output_x(), output_y(), BELT_HEIGHT,0,0,0);
-}
+gzwrap::Pose3d Mps::input()
+{ return gzwrap::Pose3d(input_x(), input_y(), BELT_HEIGHT,0,0,0); }
 
-bool Mps::pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance)
+gzwrap::Pose3d Mps::output()
+{ return gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT,0,0,0); }
+
+
+bool Mps::pose_hit(const gzwrap::Pose3d &to_test, const gzwrap::Pose3d &reference, double tolerance)
 {
   if (tolerance == -1.0)
     tolerance = DETECT_TOLERANCE;
-  double dist = sqrt((to_test.pos.x - reference.pos.x) * (to_test.pos.x - reference.pos.x)
-		     + (to_test.pos.y - reference.pos.y) * (to_test.pos.y - reference.pos.y)
-		     + (to_test.pos.z - reference.pos.z) * (to_test.pos.z - reference.pos.z));
-  return dist < tolerance;
+  return (to_test.GZWRAP_POS - reference.GZWRAP_POS).GZWRAP_LENGTH() < tolerance;
 }
+
 
 bool Mps::puck_in_input(ConstPosePtr &pose)
 {
@@ -292,28 +295,21 @@ bool Mps::puck_in_output(ConstPosePtr &pose)
   return dist < DETECT_TOLERANCE;
 }
 
-bool Mps::puck_in_input(const math::Pose &pose)
-{
-  double dist = sqrt((pose.pos.x - input_x()) * (pose.pos.x - input_x())
-		     + (pose.pos.y - input_y()) * (pose.pos.y - input_y())
-		     + (pose.pos.z - BELT_HEIGHT) * (pose.pos.z - BELT_HEIGHT));
-  return dist < DETECT_TOLERANCE;
-}
 
-bool Mps::puck_in_output(const math::Pose &pose)
-{
-  double dist = sqrt((pose.pos.x - output_x()) * (pose.pos.x - output_x())
-		     + (pose.pos.y - output_y()) * (pose.pos.y - output_y())
-		     + (pose.pos.z - BELT_HEIGHT) * (pose.pos.z - BELT_HEIGHT));
-  return dist < DETECT_TOLERANCE;
-}
+bool Mps::puck_in_input(const gzwrap::Pose3d &pose)
+{ return (pose.GZWRAP_POS - input().GZWRAP_POS).GZWRAP_LENGTH() < DETECT_TOLERANCE; }
+
+
+bool Mps::puck_in_output(const gzwrap::Pose3d &pose)
+{ return (pose.GZWRAP_POS - output().GZWRAP_POS).GZWRAP_LENGTH() < DETECT_TOLERANCE; }
+
 
 void Mps::on_new_puck(ConstNewPuckPtr &msg)
 {
     this->puck_subs_.push_back(this->node_->Subscribe(msg->gps_topic() , &Mps::on_puck_msg, this));
 }
 
-void Mps::spawn_puck(const math::Pose &spawn_pose, gazsim_msgs::Color base_color)
+void Mps::spawn_puck(const gzwrap::Pose3d &spawn_pose, gazsim_msgs::Color base_color)
 {
   printf("spawning puck for %s\n",name_.c_str());
   msgs::Factory new_puck_msg;
@@ -376,7 +372,7 @@ void Mps::spawn_puck(const math::Pose &spawn_pose, gazsim_msgs::Color base_color
 
   new_puck_msg.set_sdf(new_sdf.c_str());
   new_puck_msg.set_clone_model_name(new_name.c_str());
-#if GAZEBO_MAJOR_VERSION > 5
+#if GAZEBO_MAJOR_VERSION > 5 && GAZEBO_MAJOR_VERSION < 8
   msgs::Set(new_puck_msg.mutable_pose(), spawn_pose.Ign());
 #else
   msgs::Set(new_puck_msg.mutable_pose(), spawn_pose);
@@ -384,20 +380,23 @@ void Mps::spawn_puck(const math::Pose &spawn_pose, gazsim_msgs::Color base_color
   factoryPub->Publish(new_puck_msg);
 }
 
-math::Pose Mps::get_puck_world_pose(double long_side, double short_side, double height)
+gzwrap::Pose3d Mps::get_puck_world_pose(double long_side, double short_side, double height)
 {
   if(height == -1.0)
     height = BELT_HEIGHT;
-  double mps_x = this->model_->GetWorldPose().pos.x;
-  double mps_y = this->model_->GetWorldPose().pos.y;
-  double mps_ori = this->model_->GetWorldPose().rot.GetAsEuler().z;
+
+  double mps_x = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X;
+  double mps_y = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y;
+  double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
+
   double x = mps_x
              + (BELT_OFFSET_SIDE + long_side)  * cos(mps_ori)
              - ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * sin(mps_ori);
   double y = mps_y
              + (BELT_OFFSET_SIDE + long_side)  * sin(mps_ori)
              + ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * cos(mps_ori);
-  return math::Pose(x,y,height,0,0,0);
+
+  return gzwrap::Pose3d(x, y, height, 0, 0, 0);
 }
 
 void Mps::on_joint_msg(ConstJointPtr &joint_msg)

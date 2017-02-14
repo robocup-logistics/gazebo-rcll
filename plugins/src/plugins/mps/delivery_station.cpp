@@ -35,7 +35,7 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
   if(puck_in_input(msg) &&
      !is_puck_hold(msg->name()))
   {
-    physics::ModelPtr puck = world_->GetModel(msg->name());
+    physics::ModelPtr puck = world_->GZWRAP_MODEL_BY_NAME(msg->name());
     printf("%s got puck %s for gate %i\n",this->name_.c_str(), puck->GetName().c_str(), selected_gate_);
     bool successfull_deliver = true;
     switch(selected_gate_)

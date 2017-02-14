@@ -50,21 +50,20 @@ void BaseStation::new_machine_info(ConstMachine &machine)
       printf("machine %s without instructions",name_.c_str());
       return;
     }
-    math::Pose spawn_pose;
+    gzwrap::Pose3d spawn_pose;
     if(machine.instruction_bs().side() == llsf_msgs::MachineSide::INPUT)
     {
-      spawn_pose = math::Pose(input_x(),input_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
+      spawn_pose = gzwrap::Pose3d(input_x(),input_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
       printf("spawning puck at input\n");
     }
     else if(machine.instruction_bs().side() == llsf_msgs::MachineSide::OUTPUT)
     {
-      spawn_pose = math::Pose(output_x(), output_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
+      spawn_pose = gzwrap::Pose3d(output_x(), output_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
       printf("spawning puck at output\n");
     }
     else
-    {
-      spawn_pose = math::Pose(0,0,0,0,0,0);
-    }
+      spawn_pose = gzwrap::Pose3d::Zero;
+
     gazsim_msgs::Color spawn_clr;
     switch(machine.instruction_bs().color()){
       case llsf_msgs::BaseColor::BASE_BLACK:
@@ -89,8 +88,8 @@ void BaseStation::new_machine_info(ConstMachine &machine)
 void BaseStation::on_new_puck(ConstNewPuckPtr &msg)
 {
   Mps::on_new_puck(msg);
-  physics::ModelPtr new_puck = world_->GetModel(msg->puck_name());
-  if(puck_in_input(new_puck->GetWorldPose()) || puck_in_output(new_puck->GetWorldPose()))
+  physics::ModelPtr new_puck = world_->GZWRAP_MODEL_BY_NAME(msg->puck_name());
+  if(puck_in_input(new_puck->GZWRAP_WORLD_POSE()) || puck_in_output(new_puck->GZWRAP_WORLD_POSE()))
   {
     have_puck_ = new_puck->GetName();
   }

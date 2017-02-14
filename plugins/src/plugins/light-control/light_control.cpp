@@ -20,6 +20,8 @@
 
 #include <math.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "light_control.h"
 
 using namespace gazebo;
@@ -67,7 +69,7 @@ void LightControl::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //Create the communication Node for communication
   this->node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the world name!
-  this->node_->Init(model_->GetWorld()->GetName());
+  this->node_->Init(model_->GetWorld()->GZWRAP_NAME());
 
   //Create publisher to set visual properties
   visPub_ = this->node_->Advertise<msgs::Visual>("~/visual",
@@ -77,7 +79,7 @@ void LightControl::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   light_msg_sub_ = node_->Subscribe(std::string(TOPIC_MACHINE_INFO), &LightControl::on_light_msg, this);
 
   world_ = model_->GetWorld();
-  last_sent_time_ = world_->GetSimTime().Double();
+  last_sent_time_ = world_->GZWRAP_SIM_TIME().Double();
 
   //initially turn lights off
   prev_state_red_ = prev_state_yellow_ = prev_state_green_ = ON;
@@ -88,7 +90,7 @@ void LightControl::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
  */
 void LightControl::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-  double time = world_->GetSimTime().Double();
+  double time = world_->GZWRAP_SIM_TIME().Double();
   //wait until the world is completly loaded, otherwise the lights will spawn at (0,0)
   if(time < 20)
   {
@@ -169,7 +171,7 @@ void LightControl::change_light(std::string machine_name, Color color, LightStat
   //resolve BLINK (Machines Blink at 2Hz)
   if(state == BLINK)
   {
-    double time = world_->GetSimTime().Double();  
+    double time = world_->GZWRAP_SIM_TIME().Double();
     if(fmod(time,1) >= 0.5)
     {
       state = OFF;

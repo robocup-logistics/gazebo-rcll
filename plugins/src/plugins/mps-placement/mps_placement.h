@@ -31,6 +31,8 @@
 #include <llsf_msgs/GameState.pb.h>
 #include <configurable/configurable.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
 typedef const boost::shared_ptr<llsf_msgs::GameState const> ConstGameStatePtr;
@@ -74,7 +76,7 @@ namespace gazebo
     transport::SubscriberPtr game_state_sub_;
 
     /// Spawn machine at a position
-    void spawn_mps(const math::Pose &spawn_pose, std::string model_name);
+    void spawn_mps(const gzwrap::Pose3d &spawn_pose, std::string model_name);
 
     ///Remove existing MPS (e.g. before spawning them at other location)
     void remove_existing_mps();

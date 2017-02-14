@@ -58,16 +58,16 @@ void LightSignalDetection::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sd
   //Create the communication Node for communication with fawkes
   this->node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the model name!
-  this->node_->Init(model_->GetWorld()->GetName()+"/"+name_);
+  this->node_->Init(model_->GetWorld()->GZWRAP_NAME()+"/"+name_);
 
   //Create the communication Node in gazbeo
   this->world_node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the world name!
-  this->world_node_->Init(model_->GetWorld()->GetName());
+  this->world_node_->Init(model_->GetWorld()->GZWRAP_NAME());
 
 
   //init last sent time
-  last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
+  last_sent_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 
   //create publisher
   this->light_signal_pub_ = this->node_->Advertise<gazsim_msgs::LightSignalDetection>("~/gazsim/light-signal/");
@@ -75,7 +75,7 @@ void LightSignalDetection::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sd
   //subscribe for light status msgs
   light_msg_sub_ = world_node_->Subscribe(std::string(TOPIC_MACHINE_INFO), &LightSignalDetection::on_light_msg, this);
   
-  robot_pose_ = model_->GetWorldPose();
+  robot_pose_ = model_->GZWRAP_WORLD_POSE();
 
   //initial values:
   visible_ = false;
@@ -90,9 +90,9 @@ void LightSignalDetection::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sd
 void LightSignalDetection::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
   //Safe robot position to know if a light signal is in front of the robot
-  robot_pose_ = model_->GetWorldPose();
+  robot_pose_ = model_->GZWRAP_WORLD_POSE();
   //send message to robot control software periodically:
-  double time = model_->GetWorld()->GetSimTime().Double();
+  double time = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
   if(time - last_sent_time_ > SEND_INTERVAL && visible_)
   {
     last_sent_time_ = time;
@@ -140,10 +140,10 @@ void LightSignalDetection::on_light_msg(ConstMachineInfoPtr &msg)
   // printf("LightSignalDetection: Got Light Msg!\n");
 
   //Calculate Robot detetion center
-  double look_pos_x = robot_pose_.pos.x
-    + cos(robot_pose_.rot.GetYaw()) * SEARCH_AREA_REL_X - sin(robot_pose_.rot.GetYaw()) * SEARCH_AREA_REL_Y;
-  double look_pos_y = robot_pose_.pos.y 
-    + sin(robot_pose_.rot.GetYaw()) * SEARCH_AREA_REL_X + cos(robot_pose_.rot.GetYaw()) * SEARCH_AREA_REL_Y;
+  double look_pos_x = robot_pose_.GZWRAP_POS_X
+    + cos(robot_pose_.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_X - sin(robot_pose_.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_Y;
+  double look_pos_y = robot_pose_.GZWRAP_POS_Y
+    + sin(robot_pose_.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_X + cos(robot_pose_.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_Y;
 
   
   // find mearest machine in front of the robot
@@ -153,13 +153,13 @@ void LightSignalDetection::on_light_msg(ConstMachineInfoPtr &msg)
     llsf_msgs::Machine machine = msg->machines(i);
     std::string machine_name = machine.name();
     std::string light_link_name = machine_name + "::light_signals::link";
-    physics::EntityPtr light_entity = model_->GetWorld()->GetEntity(light_link_name.c_str());
+    physics::EntityPtr light_entity = model_->GetWorld()->GZWRAP_ENTITY_BY_NAME(light_link_name.c_str());
     if(light_entity == NULL){
 	    //printf("Light-Signal-Detection can't find machine with name %s!\n", machine_name.c_str());
       return;
     }
-    math::Pose light_pose = light_entity->GetWorldPose();
-    float dist = light_pose.pos.Distance(look_pos_x, look_pos_y, light_pose.pos.z);
+    gzwrap::Pose3d light_pose = light_entity->GZWRAP_WORLD_POSE();
+    float dist = light_pose.GZWRAP_POS.Distance(look_pos_x, look_pos_y, light_pose.GZWRAP_POS_Z);
     if(dist < min_dist){
       min_dist = dist;
       nearest_index = i;
@@ -181,7 +181,7 @@ void LightSignalDetection::on_light_msg(ConstMachineInfoPtr &msg)
       //something changed
       visible_ = true;
       visibility_history_ = 0;
-      visible_since_ = model_->GetWorld()->GetSimTime().Double();
+      visible_since_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
     }
     //light detection is sent periodically in the update loop
   }

@@ -21,6 +21,8 @@
 #include <math.h>
 #include <cfloat>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "gripper.h"
 
 using namespace gazebo;
@@ -59,7 +61,7 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //Create the communication Node for communication with fawkes
   this->node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the model name!
-  this->node_->Init(model_->GetWorld()->GetName()+"/"+name_);
+  this->node_->Init(model_->GetWorld()->GZWRAP_NAME()+"/"+name_);
 
   //create subscriber
   this->set_gripper_sub_ = this->node_->Subscribe(std::string(TOPIC_SET_GRIPPER), &Gripper::on_set_gripper_msg, this);
@@ -70,7 +72,7 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   robotino_ = model_->GetParentModel();
   robotino_link_ = robotino_->GetChildLink("robotino3::body");
 
-  grabJoint = model_->GetWorld()->GetPhysicsEngine()->CreateJoint( "revolute", model_);
+  grabJoint = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint( "revolute", model_);
   grabJoint->SetName("gripper_grab_puck");
   grabJoint->SetModel( model_);
   // grabJoint->SetPose(gazebo::math::Vector3(0.0,0.0,0.0));
@@ -165,12 +167,17 @@ void Gripper::close() {
     return;
   }
 
-  grabJoint->Load(gripperLink, puckLink, math::Pose(-0.285, 0, 0, 0, 0, 0));
+  grabJoint->Load(gripperLink, puckLink, gzwrap::Pose3d(-0.285, 0, 0, 0, 0, 0));
   grabJoint->Attach(gripperLink, puckLink);
 
-  grabJoint->SetAxis(0,  gazebo::math::Vector3(0.0f,0.0f,1.0f) );
+  grabJoint->SetAxis(0,  gzwrap::Vector3d::UnitZ );
+#if GAZEBO_MAJOR_VERSION >= 8
+  grabJoint->SetUpperLimit(0, 0);
+  grabJoint->SetLowerLimit(0, 0);
+#else
   grabJoint->SetHighStop( 0, gazebo::math::Angle( 0.0f ) );
   grabJoint->SetLowStop( 0, gazebo::math::Angle( 0.0f ) );
+#endif
         
   sendHasPuck(true);
 }
@@ -190,8 +197,7 @@ void Gripper::open() {
 void Gripper::setPuckPose(){
   if (!grippedPuck)
     return;
-  math::Pose gripperPose = getGripperLink()->GetWorldPose();
-  math::Pose newPose = gripperPose;
+  gzwrap::Pose3d newPose = getGripperLink()->GZWRAP_WORLD_POSE();
 
   // printf("gripper pos: (%f,%f,%f)", newPose.pos.x, newPose.pos.y, newPose.rot.GetYaw());
   // newPose.pos.x += 0.28 * cos(newPose.rot.GetYaw());
@@ -203,15 +209,15 @@ void Gripper::setPuckPose(){
 physics::ModelPtr Gripper::getNearestPuck() {
 
   physics::ModelPtr nearest;
-  math::Pose gripperPose = getGripperLink()->GetWorldPose();
+  gzwrap::Pose3d gripperPose = getGripperLink()->GZWRAP_WORLD_POSE();
   double distance = DBL_MAX;
-  unsigned int modelCount = model_->GetWorld()->GetModelCount();
+  unsigned int modelCount = model_->GetWorld()->GZWRAP_MODEL_COUNT();
   physics::ModelPtr tmp;
   //filter returned list by name. Each puck starts with "Puck", e.g. "Puck0", "Puck1", ... and then find the nearest puck
   for(unsigned int i = 0 ; i < modelCount; i++){
-    tmp = model_->GetWorld()->GetModel(i);
+    tmp = model_->GetWorld()->GZWRAP_MODEL_BY_INDEX(i);
     if (fnmatch("puck*",tmp->GetName().c_str(),FNM_CASEFOLD) == 0){
-      double tmpDistance = gripperPose.pos.Distance(tmp->GetWorldPose().pos);
+      double tmpDistance = gripperPose.GZWRAP_POS.Distance(tmp->GZWRAP_WORLD_POSE().GZWRAP_POS);
       if(tmpDistance < distance){
 	distance = tmpDistance;
 	nearest = tmp;

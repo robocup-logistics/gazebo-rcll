@@ -26,6 +26,8 @@
 #include <fstream>
 #include <unistd.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "mps_placement.h"
 
 using namespace gazebo;
@@ -54,7 +56,7 @@ void MpsPlacementPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/
   //Create the communication Node for communication with fawkes
   this->node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the world name!
-  this->node_->Init(world_->GetName());
+  this->node_->Init(world_->GZWRAP_NAME());
 
   //subscribe for refbox msgs
   machine_info_sub_ = node_->Subscribe(std::string(TOPIC_MACHINE_INFO), &MpsPlacementPlugin::on_machine_info_msg, this);
@@ -81,7 +83,7 @@ void MpsPlacementPlugin::Reset()
 void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
 {
   // don't set positions before simulation is initialized
-  if(machines_placed_ ||!is_game_started_ || world_->GetSimTime().Double() < WAIT_TIME_BEFORE_PLACEMENT){
+  if(machines_placed_ ||!is_game_started_ || world_->GZWRAP_SIM_TIME().Double() < WAIT_TIME_BEFORE_PLACEMENT){
     return;
   }
 
@@ -205,12 +207,12 @@ void MpsPlacementPlugin::on_game_state_msg(ConstGameStatePtr &msg)
   // }
 }
 
-void MpsPlacementPlugin::spawn_mps(const math::Pose &spawn_pose, std::string model_name)
+void MpsPlacementPlugin::spawn_mps(const gzwrap::Pose3d &spawn_pose, std::string model_name)
 {
   printf("spawning mps %s\n", model_name.c_str());
   msgs::Factory spawn_msg;
   spawn_msg.set_sdf_filename(model_name.c_str());
-#if GAZEBO_MAJOR_VERSION >5
+#if GAZEBO_MAJOR_VERSION > 5 && GAZEBO_MAJOR_VERSION < 8
   msgs::Set(spawn_msg.mutable_pose(), spawn_pose.Ign());
 #else
   msgs::Set(spawn_msg.mutable_pose(), spawn_pose);
@@ -221,9 +223,9 @@ void MpsPlacementPlugin::spawn_mps(const math::Pose &spawn_pose, std::string mod
 void MpsPlacementPlugin::remove_existing_mps()
 {
   printf("Removing existing MPS\n");
-  unsigned int modelCount = world_->GetModelCount();
+  unsigned int modelCount = world_->GZWRAP_MODEL_COUNT();
   for(unsigned int i = 0 ; i < modelCount; i++){
-    physics::ModelPtr mps = world_->GetModel(i);
+    physics::ModelPtr mps = world_->GZWRAP_MODEL_BY_INDEX(i);
     if (fnmatch("puck*",mps->GetName().c_str(),FNM_CASEFOLD) == 0
         || fnmatch("puck*",mps->GetName().c_str(),FNM_CASEFOLD) == 0){
       // printf("Remove Plugin\n");

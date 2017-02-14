@@ -30,6 +30,8 @@
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <configurable/configurable.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 //config values
 #define TOPIC_TAG_SUFFIX config->get_string("plugins/tag-vision/topic_tag_suffix").c_str()
 #define TAG_VISION_RESULT_TOPIC config->get_string("plugins/tag-vision/tag_vision_result_topic").c_str()
@@ -72,13 +74,13 @@ namespace gazebo
     double last_searched_for_new_tags_time_;
 
     //robot position
-    math::Pose link_pose_;
+    gzwrap::Pose3d link_pose_;
 
     /// Pointer to the link where the camera should be
     physics::LinkPtr link_;
 
     ///Subscriber to get tag-positions
-    std::map<physics::ModelPtr, math::Pose> tag_poses_;
+    std::map<physics::ModelPtr, gzwrap::Pose3d> tag_poses_;
     ///Publisher for Detected tags
     transport::PublisherPtr result_pub_;
 

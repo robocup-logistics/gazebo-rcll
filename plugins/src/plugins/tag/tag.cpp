@@ -26,6 +26,8 @@
 #include <fnmatch.h>
 #include <stdlib.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "tag.h"
 
 using namespace gazebo;
@@ -57,10 +59,10 @@ void Tag::Load(physics::ModelPtr _parent, sdf::ElementPtr)
   //Create the communication Node for communication with fawkes
   this->node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the world name!
-  this->node_->Init(model_->GetWorld()->GetName());
+  this->node_->Init(model_->GetWorld()->GZWRAP_NAME());
 
-  created_time_ = model_->GetWorld()->GetSimTime().Double();
-  spawned_tags_last_ = model_->GetWorld()->GetSimTime().Double();
+  created_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
+  spawned_tags_last_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 
   //Create publisher to spawn tags
   visPub_ = this->node_->Advertise<msgs::Visual>("~/visual");
@@ -78,7 +80,7 @@ Tag::~Tag()
  */
 void Tag::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-  if(model_->GetWorld()->GetSimTime().Double() - spawned_tags_last_ > TAG_SPAWN_TIME)
+  if(model_->GetWorld()->GZWRAP_SIM_TIME().Double() - spawned_tags_last_ > TAG_SPAWN_TIME)
   {
     //Spawn tags (in Init is to early because it would be spawned at origin)
 
@@ -127,7 +129,7 @@ void Tag::OnUpdate(const common::UpdateInfo & /*_info*/)
     *uri2 = "model://tag/materials/textures";
     visPub_->Publish(msg);
 
-    spawned_tags_last_ = model_->GetWorld()->GetSimTime().Double();
+    spawned_tags_last_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
   }
 }
 
