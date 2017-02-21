@@ -41,15 +41,15 @@
     <!-- Team Cyan -->
     <include>
       <uri>model://robotino-nr-1</uri>
-      <pose>4.5 -0.5 0 0 0 1.57</pose>
+      <pose>4.5 0.5 0 0 0 1.57</pose>
     </include>
     <include>
       <uri>model://robotino-nr-2</uri>
-      <pose>5.5 -0.5 0 0 0 1.57</pose>
+      <pose>5.5 0.5 0 0 0 1.57</pose>
     </include>
     <include>
       <uri>model://robotino-nr-3</uri> 
-      <pose>6.5 -0.5 0 0 0 1.57</pose>
+      <pose>6.5 0.5 0 0 0 1.57</pose>
     </include> -->
     <!-- Team Magenta -->
     
@@ -128,12 +128,12 @@
     <include>
       <name>C-BS</name>
       <uri>model://mps_base</uri>
-      <pose>5.5 1.5 0 0 0 0.75</pose>
+      <pose>2.5 4.5 0 0 0 0.75</pose>
     </include>
     <include>
       <name>M-BS</name>
       <uri>model://mps_base</uri>
-      <pose>-5.5 1.5 0 0 0 -0.75</pose>
+      <pose>-2.5 4.5 0 0 0 -0.75</pose>
     </include>
 
     <!-- Tags (are later grabbed by the mps)  -->
