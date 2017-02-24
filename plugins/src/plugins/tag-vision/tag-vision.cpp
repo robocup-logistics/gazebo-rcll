@@ -38,9 +38,10 @@ TagVision::~TagVision()
   printf("Destructing TagVision Plugin!\n");
 }
 
-void print(std::string name, math::Pose pose)
+void print(std::string name, gzwrap::Pose3d pose)
 {
-  printf("TagVision: %s: (%f,%f,%f,%f,%f,%f)\n", name.c_str(), pose.pos.x, pose.pos.y, pose.pos.z, pose.rot.GetRoll(), pose.rot.GetPitch(), pose.rot.GetYaw());
+  printf("TagVision: %s: (%f,%f,%f,%f,%f,%f)\n", name.c_str(),
+         pose.GZWRAP_POS_X, pose.GZWRAP_POS_Y, pose.GZWRAP_POS_Z, pose.GZWRAP_ROT_ROLL, pose.GZWRAP_ROT_PITCH, pose.GZWRAP_ROT_YAW);
 }
 
 /** on loading of the plugin
@@ -77,22 +78,22 @@ void TagVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //Create the communication Node for communication with fawkes
   this->node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the model name!
-  this->node_->Init(model_->GetWorld()->GetName()+"/"+name_);
+  this->node_->Init(model_->GetWorld()->GZWRAP_NAME()+"/"+name_);
 
   //Create the communication Node in gazbeo
   this->world_node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the world name!
-  this->world_node_->Init(model_->GetWorld()->GetName());
+  this->world_node_->Init(model_->GetWorld()->GZWRAP_NAME());
 
 
   //init last sent time
-  last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
-  last_searched_for_new_tags_time_ = model_->GetWorld()->GetSimTime().Double();
+  last_sent_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
+  last_searched_for_new_tags_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 
   //create publisher
   result_pub_ = this->node_->Advertise<msgs::PosesStamped>(TAG_VISION_RESULT_TOPIC);
   
-  link_pose_ = model_->GetWorldPose();
+  link_pose_ = model_->GZWRAP_WORLD_POSE();
 }
 
 
@@ -100,50 +101,51 @@ void TagVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
  */
 void TagVision::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-  double time = model_->GetWorld()->GetSimTime().Double();
+  double time = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 
   if(time - last_searched_for_new_tags_time_ > SEARCH_FOR_TAGS_INTERVAL)
   {
     last_searched_for_new_tags_time_ = time;
+
     //check if there are new tags
-    unsigned int modelCount = model_->GetWorld()->GetModelCount();
     physics::ModelPtr tmp;
+    unsigned int modelCount = model_->GetWorld()->GZWRAP_MODEL_COUNT();
     for(unsigned int i = 0 ; i < modelCount; i++)
     {
-      tmp = model_->GetWorld()->GetModel(i);
+      tmp = model_->GetWorld()->GZWRAP_MODEL_BY_INDEX(i);
       if (fnmatch("*tag_*",tmp->GetName().c_str(),FNM_CASEFOLD) == 0)
       {
 	//add tag if not already added
 	if(tag_poses_.find(tmp) == tag_poses_.end())
 	{
 	  // printf("TagVision: found new tag: %s\n", tmp->GetName().c_str());
-	  tag_poses_[tmp] = tmp->GetWorldPose();
+	  tag_poses_[tmp] = tmp->GZWRAP_WORLD_POSE();
 	}
       }
     }
   }
 
-  link_pose_ = link_->GetWorldPose();
+  link_pose_ = link_->GZWRAP_WORLD_POSE();
   if(time - last_sent_time_ > SEND_INTERVAL)
   {
     last_sent_time_ = time;
     //compute tag-vision result
     msgs::PosesStamped res;
     msgs::Stamp(res.mutable_time());
-    for (std::map<physics::ModelPtr, math::Pose>::iterator it=tag_poses_.begin(); it!=tag_poses_.end(); it++)
+    for (std::map<physics::ModelPtr, gzwrap::Pose3d>::iterator it=tag_poses_.begin(); it!=tag_poses_.end(); it++)
     {
-      it->second = it->first->GetWorldPose();
-      math::Pose rel_pos = it->second - link_pose_;
-      math::Pose rel_pos_normalized(rel_pos);
-      rel_pos_normalized.pos.Normalize();
+      it->second = it->first->GZWRAP_WORLD_POSE();
+      gzwrap::Pose3d rel_pos = it->second - link_pose_;
+      gzwrap::Pose3d rel_pos_normalized(rel_pos);
+      rel_pos_normalized.GZWRAP_POS.Normalize();
       //check if tag is in range, in the camera field of view and faced to the robot
-      if(rel_pos.pos.GetLength() < MAX_VIEW_DISTANCE
-	 && rel_pos.pos.x > 0 && std::abs(std::asin(rel_pos_normalized.pos.y)) < CAMERA_FOV / 2.0
-	 && std::abs(rel_pos.rot.GetYaw()) > 1.57)
+      if(rel_pos.GZWRAP_POS.GZWRAP_LENGTH() < MAX_VIEW_DISTANCE
+         && rel_pos.GZWRAP_POS_X > 0 && std::abs(std::asin(rel_pos_normalized.GZWRAP_POS_Y)) < CAMERA_FOV / 2.0
+         && std::abs(rel_pos.GZWRAP_ROT_YAW) > 1.57)
       {
 	//add tag to result
 	msgs::Pose* tag_pose = res.add_pose();
-#if GAZEBO_MAJOR_VERSION > 5
+#if GAZEBO_MAJOR_VERSION > 5 && GAZEBO_MAJOR_VERSION < 8
 	*tag_pose = msgs::Convert(rel_pos.Ign());
 #else
 	*tag_pose = msgs::Convert(rel_pos);

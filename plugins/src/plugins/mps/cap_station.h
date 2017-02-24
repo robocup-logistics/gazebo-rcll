@@ -42,13 +42,13 @@ public:
   void new_machine_info(ConstMachine &machine);
   void on_puck_result(ConstWorkpieceResultPtr &result);
   
-  math::Pose shelf_left_pose();
-  math::Pose shelf_middle_pose();
-  math::Pose shelf_right_pose();
+  gzwrap::Pose3d shelf_left_pose();
+  gzwrap::Pose3d shelf_middle_pose();
+  gzwrap::Pose3d shelf_right_pose();
   
-  bool pose_in_shelf_left(const math::Pose &puck_pose);
-  bool pose_in_shelf_middle(const math::Pose &puck_pose);
-  bool pose_in_shelf_right(const math::Pose &puck_pose);
+  bool pose_in_shelf_left(const gzwrap::Pose3d &puck_pose);
+  bool pose_in_shelf_middle(const gzwrap::Pose3d &puck_pose);
+  bool pose_in_shelf_right(const gzwrap::Pose3d &puck_pose);
   
   physics::ModelPtr puck_in_shelf_left_;
   physics::ModelPtr puck_in_shelf_middle_;

@@ -20,6 +20,8 @@
 
 #include <math.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "conveyor_vision.h"
 #include "../mps/mps.h"
 
@@ -56,7 +58,7 @@ void ConveyorVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //Create the communication Node for communication with fawkes
   this->node_ = transport::NodePtr(new transport::Node());
   //the namespace is set to the model name!
-  this->node_->Init(model_->GetWorld()->GetName()+"/"+name_);
+  this->node_->Init(model_->GetWorld()->GZWRAP_NAME()+"/"+name_);
 
   //load config values
   number_pucks_ = config->get_int("plugins/mps/number_pucks");
@@ -74,7 +76,7 @@ void ConveyorVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   this->conveyor_pub_ = this->node_->Advertise<llsf_msgs::ConveyorVisionResult>("~/RobotinoSim/ConveyorVisionResult/");
 
   //init last sent time
-  last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
+  last_sent_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
   this->send_interval_ = 0.05;
 }
 
@@ -83,7 +85,7 @@ void ConveyorVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 void ConveyorVision::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
   //Send gyro information to Fawkes
-  double time = model_->GetWorld()->GetSimTime().Double();
+  double time = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
   if(time - last_sent_time_ > send_interval_)
   {
     last_sent_time_ = time;
@@ -106,12 +108,6 @@ inline bool is_machine(gazebo::physics::ModelPtr model)
           (name.find("RS") != std::string::npos));
 }
 
-inline double dist(gazebo::math::Pose p1, gazebo::math::Pose p2)
-{
-  gazebo::math::Pose dist = p1-p2;
-  return sqrt(dist.pos.x*dist.pos.x + dist.pos.y*dist.pos.y + dist.pos.z*dist.pos.z);
-}
-
 void ConveyorVision::send_conveyor_result()
 {
   if(!conveyor_pub_->HasConnections())
@@ -123,40 +119,44 @@ void ConveyorVision::send_conveyor_result()
     printf("Can't find conveyor camera\n");
     return;
   }
-  gazebo::math::Pose camera_pose = camera_link->GetWorldPose();
-  double look_pos_x = camera_pose.pos.x
-    + cos(camera_pose.rot.GetYaw()) * SEARCH_AREA_REL_X - sin(camera_pose.rot.GetYaw()) * SEARCH_AREA_REL_Y;
-  double look_pos_y = camera_pose.pos.y 
-    + sin(camera_pose.rot.GetYaw()) * SEARCH_AREA_REL_X + cos(camera_pose.rot.GetYaw()) * SEARCH_AREA_REL_Y;
-  gazebo::math::Pose look_pose = math::Pose(look_pos_x, look_pos_y, BELT_HEIGHT, 0, 0, 0);
+  gzwrap::Pose3d camera_pose = camera_link->GZWRAP_WORLD_POSE();
+  double look_pos_x = camera_pose.GZWRAP_POS_X
+    + cos(camera_pose.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_X - sin(camera_pose.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_Y;
+  double look_pos_y = camera_pose.GZWRAP_POS_Y
+    + sin(camera_pose.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_X + cos(camera_pose.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_Y;
+  gzwrap::Pose3d look_pose(look_pos_x, look_pos_y, BELT_HEIGHT, 0, 0, 0);
 
+#if GAZEBO_MAJOR_VERSION >= 8
+  gazebo::physics::Model_V models = model_->GetWorld()->Models();
+#else
   gazebo::physics::Model_V models = model_->GetWorld()->GetModels();
+#endif
   for(gazebo::physics::Model_V::iterator it = models.begin(); it != models.end(); it++)
   {
     gazebo::physics::ModelPtr model = *it;
     if(is_machine(model)
-       && look_pose.pos.Distance(model->GetWorldPose().pos + math::Vector3(0, 0, BELT_HEIGHT))
+       && look_pose.GZWRAP_POS.Distance(model->GZWRAP_WORLD_POSE().GZWRAP_POS + gzwrap::Vector3d(0, 0, BELT_HEIGHT))
           < RADIUS_DETECTION_AREA)
     {
       //check which side of the conveyor the bot is looking on
-      math::Pose mps_pose = model->GetWorldPose();
-      double conv_input_x = mps_pose.pos.x 
-        + BELT_OFFSET_SIDE  * cos(mps_pose.rot.GetYaw())
-        - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.rot.GetYaw());
-      double conv_input_y = mps_pose.pos.y
-        + BELT_OFFSET_SIDE  * sin(mps_pose.rot.GetYaw())
-        + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.rot.GetYaw());
-      math::Pose input_pose = math::Pose(conv_input_x, conv_input_y, BELT_HEIGHT, 0, 0, 0);
-      double conv_output_x = mps_pose.pos.x 
-        + BELT_OFFSET_SIDE  * cos(mps_pose.rot.GetYaw())
-        + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.rot.GetYaw());
-      double conv_output_y = mps_pose.pos.y
-        + BELT_OFFSET_SIDE  * sin(mps_pose.rot.GetYaw())
-        - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.rot.GetYaw());
-      math::Pose output_pose = math::Pose(conv_output_x, conv_output_y, BELT_HEIGHT, 0, 0, 0);
-      math::Pose res;
-      if(input_pose.pos.Distance(camera_pose.pos) <
-         output_pose.pos.Distance(camera_pose.pos)){
+      gzwrap::Pose3d mps_pose = model->GZWRAP_WORLD_POSE();
+      double conv_input_x = mps_pose.GZWRAP_POS_X
+        + BELT_OFFSET_SIDE  * cos(mps_pose.GZWRAP_ROT_YAW)
+        - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.GZWRAP_ROT_YAW);
+      double conv_input_y = mps_pose.GZWRAP_POS_Y
+        + BELT_OFFSET_SIDE  * sin(mps_pose.GZWRAP_ROT_YAW)
+        + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.GZWRAP_ROT_YAW);
+      gzwrap::Pose3d input_pose(conv_input_x, conv_input_y, BELT_HEIGHT, 0, 0, 0);
+      double conv_output_x = mps_pose.GZWRAP_POS_X
+        + BELT_OFFSET_SIDE  * cos(mps_pose.GZWRAP_ROT_YAW)
+        + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.GZWRAP_ROT_YAW);
+      double conv_output_y = mps_pose.GZWRAP_POS_Y
+        + BELT_OFFSET_SIDE  * sin(mps_pose.GZWRAP_ROT_YAW)
+        - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.GZWRAP_ROT_YAW);
+      gzwrap::Pose3d output_pose(conv_output_x, conv_output_y, BELT_HEIGHT, 0, 0, 0);
+      gzwrap::Pose3d res;
+      if(input_pose.GZWRAP_POS.Distance(camera_pose.GZWRAP_POS) <
+         output_pose.GZWRAP_POS.Distance(camera_pose.GZWRAP_POS)){
         //printf("looking at input\n");
         res = input_pose - camera_pose;
       }
@@ -168,8 +168,8 @@ void ConveyorVision::send_conveyor_result()
       //printf("conv-res: (%f,%f,%f)\n", res.pos.x, res.pos.y, res.pos.z);
       llsf_msgs::ConveyorVisionResult conv_msg;
       llsf_msgs::Pose3D *pose = new llsf_msgs::Pose3D();
-      pose->set_x(res.pos.x);
-      pose->set_y(res.pos.y);
+      pose->set_x(res.GZWRAP_POS_X);
+      pose->set_y(res.GZWRAP_POS_Y);
       //pose->set_z(res.z);
       //set z to 0.005 as default so that no z alignment of the gripper is necessary
       //TODO: simulate z movement of the gripper to make this flexible

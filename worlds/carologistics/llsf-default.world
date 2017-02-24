@@ -30,7 +30,7 @@
 
     <!-- Field  -->
     <include>
-      <uri>model://german_open_field</uri>
+      <uri>model://logistics_league_field</uri>
     </include>
 
     <!-- World Plugin -->
@@ -41,15 +41,15 @@
     <!-- Team Cyan -->
     <include>
       <uri>model://robotino-nr-1</uri>
-      <pose>3.5 -0.5 0 0 0 1.57</pose>
+      <pose>4.5 0.5 0 0 0 1.57</pose>
     </include>
     <include>
       <uri>model://robotino-nr-2</uri>
-      <pose>4.5 -0.5 0 0 0 1.57</pose>
+      <pose>5.5 0.5 0 0 0 1.57</pose>
     </include>
     <include>
       <uri>model://robotino-nr-3</uri> 
-      <pose>5.5 -0.5 0 0 0 1.57</pose>
+      <pose>6.5 0.5 0 0 0 1.57</pose>
     </include> -->
     <!-- Team Magenta -->
     
@@ -71,72 +71,72 @@
     <include>
       <name>C-CS1</name>
       <uri>model://mps_cap</uri>
-      <pose>-4.5 5.1 0 0 0 -1.6</pose>
+      <pose>-5.5 5.4 0 0 0 -1.6</pose>
     </include>
     <include>
       <name>M-CS1</name>
       <uri>model://mps_cap</uri>
-      <pose>4.5 5.1 0 0 0 1.6</pose>
+      <pose>5.5 5.4 0 0 0 1.6</pose>
     </include>
 
     <include>
       <name>M-DS</name>
       <uri>model://mps_delivery</uri>
-      <pose>-1 5.0 0 0 0 -1.74</pose>
+      <pose>-1.5 6.5 0 0 0 -1.6</pose>
     </include>
     <include>
       <name>C-DS</name>
       <uri>model://mps_delivery</uri>
-      <pose>1 5.0 0 0 0 1.74</pose>
+      <pose>1.5 6.5 0 0 0 1.6</pose>
     </include>
 
     <include>
       <name>C-CS2</name>
       <uri>model://mps_cap</uri>
-      <pose>-3.2 2.5 0 0 0 1.57</pose>
+      <pose>-3.51 2.49 0 0 0 1.6</pose>
     </include>
     <include>
       <name>M-CS2</name>
       <uri>model://mps_cap</uri>
-      <pose>3.2 2.5 0 0 0 -1.57</pose>
+      <pose>3.51 2.49 0 0 0 -1.6</pose>
     </include>
 
 
     <include>
       <name>C-RS1</name>
       <uri>model://mps_ring</uri>
-      <pose>1 2.5 0 0 0 3.1</pose>
+      <pose>1.5 2.5 0 0 0 3.1</pose>
     </include>
     <include>
       <name>M-RS1</name>
       <uri>model://mps_ring</uri>
-      <pose>-1 2.5 0 0 0 -3.1</pose>
+      <pose>-1.5 2.5 0 0 0 -3.1</pose>
     </include>
 
     <include>
       <name>C-RS2</name>
       <uri>model://mps_ring</uri>
-      <pose>4.8 3.5 0 0 0 0.8</pose>
+      <pose>5.47 3.5 0 0 0 1.58</pose>
     </include>
     <include>
       <name>M-RS2</name>
       <uri>model://mps_ring</uri>
-      <pose>-4.8 3.5 0 0 0 -0.8</pose>
+      <pose>-5.47 3.5 0 0 0 -1.58</pose>
     </include>
 
 
     <include>
       <name>C-BS</name>
       <uri>model://mps_base</uri>
-      <pose>4.5 1.0 0 0 0 0.75</pose>
+      <pose>2.5 4.5 0 0 0 0.75</pose>
     </include>
     <include>
       <name>M-BS</name>
       <uri>model://mps_base</uri>
-      <pose>-4.5 1.0 0 0 0 -0.75</pose>
+      <pose>-2.5 4.5 0 0 0 -0.75</pose>
     </include>
 
-    <!-- Tags (are later grapped by the mps)  -->
+    <!-- Tags (are later grabbed by the mps)  -->
     <include>
       <name>tag_01</name>
       <uri>model://tag</uri>

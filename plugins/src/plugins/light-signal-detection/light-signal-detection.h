@@ -29,6 +29,8 @@
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <configurable/configurable.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
@@ -94,7 +96,7 @@ namespace gazebo
     double visible_since_;
 
     //robot position
-    math::Pose robot_pose_;
+    gzwrap::Pose3d robot_pose_;
 
     ///Publisher for Detected light signal
     transport::PublisherPtr light_signal_pub_;

@@ -24,6 +24,8 @@
 #include <protobuf_comm/client.h>
 #include <protobuf_comm/message_register.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "llsf_refbox_comm.h"
 
 using namespace gazebo;
@@ -56,7 +58,7 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   // Init the communication Node
   this->node_ = transport::NodePtr(new transport::Node());
   // The namespace is set to the world name!
-  this->node_->Init(world_->GetName());
+  this->node_->Init(world_->GZWRAP_NAME());
 
   //create publisher and subscriber for connection with gazebo node
   machine_info_pub_ = node_->Advertise<llsf_msgs::MachineInfo>(TOPIC_MACHINE_INFO);
@@ -83,7 +85,7 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   create_client();
   client_->async_connect(REFBOX_HOST, REFBOX_PORT);
 
-  last_connect_try_ = world_->GetSimTime().Double();
+  last_connect_try_ = world_->GZWRAP_SIM_TIME().Double();
 }
 
 void LlsfRefboxCommPlugin::Update()
@@ -91,7 +93,7 @@ void LlsfRefboxCommPlugin::Update()
   if(!connected_ && connect_tries_ < RECONNECT_ATTEMPTS)
   {
     //if not connected, try to reconnect every x seconds
-    double time = world_->GetSimTime().Double();
+    double time = world_->GZWRAP_SIM_TIME().Double();
     if((time - last_connect_try_) > RECONNECT_INTERVAL)
     {
       connect_tries_++;

@@ -20,6 +20,8 @@
 
 #include <math.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "odometry.h"
 
 using namespace gazebo;
@@ -49,7 +51,8 @@ void Odometry::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
     estimate_x = 0;
     estimate_y = 0;
     estimate_omega = 0;
-    last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
+
+    last_sent_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 
     //get the model-name
     this->name_ = model_->GetName();
@@ -61,11 +64,12 @@ void Odometry::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 
     //Create the communication Node for communication with fawkes
     this->node_ = transport::NodePtr(new transport::Node());
+
     //the namespace is set to the model name!
-    this->node_->Init(model_->GetWorld()->GetName()+"/"+name_);
+    this->node_->Init(model_->GetWorld()->GZWRAP_NAME()+"/"+name_);
 
     //init last sent time
-    last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
+    last_sent_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 
     //create publisher
     this->odometry_pub_ = this->node_->Advertise<msgs::Vector3d>("~/RobotinoSim/Odometry/");
@@ -80,7 +84,7 @@ void Odometry::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 void Odometry::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
     //Send position information to Fawkes
-    double time = model_->GetWorld()->GetSimTime().Double();
+    double time = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
     if(time - last_sent_time_ > (1.0 / 10.0))
     {
         send_position();
@@ -105,7 +109,7 @@ void Odometry::on_set_odometry_msg(ConstVector3dPtr &msg)
 		estimate_x = msg->x();
 		estimate_y = msg->y();
 		estimate_omega = msg->z();
-		last_sent_time_ = model_->GetWorld()->GetSimTime().Double();
+		last_sent_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 	}
 }
 
@@ -115,18 +119,19 @@ void Odometry::on_set_odometry_msg(ConstVector3dPtr &msg)
  */
 void Odometry::send_position()
 {
-    math::Vector3 linearVel = this->model_->GetRelativeLinearVel();
-    math::Vector3 angularVel = this->model_->GetRelativeAngularVel();
+    gzwrap::Vector3d linearVel = this->model_->GZWRAP_RELATIVE_LINEAR_VEL();
+    gzwrap::Vector3d angularVel = this->model_->GZWRAP_RELATIVE_ANGULAR_VEL();
 
     //get the elapsed time since last update
-    double elapsedSeconds = model_->GetWorld()->GetSimTime().Double()-last_sent_time_;
+    double elapsedSeconds = model_->GetWorld()->GZWRAP_SIM_TIME().Double()-last_sent_time_;
+
     //now add some simulated error
     // rand multiplied by max noise which is in seconds
     elapsedSeconds += ((rand() % 2001 - 1000) / 1000.0)*0.1;
 
     // we need to project the velocity values from robot base to world base
-    float vecX = linearVel.x;
-    float vecY = linearVel.y;
+    float vecX = linearVel.GZWRAP_X;
+    float vecY = linearVel.GZWRAP_Y;
 
     //rotate vector by current robot angle
     float cs = cos(estimate_omega);
@@ -139,7 +144,7 @@ void Odometry::send_position()
 		boost::mutex::scoped_lock lock(readingsMutex);
 		estimate_x += tx * elapsedSeconds;
 		estimate_y += ty * elapsedSeconds;
-		estimate_omega += angularVel.z * elapsedSeconds;
+		estimate_omega += angularVel.GZWRAP_Z * elapsedSeconds;
 		if (estimate_omega < -M_PI)
 			estimate_omega = 2 * M_PI - estimate_omega;
 		else if (estimate_omega > M_PI)

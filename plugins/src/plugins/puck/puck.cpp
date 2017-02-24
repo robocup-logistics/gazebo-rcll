@@ -22,6 +22,8 @@
 #include <gazebo/physics/PhysicsTypes.hh>
 #include <gazsim_msgs/NewPuck.pb.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "puck.h"
 
 using namespace gazebo;
@@ -60,7 +62,7 @@ void Puck::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
   // Create the communication Node for communication with fawkes
   this->node_ = transport::NodePtr(new transport::Node());
   // the namespace is set to the world name!
-  this->node_->Init(model_->GetWorld()->GetName());
+  this->node_->Init(model_->GetWorld()->GZWRAP_NAME());
 
   // register visual publisher
   this->visual_pub_ = this->node_->Advertise<msgs::Visual>("~/visual");
@@ -223,7 +225,11 @@ msgs::Visual Puck::create_visual_msg(std::string element_name, double element_he
   // this model is a cylinder, so the x and y params of its bounding box
   // should be equal, the double radius. so set the radius of the addition
   // according to it
+#if GAZEBO_MAJOR_VERSION >= 8
+  geom_msg->mutable_cylinder()->set_radius(this->model_->BoundingBox().XLength()/2);
+#else
   geom_msg->mutable_cylinder()->set_radius(this->model_->GetBoundingBox().GetXLength()/2);
+#endif
 
   // get a height, where to spawn the new visual
   double vis_middle = WORKPIECE_HEIGHT;

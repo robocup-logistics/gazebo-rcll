@@ -33,11 +33,11 @@ RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
 
 void RingStation::on_puck_msg(ConstPosePtr &msg)
 {
-  if(pose_hit(math::Pose(msg->position().x(), msg->position().y(), msg->position().z(), 0,0,0), add_base_pose(),0.1) &&
+  if(pose_hit(gzwrap::Pose3d(msg->position().x(), msg->position().y(), msg->position().z(), 0,0,0), add_base_pose(), 0.1) &&
      !is_puck_hold(msg->name()))
   {
     add_base();
-    world_->GetEntity(msg->name())->SetWorldPose(get_puck_world_pose(-0.2,-0.5));
+    world_->GZWRAP_ENTITY_BY_NAME(msg->name())->SetWorldPose(get_puck_world_pose(-0.2,-0.5));
   }
   //check if the puck is in the input area
   if(puck_in_input(msg) &&
@@ -103,7 +103,8 @@ void RingStation::new_machine_info(ConstMachine &machine)
   {
     printf("%s is putting a %s ring onto %s\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str(), puck_in_processing_name_.c_str());
     //teleport puck to output
-    model_->GetWorld()->GetEntity(puck_in_processing_name_)->SetWorldPose(math::Pose(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0));
+    model_->GetWorld()->GZWRAP_ENTITY_BY_NAME(puck_in_processing_name_)->SetWorldPose(
+          gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0) );
     //spawn a ring ontop of the puck
     //write to the puck plugin
     if(!puck_cmd_pub_->HasConnections())
@@ -139,7 +140,7 @@ void RingStation::add_base()
   publish_indicator(true, number_bases_++);
 }
 
-math::Pose RingStation::add_base_pose()
+gzwrap::Pose3d RingStation::add_base_pose()
 {
   return get_puck_world_pose(-0.25,0);
 }

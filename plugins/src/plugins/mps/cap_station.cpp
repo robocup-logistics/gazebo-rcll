@@ -20,6 +20,8 @@
  *  Read the full text in the LICENSE.GPL_WRE file in the doc directory.
  */
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "cap_station.h"
 
 using namespace gazebo;
@@ -38,29 +40,23 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
 void CapStation::OnUpdate(const common::UpdateInfo &info)
 {
   Mps::OnUpdate(info);
-  if(model_->GetWorld()->GetSimTime().Double() - puck_spawned_time_ < SPAWN_PUCK_TIME)
+  if(model_->GetWorld()->GZWRAP_SIM_TIME().Double() - puck_spawned_time_ < SPAWN_PUCK_TIME)
   {
     return;
   }
 
-  if(puck_in_shelf_left_ && !pose_hit(puck_in_shelf_left_->GetWorldPose(),shelf_left_pose(),0.1))
-  {
-    puck_in_shelf_left_ = NULL;
-  }
-  if(puck_in_shelf_middle_ && !pose_hit(puck_in_shelf_middle_->GetWorldPose(),shelf_middle_pose(),0.1))
-  {
-    puck_in_shelf_middle_ = NULL;
-  }
-  if(puck_in_shelf_right_ && !pose_hit(puck_in_shelf_right_->GetWorldPose(),shelf_right_pose(),0.1))
-  {
-    puck_in_shelf_right_ = NULL;
-  }
+  if(puck_in_shelf_left_ && !pose_hit(puck_in_shelf_left_->GZWRAP_WORLD_POSE(),shelf_left_pose(),0.1))
+    puck_in_shelf_left_ = nullptr;
+  if(puck_in_shelf_middle_ && !pose_hit(puck_in_shelf_middle_->GZWRAP_WORLD_POSE(),shelf_middle_pose(),0.1))
+    puck_in_shelf_middle_ = nullptr;
+  if(puck_in_shelf_right_ && !pose_hit(puck_in_shelf_right_->GZWRAP_WORLD_POSE(),shelf_right_pose(),0.1))
+    puck_in_shelf_right_ = nullptr;
   if(!puck_in_shelf_right_ && !puck_in_shelf_middle_ && !puck_in_shelf_left_){
     //shelf is empty -> refill
     spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
     spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
     spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
-    puck_spawned_time_ = model_->GetWorld()->GetSimTime().Double();
+    puck_spawned_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
   }
 }
 
@@ -98,7 +94,7 @@ void CapStation::work_puck(std::string puck_name)
       break;
   }
   //set_state(State::PROCESSED);
-  world_->GetModel(puck_name)->SetWorldPose(output());
+  world_->GZWRAP_MODEL_BY_NAME(puck_name)->SetWorldPose(output());
   puck_in_processing_name_ = puck_name;
 }
 
@@ -107,7 +103,7 @@ void CapStation::on_puck_msg(ConstPosePtr &msg)
   if(current_state_ == "READY-AT-OUTPUT")
   {
     if(puck_in_processing_name_ != "" && 
-       !puck_in_output(world_->GetModel(puck_in_processing_name_)->GetWorldPose()))
+       !puck_in_output(world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE()))
     {
       set_state(State::RETRIEVED);
       puck_in_processing_name_ = "";
@@ -127,7 +123,7 @@ void CapStation::on_new_puck(ConstNewPuckPtr &msg)
 {
   Mps::on_new_puck(msg);
   //get model
-  physics::Model_V models = world_->GetModels();
+  physics::Model_V models = world_->GZWRAP_MODELS();
   for(physics::ModelPtr model: models)
   {
     if(model->GetName() == msg->puck_name())
@@ -143,17 +139,17 @@ void CapStation::on_new_puck(ConstNewPuckPtr &msg)
         cmd.set_color(gazsim_msgs::Color::BLACK);
       }
       cmd.set_puck_name(msg->puck_name());
-      if(pose_in_shelf_left(model->GetWorldPose()))
+      if(pose_in_shelf_left(model->GZWRAP_WORLD_POSE()))
       {
         puck_in_shelf_left_ = model;
         puck_cmd_pub_->Publish(cmd);
       }
-      else if(pose_in_shelf_middle(model->GetWorldPose()))
+      else if(pose_in_shelf_middle(model->GZWRAP_WORLD_POSE()))
       {
         puck_in_shelf_middle_ = model;
         puck_cmd_pub_->Publish(cmd);
       }
-      else if(pose_in_shelf_right(model->GetWorldPose()))
+      else if(pose_in_shelf_right(model->GZWRAP_WORLD_POSE()))
       {
         puck_in_shelf_right_ = model;
         puck_cmd_pub_->Publish(cmd);
@@ -169,16 +165,16 @@ void CapStation::new_machine_info(ConstMachine &machine)
     task_ = machine.instruction_cs().operation();
     printf("%s got a new task: %s\n",name_.c_str(),llsf_msgs::CsOp_Name(task_).c_str());
   }
-  else if(machine.state() == "PROCESSED" && puck_in_output(world_->GetModel(puck_in_processing_name_)->GetWorldPose()))
+  else if(machine.state() == "PROCESSED" && puck_in_output(world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE()))
   {
     set_state(State::DELIVERED);
   }
   else if(machine.state() == "IDLE" &&
           current_state_ == "DOWN")
   {
-    for(gazebo::physics::ModelPtr model: world_->GetModels())
+    for(gazebo::physics::ModelPtr model: world_->GZWRAP_MODELS())
     {
-      if(pose_hit(model->GetWorldPose(),input()))
+      if(pose_hit(model->GZWRAP_WORLD_POSE(),input()))
       {
         work_puck(model->GetName());
       }
@@ -203,33 +199,33 @@ void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
   }
 }
 
-math::Pose CapStation::shelf_left_pose()
+gzwrap::Pose3d CapStation::shelf_left_pose()
 {
   return get_puck_world_pose(-0.1, 0, BELT_HEIGHT + 0.005);
 }
 
-math::Pose CapStation::shelf_middle_pose()
+gzwrap::Pose3d CapStation::shelf_middle_pose()
 {
   return get_puck_world_pose(-0.2, 0, BELT_HEIGHT + 0.005);
 }
 
-math::Pose CapStation::shelf_right_pose()
+gzwrap::Pose3d CapStation::shelf_right_pose()
 {
   return get_puck_world_pose(-0.3,0, BELT_HEIGHT + 0.005);
 }
 
 
-bool CapStation::pose_in_shelf_left(const math::Pose &puck_pose)
+bool CapStation::pose_in_shelf_left(const gzwrap::Pose3d &puck_pose)
 {
   return pose_hit(puck_pose, shelf_left_pose(),0.05);
 }
 
-bool CapStation::pose_in_shelf_middle(const math::Pose &puck_pose)
+bool CapStation::pose_in_shelf_middle(const gzwrap::Pose3d &puck_pose)
 {
   return pose_hit(puck_pose, shelf_middle_pose(),0.05);
 }
 
-bool CapStation::pose_in_shelf_right(const math::Pose &puck_pose)
+bool CapStation::pose_in_shelf_right(const gzwrap::Pose3d &puck_pose)
 {
   return pose_hit(puck_pose, shelf_right_pose(),0.05);
 }

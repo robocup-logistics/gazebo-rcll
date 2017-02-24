@@ -21,6 +21,8 @@
 #include <gazebo/physics/physics.hh>
 #include <string.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 #include "time_sync.h"
 
 using namespace gazebo;
@@ -54,13 +56,13 @@ void TimesyncPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   
   //connect update function
   update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&TimesyncPlugin::Update, this));
-  last_time_sync_ = world_->GetSimTime().Double();
+  last_time_sync_ = world_->GZWRAP_SIM_TIME().Double();
   printf("Timesync-Plugin loaded!\n");
 }
 
 void TimesyncPlugin::Update()
 {
-  double time = world_->GetSimTime().Double();
+  double time = world_->GZWRAP_SIM_TIME().Double();
   if((time - last_time_sync_) > (1.0 / time_sync_frequency_))
   {
     last_time_sync_ = time;
@@ -70,8 +72,8 @@ void TimesyncPlugin::Update()
 
 void TimesyncPlugin::send_time_sync()
 {
-  double sim_time = world_->GetSimTime().Double();
-  double real_time = world_->GetRealTime().Double();
+  double sim_time = world_->GZWRAP_SIM_TIME().Double();
+  double real_time = world_->GZWRAP_REAL_TIME().Double();
 
   gazsim_msgs::SimTime msg;
 
@@ -82,7 +84,7 @@ void TimesyncPlugin::send_time_sync()
   double real_time_factor = (sim_time - last_sim_time_) / (real_time - last_real_time_);
   msg.set_real_time_factor(real_time_factor);
 
-  msg.set_paused(!world_->GetRunning());
+  msg.set_paused(!world_->GZWRAP_RUNNING());
   time_sync_pub_->Publish(msg);
 
   last_sim_time_ = sim_time;

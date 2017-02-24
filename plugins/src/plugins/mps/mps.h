@@ -36,6 +36,8 @@
 #include <map>
 #include <configurable/configurable.h>
 
+#include <utils/misc/gazebo_api_wrappers.h>
+
 //amount of pucks to listen for
 #define NUMBER_PUCKS number_pucks_
 //how far is the center of the belt hsifted from the machine center
@@ -128,26 +130,26 @@ namespace gazebo
     virtual float output_x();
     virtual float output_y();
     
-    virtual math::Pose input();
-    virtual math::Pose output();
+    virtual gzwrap::Pose3d input();
+    virtual gzwrap::Pose3d output();
     
     /// convert puck pose from mps frame to world frame
-    math::Pose get_puck_world_pose(double long_side, double short_side, double height = -1.0);
+    gzwrap::Pose3d get_puck_world_pose(double long_side, double short_side, double height = -1.0);
     
     std::string current_state_;
     
     void set_state(State state);
     
-    bool pose_hit(const math::Pose &to_test, const math::Pose &reference, double tolerance = -1.0);
+    bool pose_hit(const gzwrap::Pose3d &to_test, const gzwrap::Pose3d &reference, double tolerance = -1.0);
     
     bool puck_in_input(ConstPosePtr &pose);
     bool puck_in_output(ConstPosePtr &pose);
-    bool puck_in_input(const math::Pose &pose);
-    bool puck_in_output(const math::Pose &pose);
+    bool puck_in_input(const gzwrap::Pose3d &pose);
+    bool puck_in_output(const gzwrap::Pose3d &pose);
     
     physics::WorldPtr world_;
     
-    void spawn_puck(const math::Pose &spawn_pose, enum gazsim_msgs::Color base_color);
+    void spawn_puck(const gzwrap::Pose3d &spawn_pose, enum gazsim_msgs::Color base_color);
     
     // Create a publisher on the ~/factory topic
     transport::PublisherPtr factoryPub;
