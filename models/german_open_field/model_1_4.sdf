@@ -30,8 +30,8 @@
         </geometry>
         <material>
           <script>
-            <uri>model://logistics_league_field/materials/scripts/</uri>
-            <uri>model://logistics_league_field/materials/textures/</uri>
+            <uri>model://german_open_field/materials/scripts/</uri>
+            <uri>model://german_open_field/materials/textures/</uri>
             <name>Logistics_League_Field/Image</name>
           </script>
         </material>

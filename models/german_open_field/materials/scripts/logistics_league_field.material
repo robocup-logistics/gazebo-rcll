@@ -10,7 +10,7 @@ material Logistics_League_Field/Image
 
       texture_unit
       {
-        texture floor.png
+        texture floor.jpg
         filtering trilinear
       }
     }
