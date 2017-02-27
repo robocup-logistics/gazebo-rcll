@@ -280,7 +280,6 @@ gazebo::physics::LinkPtr Gripper::getGripperLink()
   std::vector<physics::LinkPtr> links = model_->GetLinks();
   for(std::vector<physics::LinkPtr>::iterator it = links.begin(); it != links.end(); it++)
   {
-    printf("Checking %s\n", (*it)->GetName().c_str());
     if((*it)->GetName().rfind("gripper::link", (*it)->GetName().length()-linkLen) != std::string::npos)
       return (*it);
   }
