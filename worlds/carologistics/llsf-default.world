@@ -1,0 +1,267 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="LLSF">
+
+    <!-- Physics, to determine the simulation speed (step size and update rate) -->
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>300</real_time_update_rate>
+    </physics>
+
+    <scene>
+      <ambient>0.5 0.5 0.5 1.0</ambient>
+      <shadows>0</shadows>
+    </scene>
+    
+    <gui>
+      <camera name="user camera">
+	<pose>1 -2 9.5 0 1.1 1.56</pose>
+      </camera>
+    </gui>
+
+    <!-- Ground Plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Field  -->
+    <include>
+      <uri>model://german_open_field</uri>
+    </include>
+
+    <!-- World Plugin -->
+    <!-- <plugin name="world" filename="libllsf.so" /> -->
+
+
+    <!-- Robotinos  -->
+    <!-- Team Cyan -->
+    <include>
+      <uri>model://robotino-nr-1</uri>
+      <pose>3.5 -0.5 0 0 0 1.57</pose>
+    </include>
+    <include>
+      <uri>model://robotino-nr-2</uri>
+      <pose>4.5 -0.5 0 0 0 1.57</pose>
+    </include>
+    <include>
+      <uri>model://robotino-nr-3</uri> 
+      <pose>5.5 -0.5 0 0 0 1.57</pose>
+    </include> -->
+    <!-- Team Magenta -->
+    
+    <!-- Light -->
+    <light name="light" type="point">
+      <cast_shadows>false</cast_shadows>
+      <pose>-12 3 1 0 0 0</pose>
+      <diffuse>127 127 127 255</diffuse>
+      <specular>25 25 25 255</specular>
+      <attenuation>
+	<range>20.0</range>
+	<linear>0.01</linear>
+	<constant>0.7</constant>
+	<quadratic>0.00</quadratic>
+      </attenuation>
+    </light>
+
+    <!-- Machines (should later be spawned by a world plugin according to the refbox) -->
+    <include>
+      <name>C-CS1</name>
+      <uri>model://mps_cap</uri>
+      <pose>-4.5 5.1 0 0 0 -1.6</pose>
+    </include>
+    <include>
+      <name>M-CS1</name>
+      <uri>model://mps_cap</uri>
+      <pose>4.5 5.1 0 0 0 1.6</pose>
+    </include>
+
+    <include>
+      <name>M-DS</name>
+      <uri>model://mps_delivery</uri>
+      <pose>-1 5.0 0 0 0 -1.74</pose>
+    </include>
+    <include>
+      <name>C-DS</name>
+      <uri>model://mps_delivery</uri>
+      <pose>1 5.0 0 0 0 1.74</pose>
+    </include>
+
+    <include>
+      <name>C-CS2</name>
+      <uri>model://mps_cap</uri>
+      <pose>-3.2 2.5 0 0 0 1.57</pose>
+    </include>
+    <include>
+      <name>M-CS2</name>
+      <uri>model://mps_cap</uri>
+      <pose>3.2 2.5 0 0 0 -1.57</pose>
+    </include>
+
+
+    <include>
+      <name>C-RS1</name>
+      <uri>model://mps_ring</uri>
+      <pose>1 2.5 0 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>M-RS1</name>
+      <uri>model://mps_ring</uri>
+      <pose>-1 2.5 0 0 0 -3.1</pose>
+    </include>
+
+    <include>
+      <name>C-RS2</name>
+      <uri>model://mps_ring</uri>
+      <pose>4.8 3.5 0 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>M-RS2</name>
+      <uri>model://mps_ring</uri>
+      <pose>-4.8 3.5 0 0 0 -0.8</pose>
+    </include>
+
+
+    <include>
+      <name>C-BS</name>
+      <uri>model://mps_base</uri>
+      <pose>4.5 1.0 0 0 0 0.75</pose>
+    </include>
+    <include>
+      <name>M-BS</name>
+      <uri>model://mps_base</uri>
+      <pose>-4.5 1.0 0 0 0 -0.75</pose>
+    </include>
+
+    <!-- Tags (are later grapped by the mps)  -->
+    <include>
+      <name>tag_01</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_02</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_17</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_18</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_33</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_34</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_177</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_178</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_65</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_66</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_81</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_82</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_97</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_98</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_113</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_114</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_129</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_130</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_145</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_146</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_161</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_162</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_49</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    <include>
+      <name>tag_50</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+    
+
+    <!-- Plugins for the world -->
+    <plugin name="llsf_refbox_comm" filename="libllsf_refbox_comm.so" />
+    <plugin name="timesync" filename="libtimesync.so" />
+    <!-- <plugin name="mps_placement" filename="libmps_placement.so" /> -->
+  </world>
+</sdf>
