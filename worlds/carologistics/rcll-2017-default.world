@@ -30,7 +30,7 @@
 
     <!-- Field  -->
     <include>
-      <uri>model://logistics_league_field</uri>
+      <uri>model://logistics_league_field_2017</uri>
     </include>
 
     <!-- World Plugin -->

@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
-  <model name="Logistics League Field">
+  <model name="Logistics League Field 2017">
     <pose>0 4 0 0 0 0</pose>
     <static>true</static>
     <link name="field">
@@ -31,8 +31,8 @@
         </geometry>
         <material>
           <script>
-            <uri>model://logistics_league_field/materials/scripts/</uri>
-            <uri>model://logistics_league_field/materials/textures/</uri>
+            <uri>model://logistics_league_field_2017/materials/scripts/</uri>
+            <uri>model://logistics_league_field_2017/materials/textures/</uri>
             <name>Logistics_League_Field/Image</name>
           </script>
         </material>

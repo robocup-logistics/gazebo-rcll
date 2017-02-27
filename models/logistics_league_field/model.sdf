@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
-  <model name="Logistics League Field">
+  <model name="Logistics League Field 2016">
     <pose>0 2.5 0 0 0 0</pose>
     <static>true</static>
     <link name="field">
