@@ -232,55 +232,10 @@ void LightControl::change_light(std::string machine_name, Color color, LightStat
   if(state == ON)
   {
     msg.set_visible(true);
-    switch(color)
-      {
-    case RED:
-      {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.8, 0, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(1.0, 0.3, 0.3, 1.0));
-	break;
-      }
-    case YELLOW:
-      {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.9, 0.7, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(1.0, 0.9, 0.3, 1.0));
-	break;
-      }
-    case GREEN:
-      {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0, 0.8, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.3, 1.0, 0.3, 1.0));
-	break;
-      }
-    }
   }
   else
   {
     msg.set_visible(false);
-    switch(color)
-      {
-    case RED:
-      {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.8, 0, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.0, 0.0, 0.0, 0.0));
-	msgs::Set(msg.mutable_material()->mutable_ambient(), common::Color(0.8, 0.0, 0.0, 0.8));
-	break;
-      }
-    case YELLOW:
-      {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.9, 0.7, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.0, 0.0, 0.0, 0.0));
-	msgs::Set(msg.mutable_material()->mutable_ambient(), common::Color(0.9, 0.7, 0.0, 0.8));
-	break;
-      }
-    case GREEN:
-      {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0, 0.8, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.0, 0.0, 0.0, 0.0));
-	msgs::Set(msg.mutable_material()->mutable_ambient(), common::Color(0, 0.8, 0, 0.8));
-	break;
-      }
-    }
   }
 
   visPub_->Publish(msg);
