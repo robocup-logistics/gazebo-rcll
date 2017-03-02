@@ -25,6 +25,13 @@
             <uri>model://mps_base/meshes/mps_base.dae</uri>
           </mesh>
         </geometry>
+	<material>
+          <script>
+            <uri>model://mps_base/materials/scripts</uri>
+            <uri>model://mps_base/materials/textures</uri>
+            <name>mps_base</name>
+          </script>
+        </material>
         <cast_shadows>false</cast_shadows>
       </visual>
       <!-- Collision Elements: -->
