@@ -1,0 +1,17 @@
+material mps_cap
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture mps_cap.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+
+    }
+  }
+}
