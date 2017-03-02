@@ -18,17 +18,22 @@
           <izz>1.53125</izz>
         </inertia>
       </inertial>
-      <visual name="body-visual">
+ <visual name="body-visual">
 	<pose>-0.35 .172 0 0 0 1.57</pose>
         <geometry>
           <mesh>
             <uri>model://mps_cap/meshes/mps_cap.dae</uri>
           </mesh>
         </geometry>
+	<material>
+          <script>
+            <uri>model://mps_cap/materials/scripts</uri>
+            <uri>model://mps_cap/materials/textures</uri>
+            <name>mps_cap</name>
+          </script>
+        </material>
         <cast_shadows>false</cast_shadows>
-      </visual>
-
-      <!-- Shelf: -->
+      </visual>      <!-- Shelf: -->
       <collision name="collision_shelf">
         <pose>-0.175 0.105 0.895 0 0 0 </pose>
         <geometry>
