@@ -348,6 +348,11 @@ void Mps::spawn_puck(const gzwrap::Pose3d &spawn_pose, gazsim_msgs::Color base_c
         new_color = "0.8 0.8 0.8 1";
         color_string = "SILVER";
         break;
+      case gazsim_msgs::Color::NONE:
+	//this is a transparent workpiece of the cap station
+        new_color = "0.5 0.5 0.5 0.5";
+        color_string = "NONE";
+        break;
       default:
         printf("%s should spawn with an unsupported base color %s\n",new_name.c_str(), gazsim_msgs::Color_Name(base_color).c_str());
         return;
