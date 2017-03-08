@@ -16,8 +16,8 @@
         </geometry>
 	<cast_shadows>false</cast_shadows>
 	<material>
-	  <ambient>0.0 0.0 0.0 0.1</ambient>
-	  <diffuse>0.0 0.0 0.0 0.11</diffuse>
+	  <ambient>0.0 0.0 0.0 1.0</ambient>
+	  <diffuse>0.0 0.0 0.0 1.0</diffuse>
 	</material>
       </visual>
     </link>

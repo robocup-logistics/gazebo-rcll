@@ -19,13 +19,20 @@
         </inertia>
       </inertial>
       <visual name="body-visual">
-        <pose>0.01 0 0.00 0 0 1.570795</pose>
+        <pose>0.01 0 0.15 0 0 1.570795</pose>
         <geometry>
           <mesh>
             <uri>model://robotino3/meshes/robotino3.dae</uri>
-            <scale>0.001 0.001 0.001</scale>
+            <scale>0.01 0.01 0.01</scale>
           </mesh>
         </geometry>
+	<material>
+          <script>
+            <uri>model://robotino3/materials/scripts</uri>
+            <uri>model://robotino3/materials/textures</uri>
+            <name>robotino3</name>
+          </script>
+        </material>
         <cast_shadows>false</cast_shadows>
       </visual>
       <collision name="body-collision">

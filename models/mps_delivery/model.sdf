@@ -25,6 +25,13 @@
             <uri>model://mps_delivery/meshes/mps_delivery.dae</uri>
           </mesh>
         </geometry>
+	<material>
+          <script>
+            <uri>model://mps_delivery/materials/scripts</uri>
+            <uri>model://mps_delivery/materials/textures</uri>
+            <name>mps_delivery</name>
+          </script>
+        </material>
         <cast_shadows>false</cast_shadows>
       </visual>
 
