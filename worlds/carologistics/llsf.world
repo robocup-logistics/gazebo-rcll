@@ -264,6 +264,27 @@
       <uri>model://tag</uri>
       <pose>0 -1 0.2 0 0 0</pose>
     </include>
+    <include>
+      <name>tag_193</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+      <include>
+      <name>tag_194</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+      <include>
+      <name>tag_210</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+      <include>
+      <name>tag_209</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+
 
     <!-- Plugins for the world -->
     <plugin name="llsf_refbox_comm" filename="libllsf_refbox_comm.so" />
