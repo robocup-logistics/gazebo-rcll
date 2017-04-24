@@ -82,8 +82,13 @@ void MpsPlacementPlugin::Reset()
  */ 
 void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
 {
+
+        //printf("GOT MACHINE INFO MESSAGE in MPS PLACEMENTsize %d", msg->machines_size());
+
+
+        //printf("mplaced: %d gamestart%d\n", machines_placed_, is_game_started_);
   // don't set positions before simulation is initialized
-  if(machines_placed_ ||!is_game_started_ || world_->GZWRAP_SIM_TIME().Double() < WAIT_TIME_BEFORE_PLACEMENT){
+  if(machines_placed_ || !is_game_started_ || world_->GZWRAP_SIM_TIME().Double() < WAIT_TIME_BEFORE_PLACEMENT){
     return;
   }
 
@@ -94,51 +99,37 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
   for(int i = 0; i < msg->machines_size(); i++){
     llsf_msgs::Machine machine_msg = msg->machines(i);
     std::string mps_name = machine_msg.name();
-    
-    int zone = (int) machine_msg.zone();
-      
-    //determine position from Zone
-    int zone_cyan = zone;
-    if (zone_cyan > 12) {
-      zone_cyan -= 12;
-    }
-    int zone_x = (zone_cyan-1) / 4; //integer devision
-    int zone_y = (zone_cyan-1) % 4;
-    float zone_mid_x = zone_x * ZONE_WIDTH + 0.5 * ZONE_WIDTH;
-    float zone_mid_y = zone_y * ZONE_HEIGHT + 0.5 * ZONE_HEIGHT;
 
-    //move mps away from wall
-    if(zone_x == 2){
-      zone_mid_x -= 0.25 * ZONE_WIDTH;
-    }
-    if(zone_y == 0){
-      zone_mid_y += 0.25 * ZONE_HEIGHT;
-    }
-    else if(zone_y == 3){
-      zone_mid_y -= 0.25 * ZONE_HEIGHT;
-    }
+    printf("Calculating Position for %s\n",mps_name.c_str());
 
-    //create more space in front of the inserion area, so the bots can drive through
-    if(zone_x == 1 && zone_y == 0){
-      zone_mid_x -= 0.25 * ZONE_WIDTH;
+    std::string zone = llsf_msgs::Zone_Name(msg->machines(i).zone());
+
+    float offset_x = ZONE_WIDTH*0.5 ;
+    float offset_y = ZONE_HEIGHT*0.5;
+    float coord_x = 0;
+    float coord_y = 0;
+
+        switch (zone.at(0)) {
+    case 'C':
+
+        coord_x= ((int) zone.at(3) - '0') - offset_x;
+        coord_y= ((int) zone.at(4) - '0') - offset_y;
+            break;
+    case 'M':
+            //Magenta Team Zones are below Coordinate 0. -1 Mirrors Position on field
+            coord_x= (((int) zone.at(3) - '0') - offset_x) * -1;
+            coord_y= ((int) zone.at(4) - '0') - offset_y;
+        break;
+    default:
+        printf("undefined zone color: %c\n",zone.at(0));
+        return;
+        break;
     }
 
-    //randomize orientation
-    srand(random_seed_base_ * zone_cyan + random_seed_base_ / zone_cyan);
-    float ori = rand() % 100 -50;
-    ori *= 2.0 * M_PI / 50.0;
+    double ori = (M_PI *msg->machines(i).rotation())/180.0;
+    ori += M_PI/2; // adding 90° to solve mismatch between refbox rotation and gazebo.
 
-    if(zone > 12){
-      //Mirrow mps on the Magenta half
-      zone_mid_x = -zone_mid_x;
-      ori -= M_PI / 2.0;
-      ori = -ori;
-      ori += M_PI / 2.0;
-      ori += M_PI;
-    }
-      
-    printf("MpsPlacementPlugin: Spawning MPS %s into zone %d, (%f,%f, %f)\n", mps_name.c_str(), zone, zone_mid_x, zone_mid_y, ori);
-
+        printf("Place MPS %s in Zone: name: %s Pos: (%f,%f) ori: %d | %f \n",mps_name.c_str(), zone.c_str(), coord_x,coord_y, msg->machines(i).rotation(),ori);
     //get machine type
     std::string mps_type;
     if(mps_name.find("BS") != std::string::npos){
@@ -149,8 +140,10 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
       mps_type = "mps_ring";
     } else if (mps_name.find("DS") != std::string::npos){
       mps_type = "mps_delivery";
+    } else if (mps_name.find("SS") != std::string::npos){
+      mps_type = "mps_storage";
     } else {
-      printf("Unknown mps-type:%s", mps_name.c_str());
+      printf("Unknown mps-type: %s", mps_name.c_str());
       return;
     }
 
@@ -177,11 +170,13 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
     spawn_mps_msg.set_clone_model_name(mps_name.c_str());
 #if GAZEBO_MAJOR_VERSION > 5
     msgs::Set(spawn_mps_msg.mutable_pose(),
-              ignition::math::Pose3d(zone_mid_x, zone_mid_y, 0, 0, 0, ori));
+              ignition::math::Pose3d(coord_x, coord_y, 0, 0, 0, ori));
 #else
     msgs::Set(spawn_mps_msg.mutable_pose(),
-              math::Pose(zone_mid_x, zone_mid_y, 0, 0, 0, ori));
+              math::Pose(coord_x, coord_y, 0, 0, 0, ori));
 #endif
+
+
     factoryPub->Publish(spawn_mps_msg);
   }
   printf("MpsPlacementPlugin: All machines placed\n");
