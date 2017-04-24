@@ -4,6 +4,7 @@
  *
  *  Created: Mon Feb 25 11:36:50 2013
  *  Copyright  2013  Tim Niemueller [www.niemueller.de]
+ *             2017  Tobias Neumann
  ****************************************************************************/
 
 /*  Redistribution and use in source and binary forms, with or without
@@ -33,6 +34,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+syntax = "proto2";
 
 package llsf_msgs;
 
@@ -68,6 +71,12 @@ message LightSpec {
   required LightState state = 2;
 }
 
+enum ExplorationState {
+	NO_REPORT = 0;
+	CORRECT_REPORT = 1;
+	WRONG_REPORT = 2;
+}
+
 message Machine {
   enum CompType {
     COMP_ID  = 2000;
@@ -79,29 +88,30 @@ message Machine {
   optional string    state      =  3;
   optional Team      team_color = 10;
 
-  optional bool      prepared   = 15;
-
   // Current state of the lights
   repeated LightSpec lights = 7;
   // Optional pose if known to refbox
   optional Pose2D    pose = 8;
   // Which zone the machine is in
   optional Zone      zone = 11;
+  optional uint32    rotation = 12;
   // Only set during exploration phase
-  // Correctly reported?
+  // Correctly reported? (zone and type correct)
   optional bool      correctly_reported = 9;
   // Number of bases loaded
   optional uint32    loaded_with = 13 [default = 0];
 
   repeated RingColor ring_colors = 14;
 
-
-  // Instruction information
-  // only available to clients, not peers
+  // Instruction information (only clients)
   optional PrepareInstructionBS instruction_bs = 16;
   optional PrepareInstructionDS instruction_ds = 17;
   optional PrepareInstructionRS instruction_rs = 18;
   optional PrepareInstructionCS instruction_cs = 19;
+
+	// more fine-grained exploration (only clients)
+	optional ExplorationState exploration_zone_state = 22;
+	optional ExplorationState exploration_rotation_state = 21;
 
 }
 
@@ -114,7 +124,6 @@ message MachineInfo {
   // List of machines states
   repeated Machine machines   = 1;
 
-  // Team name if all machines belong
-  // only to a single team (broadcast)
+  // Team color (only broadcast)
   optional Team    team_color = 2;
 }
