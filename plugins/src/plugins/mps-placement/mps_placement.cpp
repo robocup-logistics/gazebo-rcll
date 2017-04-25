@@ -126,7 +126,7 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
     }
 
     double ori = (M_PI *msg->machines(i).rotation())/180.0;
-    ori += M_PI/2; // adding 90° to solve mismatch between refbox rotation and gazebo.
+    ori -= M_PI/2; // substracting 90° to solve mismatch between refbox rotation and gazebo.
 
     //get machine type
     std::string mps_type;
@@ -158,7 +158,7 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
                     std::istreambuf_iterator<char>());
       std::size_t name_pos = raw_sdf.find(mps_type);
       if(name_pos ==  std::string::npos){
-          printf("sdf file %s has no model named %s\n",sdf_path.c_str(), mps_type.c_str());
+          printf("SDF file %s has no model named %s\n",sdf_path.c_str(), mps_type.c_str());
         return;
       }
       new_sdf = raw_sdf.erase(name_pos, mps_type.length()).insert(name_pos, mps_name);
