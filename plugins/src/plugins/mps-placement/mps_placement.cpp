@@ -46,7 +46,7 @@ MpsPlacementPlugin::~MpsPlacementPlugin()
 /** on loading of the plugin
  * @param _parent Parent Model
  */
-void MpsPlacementPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/) 
+void MpsPlacementPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/)
 {
   // Store the pointer to the model
   world_ = _world;
@@ -61,7 +61,7 @@ void MpsPlacementPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/
   //subscribe for refbox msgs
   machine_info_sub_ = node_->Subscribe(std::string(TOPIC_MACHINE_INFO), &MpsPlacementPlugin::on_machine_info_msg, this);
   game_state_sub_ = node_->Subscribe(std::string(TOPIC_GAME_STATE), &MpsPlacementPlugin::on_game_state_msg, this);
-  
+
   machines_placed_ = false;
   is_game_started_ = false;
   random_seed_base_ = (int) time(NULL);
@@ -79,12 +79,11 @@ void MpsPlacementPlugin::Reset()
 
 /** Functions for recieving a machine info msg
  * @param msg message
- */ 
+ */
 void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
 {
 
-        //printf("GOT MACHINE INFO MESSAGE in MPS PLACEMENTsize %d", msg->machines_size());
-
+//        printf("GOT MACHINE INFO MESSAGE in MPS PLACEMENTsize %d\n", msg->machines_size());
 
         //printf("mplaced: %d gamestart%d\n", machines_placed_, is_game_started_);
   // don't set positions before simulation is initialized
@@ -95,12 +94,13 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
   //remove all existing mps (is broken at the moment, deleting models with plugins seems to be buggy in Gazebo, although it is working when deleting the model in the GUI)
   //remove_existing_mps();
 
+
   // go through all machines
   for(int i = 0; i < msg->machines_size(); i++){
     llsf_msgs::Machine machine_msg = msg->machines(i);
     std::string mps_name = machine_msg.name();
 
-    printf("Calculating Position for %s\n",mps_name.c_str());
+    //printf("Calculating Position for %s\n",mps_name.c_str());
 
     std::string zone = llsf_msgs::Zone_Name(msg->machines(i).zone());
 
@@ -111,14 +111,13 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
 
         switch (zone.at(0)) {
     case 'C':
-
         coord_x= ((int) zone.at(3) - '0') - offset_x;
         coord_y= ((int) zone.at(4) - '0') - offset_y;
             break;
     case 'M':
-            //Magenta Team Zones are below Coordinate 0. -1 Mirrors Position on field
-            coord_x= (((int) zone.at(3) - '0') - offset_x) * -1;
-            coord_y= ((int) zone.at(4) - '0') - offset_y;
+        //Magenta Team Zones are below Coordinate 0. -1 Mirrors Position on field
+        coord_x= (((int) zone.at(3) - '0') - offset_x) * -1;
+        coord_y= ((int) zone.at(4) - '0') - offset_y;
         break;
     default:
         printf("undefined zone color: %c\n",zone.at(0));
@@ -129,7 +128,6 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
     double ori = (M_PI *msg->machines(i).rotation())/180.0;
     ori += M_PI/2; // adding 90° to solve mismatch between refbox rotation and gazebo.
 
-        printf("Place MPS %s in Zone: name: %s Pos: (%f,%f) ori: %d | %f \n",mps_name.c_str(), zone.c_str(), coord_x,coord_y, msg->machines(i).rotation(),ori);
     //get machine type
     std::string mps_type;
     if(mps_name.find("BS") != std::string::npos){
@@ -158,12 +156,13 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
                     std::istreambuf_iterator<char>());
       std::size_t name_pos = raw_sdf.find(mps_type);
       if(name_pos ==  std::string::npos){
+          printf("sdf file %s has no model named %s\n",sdf_path.c_str(), mps_type.c_str());
         return;
       }
       new_sdf = raw_sdf.erase(name_pos, mps_type.length()).insert(name_pos, mps_name);
     }
     else{
-      printf("Cant find mps sdf file:%s", sdf_path.c_str());
+      printf("Cant find mps sdf file:%s\n", sdf_path.c_str());
       return;
     }
     spawn_mps_msg.set_sdf(new_sdf.c_str());
@@ -176,7 +175,7 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
               math::Pose(coord_x, coord_y, 0, 0, 0, ori));
 #endif
 
-
+    printf("Place MPS %s in Zone: name: %s Pos: (%f,%f) ori: %d | %f \n",mps_name.c_str(), zone.c_str(), coord_x,coord_y, msg->machines(i).rotation(),ori);
     factoryPub->Publish(spawn_mps_msg);
   }
   printf("MpsPlacementPlugin: All machines placed\n");
@@ -187,9 +186,9 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
  * We want to knwo if the game is started because the refbox assigns
  *  the zones to the machines not in the PRE_GAME phase
  * @param msg message
- */ 
+ */
 void MpsPlacementPlugin::on_game_state_msg(ConstGameStatePtr &msg)
-{  
+{
   if(!is_game_started_ && msg->phase() != llsf_msgs::GameState::PRE_GAME){
     printf("MpsPlacementPlugin: Game started\n");
     is_game_started_ = true;
