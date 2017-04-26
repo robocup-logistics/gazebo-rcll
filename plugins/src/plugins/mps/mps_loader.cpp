@@ -51,6 +51,11 @@ void MpsLoader::Load(physics::ModelPtr _parent, sdf::ElementPtr sdf)
     printf("detected machine type: base \n");
     mps_ = new BaseStation(_parent, sdf);
   }
+  if(name.find("SS")!=std::string::npos)
+  {
+    printf("detected machine type: Storage \n");
+    mps_ = new BaseStation(_parent, sdf);
+  }
   else if(name.find("CS")!=std::string::npos)
   {
     printf("detected machine type: cap \n");

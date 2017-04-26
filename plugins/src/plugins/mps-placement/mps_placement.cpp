@@ -143,6 +143,8 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
     std::string mps_type;
     if(mps_name.find("BS") != std::string::npos){
       mps_type = "mps_base";
+    } else if (mps_name.find("SS") != std::string::npos){
+      mps_type = "mps_base";
     } else if (mps_name.find("CS") != std::string::npos){
       mps_type = "mps_cap";
     } else if (mps_name.find("RS") != std::string::npos){

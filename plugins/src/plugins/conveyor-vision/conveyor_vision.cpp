@@ -103,6 +103,7 @@ inline bool is_machine(gazebo::physics::ModelPtr model)
 {
   std::string name = model->GetName();
   return ((name.find("BS") != std::string::npos) ||
+          (name.find("SS") != std::string::npos) ||
           (name.find("CS") != std::string::npos) ||
           (name.find("DS") != std::string::npos) ||
           (name.find("RS") != std::string::npos));
