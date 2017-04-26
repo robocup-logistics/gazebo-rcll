@@ -12,6 +12,12 @@
       <uri>model://sick_laser</uri>
       <pose>0.17 0 0.22 0 0 0</pose>
     </include>
+
+    <include>
+      <uri>model://sick_floor_laser</uri>
+      <pose>-0.11 0 0.4 0 0 0</pose>
+    </include>
+
     <include>
       <name>webcam_puck</name>
       <uri>model://webcam</uri>
@@ -54,6 +60,21 @@
         </limit>
       </axis>
     </joint>
+
+    <joint name="sick_floor_joint" type="revolute">
+      <child>sick_floor_laser::link</child>
+      <parent>robotino3::body</parent>
+      <pose>-0.055 0 0.03 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <upper>0</upper>
+          <lower>0</lower>
+        </limit>
+      </axis>
+    </joint>
+
+
     <joint name="webcam_sensor_joint" type="revolute">
       <child>webcam_puck::link</child>
       <parent>robotino3::body</parent>
