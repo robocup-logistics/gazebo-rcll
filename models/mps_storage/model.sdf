@@ -1,0 +1,154 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="mps_storage">
+    <static>true</static>
+    <link name="body">
+      <pose>0 0 0.01 0 0 0</pose>
+      <gravity>true</gravity>
+      <inertial>
+	<pose>0 0 0.005 0 0 0</pose>
+        <mass>50</mass>
+        <inertia>
+	  <!-- according to http://en.wikipedia.org/wiki/List_of_moments_of_inertia for a solid box of width: 0.35, height:0.7, depth: 0.7, mass m=30 -->
+          <ixx>2.45</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>1.53125</iyy>
+          <iyz>0.0</iyz>
+          <izz>1.53125</izz>
+        </inertia>
+      </inertial>
+      <visual name="body-visual">
+	<pose>-0.35 .172 0 0 0 1.57</pose>
+        <geometry>
+          <mesh>
+            <uri>model://mps_storage/meshes/mps_storage.dae</uri>
+          </mesh>
+        </geometry>
+	<material>
+          <script>
+            <uri>model://mps_storage/materials/scripts</uri>
+            <uri>model://mps_storage/materials/textures</uri>
+            <name>mps_storage</name>
+          </script>
+        </material>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+      <!-- Collision Elements: -->
+            <collision name="collision_conveyor_belt">
+        <pose>0.025 0 0.88 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.03 0.35 0.04</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_conveyor_belt_border_west">
+        <pose>0 0 0.9 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.01 0.35 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_conveyor_belt_border_east">
+        <pose>0.05 0 0.9 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.01 0.35 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Box -->
+      <collision name="collision_base_box_ground">
+        <pose>0 0 0.06 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.35 0.01</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_base_box_wall_south">
+        <pose>0 -0.175 0.42 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.01 0.72</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_base_box_wall_north">
+        <pose>0 0.175 0.42 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.01 0.72</size>
+          </box>
+        </geometry>
+      </collision>
+      <!-- On both ends of the mps are transparent walls a laser sensor can look through, in the middle are solid walls -->
+      <collision name="collision_base_box_wall_middle_1">
+        <pose>-0.035 0 0.42 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.01 0.35 0.72</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_base_box_wall_middle_2">
+        <pose>0.035 0 0.42 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.01 0.35 0.72</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_base_box_top">
+        <pose>0 0 0.78 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.35 0.01</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="collision_wheels">
+	<!-- Collision to avoid that the box falls down (In reality done by wheels) -->
+        <pose>0 0 0.01 0 0 0 </pose>
+        <geometry>
+	  <box>
+	    <size>0.69 0.35 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+
+    <include>
+      <name>light_signals</name>
+      <uri>model://light_signals</uri>
+      <pose>-0.2905 -0.113 0.915 0 0 0</pose>
+    </include>
+
+
+    <link name="mps_tag_output">
+      <pose>0.025 -0.175 0.54 0 0 -1.57</pose>
+    </link>
+    <link name="mps_tag_input">
+      <pose>0.025 0.175 0.54 0 0 1.57</pose>
+    </link>
+
+    <joint name="mps_light_joint" type="revolute">
+      <parent>body</parent>
+      <child>light_signals::link</child>
+      <axis>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+
+    <!-- Plugin to control the MPS and detect workpieces -->
+    <plugin name="MPS" filename="libmps.so"/>
+  </model>
+</sdf>
