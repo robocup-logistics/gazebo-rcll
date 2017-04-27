@@ -13,6 +13,12 @@
           </mesh>
         </geometry>
         <cast_shadows>false</cast_shadows>
+	<material>
+     	  <ambient>.3 .3 .3 1</ambient>
+    	  <diffuse>.3 .3 .3 1</diffuse>
+    	  <specular>.1 .1 .1 1</specular>
+    	  <emissive>0 0 0 0</emissive>
+  	</material>
       </visual>
       <sensor name="floor_laser" type="ray">
         <pose>-0.045 0.0125 -0.04 0 0.20944 3.1415</pose>
