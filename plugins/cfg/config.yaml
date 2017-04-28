@@ -18,6 +18,7 @@ plugins:
     reconnect-interval: 10
     reconnect-attempts: 50
     topic-machine-info: "~/LLSFRbSim/MachineInfo/"
+    topic-instruct-machine: "~/LLSFRbSim/InstructMachine/" 
     topic-game-state: "~/LLSFRbSim/GameState/"
     topic-time: "~/gazsim/time-sync/"
     topic-set-game-state: "~/LLSFRbSim/SetGameState/"
@@ -57,6 +58,7 @@ plugins:
     tag_spawn_time: 40.0
     topic_set_machine_state: "~/LLSFRbSim/SetMachineState/"
     topic_machine_info: "~/LLSFRbSim/MachineInfo/"
+    topic-instruct-machine: "~/LLSFRbSim/InstructMachine/" 
     topic_puck_command: "~/pucks/cmd"
     topic_puck_command_result: "~/pucks/cmd/result"
     topic_joint: "/GripperJoints/Holding"

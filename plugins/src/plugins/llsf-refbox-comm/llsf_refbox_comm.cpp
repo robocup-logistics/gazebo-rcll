@@ -62,6 +62,7 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 
   //create publisher and subscriber for connection with gazebo node
   machine_info_pub_ = node_->Advertise<llsf_msgs::MachineInfo>(TOPIC_MACHINE_INFO);
+  instruct_machine_pub_ = node_->Advertise<llsf_msgs::InstructMachine>(TOPIC_INSTRUCT_MACHINE);
   game_state_pub_ = node_->Advertise<llsf_msgs::GameState>(TOPIC_GAME_STATE);
   // puck_info_pub_ = node_->Advertise<llsf_msgs::PuckInfo>(config->get_string("/gazsim/topics/puck-info"));
   // place_puck_under_machine_sub_ = node_->Subscribe(config->get_string("/gazsim/topics/place-puck-under-machine"), &LlsfRefboxCommPlugin::on_puck_place_msg, this);
@@ -150,6 +151,22 @@ LlsfRefboxCommPlugin::client_msg(uint16_t comp_id, uint16_t msg_type,
   {
     game_state_pub_->Publish(*msg);
     return;
+  }
+
+  if(msg->GetTypeName() == "llsf_msgs.InstructMachine")
+  {
+
+
+      std::shared_ptr<llsf_msgs::InstructMachine> im;
+      if ( (im = std::dynamic_pointer_cast<llsf_msgs::InstructMachine>(msg)) ) {
+         printf("GOT INSTRUCTION MESSAGE with ID: %d \n",im->id() );
+
+        instruct_machine_pub_->Publish(*im);
+      }
+
+
+
+
   }
   
   // if(msg->GetTypeName() == "llsf_msgs.PuckInfo")

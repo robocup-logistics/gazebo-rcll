@@ -24,6 +24,7 @@
 #include <protobuf_comm/message_register.h>
 
 #include <llsf_msgs/MachineInfo.pb.h>
+#include <llsf_msgs/MachineInstructions.pb.h>
 #include <llsf_msgs/MachineCommands.pb.h>
 #include <llsf_msgs/SimTimeSync.pb.h>
 #include <llsf_msgs/GameState.pb.h>
@@ -34,6 +35,7 @@
 
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
+typedef const boost::shared_ptr<llsf_msgs::InstructMachine const> ConstInstructMachinePtr;
 typedef const boost::shared_ptr<gazsim_msgs::SimTime const> ConstSimTimePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetGameState const> ConstSetGameStatePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetGamePhase const> ConstSetGamePhasePtr;
@@ -51,6 +53,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetOrderDeliveredByColor const> Const
 //Max number of reconnect attempts (due to crash when tried to connect often)
 #define RECONNECT_ATTEMPTS config->get_int("plugins/llsf-refbox-comm/reconnect-attempts")
 #define TOPIC_MACHINE_INFO config->get_string("plugins/llsf-refbox-comm/topic-machine-info").c_str()
+#define TOPIC_INSTRUCT_MACHINE config->get_string("plugins/llsf-refbox-comm/topic-instruct-machine").c_str()
 #define TOPIC_GAME_STATE config->get_string("plugins/llsf-refbox-comm/topic-game-state").c_str()
 #define TOPIC_TIME config->get_string("plugins/llsf-refbox-comm/topic-time").c_str()
 #define TOPIC_SET_GAME_STATE config->get_string("plugins/llsf-refbox-comm/topic-set-game-state").c_str()
@@ -103,6 +106,7 @@ namespace gazebo
 
     //Publisher and subscriber for the connection to gazebo
     gazebo::transport::PublisherPtr machine_info_pub_;
+    gazebo::transport::PublisherPtr instruct_machine_pub_;
     gazebo::transport::PublisherPtr game_state_pub_;
     /* gazebo::transport::SubscriberPtr place_puck_under_machine_sub_; */
     /* gazebo::transport::SubscriberPtr remove_puck_under_machine_sub_; */
