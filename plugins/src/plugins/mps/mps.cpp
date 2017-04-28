@@ -67,6 +67,7 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   tag_spawn_time_ = config->get_float("plugins/mps/tag_spawn_time");
   topic_set_machine_state_ = config->get_string("plugins/mps/topic_set_machine_state").c_str();
   topic_machine_info_ = config->get_string("plugins/mps/topic_machine_info").c_str();
+  topic_instruct_machine_ = config->get_string("plugins/llsf-refbox-comm/topic-instruct-machine").c_str();
   topic_puck_command_ = config->get_string("plugins/mps/topic_puck_command").c_str();
   topic_puck_command_result_ = config->get_string("plugins/mps/topic_puck_command_result").c_str();
   topic_joint_ = config->get_string("plugins/mps/topic_joint").c_str();
@@ -86,6 +87,10 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 
   //subscribe to machine info
   this->machine_info_subscriber_ = this->node_->Subscribe(TOPIC_MACHINE_INFO, &Mps::on_machine_msg, this);
+
+  //subscribe to machine info
+  this->instruct_machine_subscriber_ = this->node_->Subscribe(TOPIC_INSTRUCT_MACHINE, &Mps::on_instruct_machine_msg, this);
+
   
   this->new_puck_subscriber_ = node_->Subscribe("~/new_puck",&Mps::on_new_puck,this);
 
@@ -163,6 +168,15 @@ void Mps::on_machine_msg(ConstMachineInfoPtr &msg)
       current_state_ = machine.state();
     }
   }
+}
+
+void Mps::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
+
+    std::string machine_name = "NOT-SET";
+    machine_name = msg->machine();
+
+    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+
 }
 
 void Mps::new_machine_info(ConstMachine &machine)
