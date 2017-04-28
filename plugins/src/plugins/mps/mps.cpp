@@ -172,17 +172,14 @@ void Mps::on_machine_msg(ConstMachineInfoPtr &msg)
 
 void Mps::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
 
-    std::string machine_name = "NOT-SET";
-    machine_name = msg->machine();
-
-    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
-
 }
 
 void Mps::new_machine_info(ConstMachine &machine)
 {
   
 }
+
+
 
 void Mps::set_state(State state)
 {

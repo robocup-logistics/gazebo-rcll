@@ -85,6 +85,24 @@ void BaseStation::new_machine_info(ConstMachine &machine)
   }
 }
 
+void BaseStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
+
+    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_BS){
+        return;
+    }
+
+
+    std::string machine_name = "NOT-SET";
+    machine_name = msg->machine();
+
+    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+
+
+
+}
+
+
+
 void BaseStation::on_new_puck(ConstNewPuckPtr &msg)
 {
   Mps::on_new_puck(msg);

@@ -116,7 +116,7 @@ namespace gazebo
     /// Handler for machine msgs
     void on_machine_msg(ConstMachineInfoPtr &msg);    
     /// Handler for machine Instruction msgs
-    void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
+    virtual void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
 
 
     virtual void new_machine_info(ConstMachine &machine);
