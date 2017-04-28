@@ -177,7 +177,7 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
               math::Pose(coord_x, coord_y, 0, 0, 0, ori));
 #endif
 
-    printf("Place MPS %s in Zone: name: %s Pos: (%f,%f) ori: %d | %f \n",mps_name.c_str(), zone.c_str(), coord_x,coord_y, msg->machines(i).rotation(),ori);
+    printf("Place MPS %s in Zone: name: %s Pos: (%f,%f) ori: %d\n",mps_name.c_str(), zone.c_str(), coord_x,coord_y, msg->machines(i).rotation());
     factoryPub->Publish(spawn_mps_msg);
   }
   printf("MpsPlacementPlugin: All machines placed\n");
