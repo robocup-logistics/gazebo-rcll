@@ -1,9 +1,10 @@
 
 /***************************************************************************
- *  Team.proto - LLSF Protocol - Team Identifier
+ *  MachineDescription.proto - LLSF Protocol - Machine Specification message
  *
- *  Created: Mon Mar 24 18:07:22 2014
- *  Copyright  2013-2014  Tim Niemueller [www.niemueller.de]
+ *  Created: Mon Mar 20 22:13:50 2017
+ *  Copyright  2013  Tim Niemueller [www.niemueller.de]
+ *             2017  Tobias Neumann
  ****************************************************************************/
 
 /*  Redistribution and use in source and binary forms, with or without
@@ -39,10 +40,49 @@ syntax = "proto2";
 package llsf_msgs;
 
 option java_package = "org.robocup_logistics.llsf_msgs";
-option java_outer_classname = "TeamProtos";
+option java_outer_classname = "MachineInfoProtos";
 
-// Team identifier.
-enum Team {
-  CYAN = 0;
-  MAGENTA = 1;
+enum LightColor {
+  RED = 0;
+  YELLOW = 1;
+  GREEN = 2;
+}
+
+enum LightState {
+  OFF = 0;
+  ON = 1;
+  BLINK = 2;
+}
+
+enum MachineSide {
+  INPUT  = 1;
+  OUTPUT = 2;
+}
+
+enum ConveyorDirection {
+  FORWARD  = 1;	// from input to output
+  BACKWARD = 2;	// from output to input
+}
+
+enum SensorOnMPS {
+  SENSOR_INPUT  = 1;
+  SENSOR_OUTPUT = 2;
+  SENSOR_MIDDLE = 3;
+}
+
+enum SSOp {
+  STORE   = 1;
+  RETRIEVE = 2;
+}
+
+message SSSlot {
+  // Ordering is a right hand coordinate system, starting at the left bottom front corner
+  required uint32 x = 1; // [0-5] height; the shelfs
+  required uint32 y = 2; // [0-3] width;  the place on the shelf
+  required uint32 z = 3; // [0-1] depth;  the front or back row of the shelf
+}
+
+enum CSOp {
+  RETRIEVE_CAP = 1;
+  MOUNT_CAP    = 2;
 }

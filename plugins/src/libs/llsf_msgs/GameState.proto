@@ -34,6 +34,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+syntax = "proto2";
+
 package llsf_msgs;
 
 import "Time.proto";
@@ -60,18 +62,7 @@ message GameState {
     EXPLORATION = 20;
     PRODUCTION  = 30;
     POST_GAME   = 40;
-
-    OPEN_CHALLENGE         = 1000;
-    NAVIGATION_CHALLENGE   = 1001;
-    WHACK_A_MOLE_CHALLENGE = 1002;
   }
-
-  enum RefBoxMode {
-    STANDALONE  = 0;
-    MASTER      = 1;
-    SLAVE       = 2;
-  }
-
 
   // Time in seconds since game start
   required Time   game_time = 1;
@@ -89,8 +80,6 @@ message GameState {
   optional uint32 points_magenta = 8;
   // Name of the currently playing team
   optional string team_magenta = 9;
-
-  optional RefBoxMode refbox_mode = 7 [default = STANDALONE];
 }
 
 // Request setting of a new game state

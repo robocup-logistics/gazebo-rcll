@@ -44,21 +44,10 @@ import "ProductColor.proto";
 import "Team.proto";
 import "Zone.proto";
 import "MachineInstructions.proto";
+import "MachineDescription.proto";
 
 option java_package = "org.robocup_logistics.llsf_msgs";
 option java_outer_classname = "MachineInfoProtos";
-
-enum LightColor {
-  RED = 0;
-  YELLOW = 1;
-  GREEN = 2;
-}
-
-enum LightState {
-  OFF = 0;
-  ON = 1;
-  BLINK = 2;
-}
 
 message LightSpec {
   enum CompType {
@@ -106,6 +95,7 @@ message Machine {
   // Instruction information (only clients)
   optional PrepareInstructionBS instruction_bs = 16;
   optional PrepareInstructionDS instruction_ds = 17;
+  optional PrepareInstructionSS instruction_ss = 20;
   optional PrepareInstructionRS instruction_rs = 18;
   optional PrepareInstructionCS instruction_cs = 19;
 
