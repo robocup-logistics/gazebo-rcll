@@ -67,12 +67,12 @@ void CapStation::work_puck(std::string puck_name)
   cmd_msg.set_puck_name(puck_name);
   switch(task_)
   {
-    case llsf_msgs::CsOp::RETRIEVE_CAP:
+    case llsf_msgs::CSOp::RETRIEVE_CAP:
       printf("%s retrives cap from %s\n ", name_.c_str(), puck_name.c_str());
       cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
       puck_cmd_pub_->Publish(cmd_msg);
       break;
-    case llsf_msgs::CsOp::MOUNT_CAP:
+    case llsf_msgs::CSOp::MOUNT_CAP:
       if(stored_cap_color_ != gazsim_msgs::Color::NONE)
       {
 	printf("%s mounts cap on %s with color %s\n", name_.c_str(), puck_name.c_str(), gazsim_msgs::Color_Name(stored_cap_color_).c_str());
@@ -163,7 +163,7 @@ void CapStation::new_machine_info(ConstMachine &machine)
   if(machine.state() == "PREPARED")
   {
     task_ = machine.instruction_cs().operation();
-    printf("%s got a new task: %s\n",name_.c_str(),llsf_msgs::CsOp_Name(task_).c_str());
+    printf("%s got a new task: %s\n",name_.c_str(),llsf_msgs::CSOp_Name(task_).c_str());
   }
   else if(machine.state() == "PROCESSED" && puck_in_output(world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE()))
   {

@@ -54,7 +54,7 @@ public:
   physics::ModelPtr puck_in_shelf_middle_;
   physics::ModelPtr puck_in_shelf_right_;
   
-  llsf_msgs::CsOp task_;
+  llsf_msgs::CSOp task_;
   gazsim_msgs::Color stored_cap_color_;
   std::string puck_in_processing_name_;
   
