@@ -36,6 +36,7 @@ public:
 private:
   void on_puck_msg(ConstPosePtr &msg);
   void new_machine_info(ConstMachine &machine);
+  void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
   std::string have_puck_;
   
   

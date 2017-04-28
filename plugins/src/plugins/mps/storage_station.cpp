@@ -89,6 +89,19 @@ void StorageStation::new_machine_info(ConstMachine &machine)
   */
 }
 
+void StorageStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
+
+    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_BS){
+        return;
+    }
+
+
+    std::string machine_name = "NOT-SET";
+    machine_name = msg->machine();
+
+    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+}
+
 void StorageStation::on_new_puck(ConstNewPuckPtr &msg)
 {
     /*

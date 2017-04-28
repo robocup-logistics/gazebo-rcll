@@ -131,6 +131,19 @@ void RingStation::new_machine_info(ConstMachine &machine)
   }
 }
 
+void RingStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
+
+    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_RS){
+        return;
+    }
+
+
+    std::string machine_name = "NOT-SET";
+    machine_name = msg->machine();
+
+    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+}
+
 void RingStation::add_base()
 {
   printf("Adding Base to %s\n", name_.c_str());

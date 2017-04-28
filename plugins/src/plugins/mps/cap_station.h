@@ -40,6 +40,7 @@ public:
   void on_new_puck(ConstNewPuckPtr &msg);
   void OnUpdate(const common::UpdateInfo &info);
   void new_machine_info(ConstMachine &machine);
+  void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
   void on_puck_result(ConstWorkpieceResultPtr &result);
   
   gzwrap::Pose3d shelf_left_pose();

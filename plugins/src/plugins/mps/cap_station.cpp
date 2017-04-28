@@ -182,6 +182,20 @@ void CapStation::new_machine_info(ConstMachine &machine)
   }
 }
 
+void CapStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
+
+    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_CS){
+        return;
+    }
+
+
+    std::string machine_name = "NOT-SET";
+    machine_name = msg->machine();
+
+    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+}
+
+
 void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 {
   if(result->puck_name() == puck_in_processing_name_)
