@@ -105,7 +105,7 @@ plugins:
     radius-grab-area: 0.05
 
   light-control:
-    topic-machine-info: "~/LLSFRbSim/MachineInfo/"
+    topic-instruct-machine: "~/LLSFRbSim/InstructMachine/" 
 
   light-signal-detection:
     topic-machine-info: "~/LLSFRbSim/MachineInfo/"

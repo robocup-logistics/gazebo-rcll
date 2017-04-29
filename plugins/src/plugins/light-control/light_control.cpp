@@ -76,14 +76,14 @@ void LightControl::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 						 /*number of lights*/ 3*12);
 
   //subscribe for light status msgs
-  light_msg_sub_ = node_->Subscribe(std::string(TOPIC_MACHINE_INFO), &LightControl::on_light_msg, this);
+  light_msg_sub_ = node_->Subscribe(std::string(TOPIC_INSTRUCT_MACHINE), &LightControl::on_light_msg, this);
 
   world_ = model_->GetWorld();
   last_sent_time_ = world_->GZWRAP_SIM_TIME().Double();
 
   //initially turn lights off
-  prev_state_red_ = prev_state_yellow_ = prev_state_green_ = ON;
-  state_red_ = state_yellow_ = state_green_ = OFF;
+  prev_state_red_ = prev_state_yellow_ = prev_state_green_ = llsf_msgs::ON;
+  state_red_ = state_yellow_ = state_green_ = llsf_msgs::OFF;
 }
 
 /** Called by the world update start event
@@ -119,47 +119,27 @@ void LightControl::Reset()
 /** Functions for recieving a light signal status msg
  * @param msg message
  */ 
-void LightControl::on_light_msg(ConstMachineInfoPtr &msg)
+void LightControl::on_light_msg(ConstInstructMachinePtr &msg)
 {
-  // printf("Got Light Msg!");
-  
-  // find right machine by name
-  for(int j = 0; j < msg->machines_size(); j++){
-    llsf_msgs::Machine machine_msg = msg->machines(j);
-    if(machine_msg.name() == machine_name_){
-      //set default values
-      state_red_ = OFF;
-      state_yellow_ = OFF;
-      state_green_ = OFF;
-    
-      //go through all light specs
-      for(int i = 0; i < machine_msg.lights_size(); i++){
-	llsf_msgs::LightSpec light_msg = machine_msg.lights(i);
-	LightState state = BLINK;
-	switch(light_msg.state())
-	{
-	case llsf_msgs::OFF: state = OFF; break;
-	case llsf_msgs::ON: state = ON; break;
-	case llsf_msgs::BLINK: state = BLINK; break;
-	}
-	switch(light_msg.color())
-	{
-	case llsf_msgs::RED: state_red_ = state; break;
-	case llsf_msgs::YELLOW: state_yellow_ = state; break;
-	case llsf_msgs::GREEN: state_green_ = state; break;
-	}
-      }
-      break;
+
+        std::string machine_name = msg->machine();
+
+    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_SET_SIGNAL_LIGHT &&
+        machine_name != machine_name_){
+        return;
     }
-  }
+
+          state_red_ = msg->light_state().red();
+          state_yellow_ = msg->light_state().yellow();
+          state_green_ = msg->light_state().green();
 }
 
 
 //creates all needed visual messages
-void LightControl::change_light(std::string machine_name, Color color, LightState &state, LightState &prev_state)
+void LightControl::change_light(std::string machine_name, Color color, llsf_msgs::LightState &state, llsf_msgs::LightState &prev_state)
 {
   //is there a change?
-  if(state != BLINK && state == prev_state)
+  if(state != llsf_msgs::BLINK && state == prev_state)
   {
     return;
   }
@@ -169,16 +149,16 @@ void LightControl::change_light(std::string machine_name, Color color, LightStat
   msgs::Visual msg;
 
   //resolve BLINK (Machines Blink at 2Hz)
-  if(state == BLINK)
+  if(state == llsf_msgs::BLINK)
   {
     double time = world_->GZWRAP_SIM_TIME().Double();
     if(fmod(time,1) >= 0.5)
     {
-      state = OFF;
+      state = llsf_msgs::OFF;
     }
     else
     {
-      state = ON;
+      state = llsf_msgs::ON;
     }
   }
   
@@ -229,7 +209,7 @@ void LightControl::change_light(std::string machine_name, Color color, LightStat
   }
 
 
-  if(state == ON)
+  if(state == llsf_msgs::ON)
   {
     msg.set_visible(true);
     switch(color)
