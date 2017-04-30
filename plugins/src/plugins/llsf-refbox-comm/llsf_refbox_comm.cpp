@@ -72,6 +72,7 @@ void LlsfRefboxCommPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   set_game_phase_sub_ = node_->Subscribe(TOPIC_SET_GAME_PHASE, &LlsfRefboxCommPlugin::on_set_game_phase_msg, this);
   set_team_name_sub_ = node_->Subscribe(TOPIC_SET_TEAM_NAME, &LlsfRefboxCommPlugin::on_set_team_name_msg, this);  
   set_machine_state_sub_ = node_->Subscribe(TOPIC_SET_MACHINE_STATE, &LlsfRefboxCommPlugin::on_set_machine_state_msg, this);
+  machine_reply_sub_ = node_->Subscribe(TOPIC_MACHINE_REPLY, &LlsfRefboxCommPlugin::on_machine_reply_msg, this);
   machine_add_base_sub_ = node_->Subscribe(TOPIC_MACHINE_ADD_BASE, &LlsfRefboxCommPlugin::on_machine_add_base_msg, this);
   set_order_deliverd_by_color_sub_ = node_->Subscribe(TOPIC_SET_ORDER_DELIVERY_BY_COLOR, &LlsfRefboxCommPlugin::on_set_order_delvered_by_color_msg, this);
 
@@ -155,18 +156,12 @@ LlsfRefboxCommPlugin::client_msg(uint16_t comp_id, uint16_t msg_type,
 
   if(msg->GetTypeName() == "llsf_msgs.InstructMachine")
   {
-
-
       std::shared_ptr<llsf_msgs::InstructMachine> im;
       if ( (im = std::dynamic_pointer_cast<llsf_msgs::InstructMachine>(msg)) ) {
-         printf("GOT INSTRUCTION MESSAGE with ID: %d \n",im->id() );
+         printf("GOT INSTRUCTION MESSAGE FOR %s with ID: %d \n",im->machine().c_str(),im->id() );
 
         instruct_machine_pub_->Publish(*im);
       }
-
-
-
-
   }
   
   // if(msg->GetTypeName() == "llsf_msgs.PuckInfo")
@@ -175,6 +170,21 @@ LlsfRefboxCommPlugin::client_msg(uint16_t comp_id, uint16_t msg_type,
   //   puck_info_pub_->Publish(*msg);
   //   return;
   // }
+}
+
+void LlsfRefboxCommPlugin::on_machine_reply_msg(ConstMachineReplyPtr &msg){
+
+   // printf("refbox-comm: GOT MACHINE REPLY MSGS with ID: %d\n",msg->id());
+
+
+            llsf_msgs::MachineReply reply;
+            reply.set_id( msg->id() );
+            reply.set_machine( msg->machine() );
+            reply.set_set( llsf_msgs::MACHINE_REPLY_FINISHED );
+            client_->send(reply);
+
+
+
 }
 
 void LlsfRefboxCommPlugin::create_client()

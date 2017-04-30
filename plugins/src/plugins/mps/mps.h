@@ -32,6 +32,7 @@
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <llsf_msgs/MachineCommands.pb.h>
+#include <llsf_msgs/MachineReport.pb.h>
 #include <gazsim_msgs/NewPuck.pb.h>
 #include <map>
 #include <configurable/configurable.h>
@@ -59,6 +60,7 @@
 //at what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
 #define TAG_SPAWN_TIME tag_spawn_time_
 #define TOPIC_SET_MACHINE_STATE topic_set_machine_state_ 
+#define TOPIC_MACHINE_REPLY topic_machine_reply_
 #define TOPIC_MACHINE_INFO topic_machine_info_ 
 #define TOPIC_INSTRUCT_MACHINE topic_instruct_machine_
 #define TOPIC_PUCK_COMMAND topic_puck_command_ 
@@ -123,10 +125,15 @@ namespace gazebo
     
     transport::SubscriberPtr new_puck_subscriber_;
     virtual void on_new_puck(ConstNewPuckPtr &msg);
+
+    void refbox_reply(ConstInstructMachinePtr &msg);
     
     ///Publisher to send machine state
     transport::PublisherPtr set_machne_state_pub_;
     
+    ///Publisher to send machine reply
+    transport::PublisherPtr machine_reply_pub_;
+
     ///Publisher to send spawn machine tags
     transport::PublisherPtr visPub_;
     void grabTag(std::string link_name, std::string tag_name, gazebo::physics::JointPtr joint);
@@ -200,6 +207,7 @@ namespace gazebo
     //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
     float tag_spawn_time_;
     std::string topic_set_machine_state_;
+    std::string topic_machine_reply_;
     std::string topic_machine_info_;
     std::string topic_instruct_machine_;
     std::string topic_puck_command_;

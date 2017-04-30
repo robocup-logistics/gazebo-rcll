@@ -24,6 +24,7 @@ plugins:
     topic-set-game-state: "~/LLSFRbSim/SetGameState/"
     topic-set-game-phase: "~/LLSFRbSim/SetGamePhase/"
     topic-set-team-name: "~/LLSFRbSim/SetTeamName/"
+    topic-machine-reply: "~/LLSFRbSim/MachineReply/"
     topic-set-machine-state: "~/LLSFRbSim/SetMachineState/"
     topic-machine-add-base: "~/LLSFRbSim/MachineAddBase/"
     topic-set-order-delivery-by-color: "~/LLSFRbSim/DELIVERY"
@@ -57,6 +58,7 @@ plugins:
     # At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
     tag_spawn_time: 40.0
     topic_set_machine_state: "~/LLSFRbSim/SetMachineState/"
+    topic_machine_reply: "~/LLSFRbSim/MachineReply/"
     topic_machine_info: "~/LLSFRbSim/MachineInfo/"
     topic-instruct-machine: "~/LLSFRbSim/InstructMachine/" 
     topic_puck_command: "~/pucks/cmd"

@@ -29,6 +29,7 @@
 #include <llsf_msgs/SimTimeSync.pb.h>
 #include <llsf_msgs/GameState.pb.h>
 #include <llsf_msgs/GameInfo.pb.h>
+#include<llsf_msgs/MachineReport.pb.h>
 #include <gazsim_msgs/SimTime.pb.h>
 #include <llsf_msgs/OrderInfo.pb.h>
 #include <configurable/configurable.h>
@@ -41,6 +42,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetGameState const> ConstSetGameState
 typedef const boost::shared_ptr<llsf_msgs::SetGamePhase const> ConstSetGamePhasePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetTeamName const> ConstSetTeamNamePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
+typedef const boost::shared_ptr<llsf_msgs::MachineReply const> ConstMachineReplyPtr;
 typedef const boost::shared_ptr<llsf_msgs::MachineAddBase const> ConstMachineAddBasePtr;
 typedef const boost::shared_ptr<llsf_msgs::SetOrderDeliveredByColor const> ConstSetOrderDeliveredByColorPtr;
 
@@ -60,6 +62,7 @@ typedef const boost::shared_ptr<llsf_msgs::SetOrderDeliveredByColor const> Const
 #define TOPIC_SET_GAME_PHASE config->get_string("plugins/llsf-refbox-comm/topic-set-game-phase").c_str()
 #define TOPIC_SET_TEAM_NAME config->get_string("plugins/llsf-refbox-comm/topic-set-team-name").c_str()
 #define TOPIC_SET_MACHINE_STATE config->get_string("plugins/llsf-refbox-comm/topic-set-machine-state").c_str()
+#define TOPIC_MACHINE_REPLY config->get_string("plugins/llsf-refbox-comm/topic-machine-reply").c_str()
 #define TOPIC_MACHINE_ADD_BASE config->get_string("plugins/llsf-refbox-comm/topic-machine-add-base").c_str()
 #define TOPIC_SET_ORDER_DELIVERY_BY_COLOR config->get_string("plugins/llsf-refbox-comm/topic-set-order-delivery-by-color").c_str()
 
@@ -114,6 +117,7 @@ namespace gazebo
     gazebo::transport::SubscriberPtr set_game_state_sub_;
     gazebo::transport::SubscriberPtr set_game_phase_sub_;
     gazebo::transport::SubscriberPtr set_team_name_sub_;
+    gazebo::transport::SubscriberPtr machine_reply_sub_;
     gazebo::transport::SubscriberPtr set_machine_state_sub_;
     gazebo::transport::SubscriberPtr machine_add_base_sub_;
     gazebo::transport::SubscriberPtr set_order_deliverd_by_color_sub_;
@@ -126,6 +130,7 @@ namespace gazebo
     void on_set_game_phase_msg(ConstSetGamePhasePtr &msg);
     void on_set_team_name_msg(ConstSetTeamNamePtr &msg);
     void on_set_machine_state_msg(ConstSetMachineStatePtr &msg);
+    void on_machine_reply_msg(ConstMachineReplyPtr &msg);
     void on_machine_add_base_msg(ConstMachineAddBasePtr &msg);
     void on_set_order_delvered_by_color_msg(ConstSetOrderDeliveredByColorPtr &msg);
 

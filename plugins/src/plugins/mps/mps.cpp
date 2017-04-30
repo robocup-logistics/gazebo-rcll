@@ -66,6 +66,7 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   tag_size_ = config->get_float("plugins/mps/tag_size");
   tag_spawn_time_ = config->get_float("plugins/mps/tag_spawn_time");
   topic_set_machine_state_ = config->get_string("plugins/mps/topic_set_machine_state").c_str();
+  topic_machine_reply_ = config->get_string("plugins/mps/topic_machine_reply").c_str();
   topic_machine_info_ = config->get_string("plugins/mps/topic_machine_info").c_str();
   topic_instruct_machine_ = config->get_string("plugins/llsf-refbox-comm/topic-instruct-machine").c_str();
   topic_puck_command_ = config->get_string("plugins/mps/topic_puck_command").c_str();
@@ -98,6 +99,8 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   visPub_ = this->node_->Advertise<msgs::Visual>("~/visual", /*number of lights*/ 3*12);
   set_machne_state_pub_ = this->node_->Advertise<llsf_msgs::SetMachineState>(TOPIC_SET_MACHINE_STATE);
   
+
+  machine_reply_pub_ = this->node_->Advertise<llsf_msgs::MachineReply>(TOPIC_MACHINE_REPLY);
   world_ = model_->GetWorld();
   
   factoryPub = node_->Advertise<msgs::Factory>("~/factory");
@@ -179,6 +182,17 @@ void Mps::new_machine_info(ConstMachine &machine)
   
 }
 
+
+void Mps::refbox_reply(ConstInstructMachinePtr &msg){
+
+    printf("Reply msg_ID: %d\n", msg->id() );
+
+         llsf_msgs::MachineReply reply;
+         reply.set_id(msg->id());
+         reply.set_machine( msg->machine());
+         reply.set_set( llsf_msgs::MACHINE_REPLY_FINISHED );
+         machine_reply_pub_->Publish(reply);
+}
 
 
 void Mps::set_state(State state)
