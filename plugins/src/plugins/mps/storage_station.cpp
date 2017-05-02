@@ -27,6 +27,38 @@ using namespace gazebo;
 StorageStation::StorageStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   Mps(_parent,_sdf)
 {
+
+
+
+    shelf_pos_x = 10.0;
+    shelf_pos_z = 0.0;
+
+    if (name_.find("M-") != std::string::npos){
+
+        shelf_pos_y = 0.0;
+        printf("Strage_Station: Generating Puck Storage Magenta\n");
+    }else{
+        shelf_pos_y = 10.0;
+        printf("Strage_Station: Generating Puck Storage Cyan\n");
+    }
+
+    shelf_x_offset = 0.1;
+    shelf_y_offset = 0.1;
+    shelf_z_offset = 0.4;
+
+
+    for (int z=0; z<6;z++){
+        for (int y=0; y<4; y++)
+            for (int x=0; x<2; x++){
+
+            spawn_puck(get_slot_position(x,y,z),gazsim_msgs::Color::RED);
+            }
+    }
+
+
+
+
+
   have_puck_ = "";
 }
 
@@ -91,7 +123,9 @@ void StorageStation::new_machine_info(ConstMachine &machine)
 
 void StorageStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
 
-    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_BS){
+    printf("MPS:GOT INSTRUCT MESSAGE\n");
+
+    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_SS){
         return;
     }
 
@@ -104,13 +138,26 @@ void StorageStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
 
 void StorageStation::on_new_puck(ConstNewPuckPtr &msg)
 {
-    /*
+
   Mps::on_new_puck(msg);
   physics::ModelPtr new_puck = world_->GZWRAP_MODEL_BY_NAME(msg->puck_name());
   if(puck_in_input(new_puck->GZWRAP_WORLD_POSE()) || puck_in_output(new_puck->GZWRAP_WORLD_POSE()))
   {
     have_puck_ = new_puck->GetName();
   }
-  */
   
+}
+
+gzwrap::Pose3d StorageStation::get_slot_position(uint32_t slot_x,uint32_t slot_y,uint32_t slot_z){
+
+    double x,y,z;
+    slot_z+=1;
+    slot_y+=1;
+    slot_x+=1;
+    x = shelf_pos_x + (slot_x * shelf_x_offset) +(slot_z *shelf_z_offset) ; //0.1/0.2 , 0.2/0.4
+    y = shelf_pos_y + (slot_y * shelf_y_offset);
+
+    z = 0.0;
+
+    return gzwrap::Pose3d(gazebo::math::Pose(x,y,z,0,0,0));
 }

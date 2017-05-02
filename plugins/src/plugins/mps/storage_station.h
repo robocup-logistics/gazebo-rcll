@@ -41,6 +41,21 @@ private:
   
   
   void on_new_puck(ConstNewPuckPtr &msg);
+
+  gzwrap::Pose3d get_slot_position(uint32_t slot_x, uint32_t slot_y, uint32_t slot_z);
+
+
+  /// position of the first shelf first slot logic coords: (0,0,0)
+  double shelf_pos_x;
+  double shelf_pos_y;
+  double shelf_pos_z;
+
+  /// offset to reach each consecutive slot. Multiply these n times the logic slot
+  double shelf_x_offset;
+  double shelf_y_offset;
+  double shelf_z_offset;
+
+
 };
 
 }
