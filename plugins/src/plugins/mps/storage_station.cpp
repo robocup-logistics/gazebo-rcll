@@ -49,14 +49,11 @@ StorageStation::StorageStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) 
     }
 
     for (int z=0; z<SLOT_Z_COUNT;z++){
-       // for (int y=0; y<SLOT_Y_COUNT; y++)
-         //   for (int x=0; x<SLOT_X_COUNT; x++){
-            spawn_puck(get_slot_position(0,0,z),gazsim_msgs::Color::RED);
-           // }
+        for (int y=0; y<SLOT_Y_COUNT; y++)
+            for (int x=0; x<SLOT_X_COUNT; x++){
+            spawn_puck(get_slot_World_position(x,y,z),gazsim_msgs::Color::RED);
+            }
     }
-
-
-  have_puck_ = "";
 }
 
 StorageStation::~StorageStation(){
@@ -67,6 +64,9 @@ StorageStation::~StorageStation(){
 
 void StorageStation::on_puck_msg(ConstPosePtr &msg)
 {
+
+    //printf("%s: PUCK_MSG: %s\n",name_.c_str(),msg->name().c_str());
+
     /*
   if(msg->name() == have_puck_ &&
      !puck_in_input(msg) &&
@@ -175,7 +175,7 @@ void StorageStation::on_new_puck(ConstNewPuckPtr &msg)
     for (int z=0; z<SLOT_Z_COUNT;z++)
         for (int y=0; y<SLOT_Y_COUNT; y++)
             for (int x=0; x<SLOT_X_COUNT; x++){
-                if (pose_hit(new_puck->GZWRAP_WORLD_POSE(),get_slot_position(x,y,z),0.05)){
+                if (pose_hit(new_puck->GZWRAP_WORLD_POSE(),get_slot_World_position(x,y,z),0.05)){
 
                     addCap(new_puck,gazsim_msgs::Color::BLACK);
 
@@ -189,23 +189,16 @@ void StorageStation::on_new_puck(ConstNewPuckPtr &msg)
 
 void StorageStation::store_puck(std::string puck_name,uint32_t slot_pos_x,uint32_t slot_pos_y,uint32_t slot_pos_z){
 
-     //x + WIDTH * (y + DEPTH * z)
-    //x + y*WIDTH + Z*WIDTH*DEPTH
-
-
-        //int index = slot_pos_x + SLOT_X_COUNT * (slot_pos_y + SLOT_Z_COUNT *slot_pos_z);
-//int index = slot_pos_x+slot_pos_y* SLOT_Y_COUNT + slot_pos_z*SLOT_Y_COUNT*SLOT_Z_COUNT;
-             int index = SLOT_Z_COUNT*slot_pos_z + SLOT_Y_COUNT*slot_pos_y + slot_pos_x;
+   int index = getStorageIndex(slot_pos_x,slot_pos_y,slot_pos_z);
 
     if (storage_[index] != ""){
 
-        printf("ERROR: SLOT %d,%d,%d not EMPTY stored %s\n",slot_pos_x,slot_pos_y,slot_pos_z,storage_[index].c_str());
+        printf("ERROR: SLOT %d,%d,%d not EMPTY stored puck %s\n",slot_pos_x,slot_pos_y,slot_pos_z,storage_[index].c_str());
         return;
     }
 
-    printf("%s: STORING PUCK IN SLOT xyz %d,%d,%d\nSTORAGE CNT: %d\n\n",name_.c_str(),slot_pos_x,slot_pos_y,slot_pos_z,++storage_cnt);
+    printf("%s: STORING PUCK IN SLOT %d xyz (%d,%d,%d)\n STORAGE CNT: %d\n\n",name_.c_str(),index,slot_pos_x,slot_pos_y,slot_pos_z,++storage_cnt);
     storage_[index] = puck_name;
-
 }
 
 void StorageStation::retrieve_puck(uint32_t slot_pos_x,uint32_t slot_pos_y,uint32_t slot_pos_z){
@@ -215,8 +208,7 @@ void StorageStation::retrieve_puck(uint32_t slot_pos_x,uint32_t slot_pos_y,uint3
 //        return;
 //    }
 
-    int index = SLOT_Z_COUNT*slot_pos_z + SLOT_Y_COUNT*slot_pos_y + slot_pos_x;
-
+    int index = getStorageIndex(slot_pos_x,slot_pos_y,slot_pos_z);
 
     if (storage_[index] == ""){
         printf("ERROR: SLOT %d,%d,%d EMPTY\n",slot_pos_x,slot_pos_y,slot_pos_z);
@@ -253,13 +245,54 @@ void StorageStation::addCap(physics::ModelPtr puck,gazsim_msgs::Color clr){
 
 
 }
+// THIS IS STILL EXPERIMENTAL STUFF
+void StorageStation::addRing(std::string puck_name, llsf_msgs::RingColor clr,bool active,int number){
 
-void StorageStation::addRing(){
+    gazsim_msgs::Color color_to_put_ =gazsim_msgs::Color::NONE;
+
+    switch(clr)
+    {
+      case llsf_msgs::RingColor::RING_BLUE:
+        color_to_put_ = gazsim_msgs::Color::BLUE;
+        break;
+      case llsf_msgs::RingColor::RING_GREEN:
+        color_to_put_ = gazsim_msgs::Color::GREEN;
+        break;
+      case llsf_msgs::RingColor::RING_ORANGE:
+        color_to_put_ = gazsim_msgs::Color::ORANGE;
+        break;
+      case llsf_msgs::RingColor::RING_YELLOW:
+        color_to_put_ = gazsim_msgs::Color::YELLOW;
+        break;
+    }
+
+    gazsim_msgs::WorkpieceCommand cmd;
+    cmd.set_command(gazsim_msgs::Command::ADD_RING);
+    cmd.set_color(color_to_put_);
+    cmd.set_puck_name(puck_name);
+    puck_cmd_pub_->Publish(cmd);
 
 
+    gazebo::msgs::Visual msg;
+    msg.set_parent_name(name_+"::body");
+    msg.set_name(name_+"::body::base_" + std::to_string(number));
+  #if GAZEBO_MAJOR_VERSION > 5
+    gazebo::msgs::Set(msg.mutable_pose(), ignition::math::Pose3d(-0.35 + (number*0.11),0,BELT_HEIGHT+0.3,0,0,0));
+  #else
+    gazebo::msgs::Set(msg.mutable_pose(), gazebo::math::Pose(-0.35 + (number*0.11),0,BELT_HEIGHT+0.3,0,0,0));
+  #endif
+    if(active)
+    {
+      msgs::Set(msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,0,0));
+    }
+    else
+    {
+      msgs::Set(msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(0.3,0,0));
+    }
+    visPub_->Publish(msg);
 }
 
-gzwrap::Pose3d StorageStation::get_slot_position(uint32_t slot_x,uint32_t slot_y,uint32_t slot_z){
+gzwrap::Pose3d StorageStation::get_slot_World_position(uint32_t slot_x,uint32_t slot_y,uint32_t slot_z){
 
     double x,y,z;
     slot_z+=1;
@@ -271,3 +304,18 @@ gzwrap::Pose3d StorageStation::get_slot_position(uint32_t slot_x,uint32_t slot_y
 
     return gzwrap::Pose3d(gazebo::math::Pose(x,y,z,0,0,0));
 }
+
+
+int StorageStation::getStorageIndex( int x, int y, int z ) {
+    return (z * SLOT_X_COUNT * SLOT_Y_COUNT) + (y * SLOT_X_COUNT) + x;
+}
+
+//int* StorageStation::to3D( int idx ) {
+//    int z = idx / (SLOT_X_COUNT  * SLOT_Y_COUNT );
+//    idx -= (z * SLOT_X_COUNT  * SLOT_Y_COUNT );
+//    int y = idx / SLOT_X_COUNT ;
+//    int x = idx % SLOT_X_COUNT ;
+//    int* index = new int[3];
+//    index = { x, y, z };
+//    return index;
+//}

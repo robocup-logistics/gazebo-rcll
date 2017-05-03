@@ -56,14 +56,16 @@ private:
   
   void on_new_puck(ConstNewPuckPtr &msg);
 
-  gzwrap::Pose3d get_slot_position(uint32_t slot_x, uint32_t slot_y, uint32_t slot_z);
+  gzwrap::Pose3d get_slot_World_position(uint32_t slot_x, uint32_t slot_y, uint32_t slot_z);
   void init_storage();
   void store_puck(std::__cxx11::string puck_name, uint32_t slot_pos_x, uint32_t slot_pos_y, uint32_t slot_pos_z);
   void retrieve_puck(uint32_t slot_pos_x, uint32_t slot_pos_y, uint32_t slot_pos_z);
 
   void addCap(physics::ModelPtr puck,gazsim_msgs::Color clr);
-  void addRing();
+  void addRing(std::__cxx11::string puck_name, llsf_msgs::RingColor clr, bool active, int number);
 
+  int getStorageIndex( int x, int y, int z );
+  int* to3D( int idx );
   /// position of the first shelf first slot logic coords: (0,0,0)
   double shelf_pos_x;
   double shelf_pos_y;
