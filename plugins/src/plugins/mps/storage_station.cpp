@@ -27,11 +27,17 @@ using namespace gazebo;
 StorageStation::StorageStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   Mps(_parent,_sdf)
 {
+    storage_ = new std::string[SLOT_Z_COUNT * SLOT_Y_COUNT * SLOT_X_COUNT];
 
+    //EMPTY all storage slots
+    for (int i=0;i<SLOT_Z_COUNT * SLOT_Y_COUNT * SLOT_X_COUNT; i++){
+        storage_[i] ="";
+    }
 
+    storage_cnt = 0;
 
-    shelf_pos_x = 10.0;
-    shelf_pos_z = 0.0;
+    shelf_pos_x = SHELF_POS_X;
+    shelf_pos_z = SHELF_POS_Z;
 
     if (name_.find("M-") != std::string::npos){
 
@@ -42,25 +48,22 @@ StorageStation::StorageStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) 
         printf("Strage_Station: Generating Puck Storage Cyan\n");
     }
 
-    shelf_x_offset = 0.1;
-    shelf_y_offset = 0.1;
-    shelf_z_offset = 0.4;
-
-
-    for (int z=0; z<6;z++){
-        for (int y=0; y<4; y++)
-            for (int x=0; x<2; x++){
-
-            spawn_puck(get_slot_position(x,y,z),gazsim_msgs::Color::RED);
-            }
+    for (int z=0; z<SLOT_Z_COUNT;z++){
+       // for (int y=0; y<SLOT_Y_COUNT; y++)
+         //   for (int x=0; x<SLOT_X_COUNT; x++){
+            spawn_puck(get_slot_position(0,0,z),gazsim_msgs::Color::RED);
+           // }
     }
-
-
-
 
 
   have_puck_ = "";
 }
+
+StorageStation::~StorageStation(){
+
+    delete storage_;
+}
+
 
 void StorageStation::on_puck_msg(ConstPosePtr &msg)
 {
@@ -121,31 +124,139 @@ void StorageStation::new_machine_info(ConstMachine &machine)
   */
 }
 
+void StorageStation::init_storage(){
+    printf("%s: initializing STORAGE\n",name_.c_str());
+
+
+}
+
+
 void StorageStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
 
-    printf("MPS:GOT INSTRUCT MESSAGE\n");
+    //printf("MPS:GOT INSTRUCT MESSAGE\n");
 
-    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_SS){
+    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_SS ||
+            msg->machine() != name_){
         return;
     }
 
+    std::string machine_name = msg->machine();
 
-    std::string machine_name = "NOT-SET";
-    machine_name = msg->machine();
+    //std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
 
-    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+    switch (msg->ss().operation())
+    {
+    case llsf_msgs::STORE:
+        printf("%s: STORE PUCK\n",machine_name.c_str());
+        refbox_reply(msg);
+        break;
+    case llsf_msgs::RETRIEVE:
+        printf("%s: RETRIEVE PUCK\n",machine_name.c_str());
+        // X and Z is swapped to match message coords with gazebo coords
+        retrieve_puck(msg->ss().slot().z(),msg->ss().slot().y(),msg->ss().slot().x());
+        refbox_reply(msg);
+        break;
+    default:
+        printf("%s: unknown ss TASK\n",machine_name.c_str());
+        break;
+    }
 }
+
 
 void StorageStation::on_new_puck(ConstNewPuckPtr &msg)
 {
 
   Mps::on_new_puck(msg);
   physics::ModelPtr new_puck = world_->GZWRAP_MODEL_BY_NAME(msg->puck_name());
-  if(puck_in_input(new_puck->GZWRAP_WORLD_POSE()) || puck_in_output(new_puck->GZWRAP_WORLD_POSE()))
-  {
+  //if(puck_in_input(new_puck->GZWRAP_WORLD_POSE()) || puck_in_output(new_puck->GZWRAP_WORLD_POSE()))
+  //{
     have_puck_ = new_puck->GetName();
-  }
-  
+
+    for (int z=0; z<SLOT_Z_COUNT;z++)
+        for (int y=0; y<SLOT_Y_COUNT; y++)
+            for (int x=0; x<SLOT_X_COUNT; x++){
+                if (pose_hit(new_puck->GZWRAP_WORLD_POSE(),get_slot_position(x,y,z),0.05)){
+
+                    addCap(new_puck,gazsim_msgs::Color::BLACK);
+
+                    store_puck(new_puck->GetName(),x,y,z);
+                    return;
+                }
+            }
+    //}
+}
+
+
+void StorageStation::store_puck(std::string puck_name,uint32_t slot_pos_x,uint32_t slot_pos_y,uint32_t slot_pos_z){
+
+     //x + WIDTH * (y + DEPTH * z)
+    //x + y*WIDTH + Z*WIDTH*DEPTH
+
+
+        //int index = slot_pos_x + SLOT_X_COUNT * (slot_pos_y + SLOT_Z_COUNT *slot_pos_z);
+//int index = slot_pos_x+slot_pos_y* SLOT_Y_COUNT + slot_pos_z*SLOT_Y_COUNT*SLOT_Z_COUNT;
+             int index = SLOT_Z_COUNT*slot_pos_z + SLOT_Y_COUNT*slot_pos_y + slot_pos_x;
+
+    if (storage_[index] != ""){
+
+        printf("ERROR: SLOT %d,%d,%d not EMPTY stored %s\n",slot_pos_x,slot_pos_y,slot_pos_z,storage_[index].c_str());
+        return;
+    }
+
+    printf("%s: STORING PUCK IN SLOT xyz %d,%d,%d\nSTORAGE CNT: %d\n\n",name_.c_str(),slot_pos_x,slot_pos_y,slot_pos_z,++storage_cnt);
+    storage_[index] = puck_name;
+
+}
+
+void StorageStation::retrieve_puck(uint32_t slot_pos_x,uint32_t slot_pos_y,uint32_t slot_pos_z){
+
+//    if (puck_in_input(input())){
+//    printf("ERROR: INPUT not EMPTY\n");
+//        return;
+//    }
+
+    int index = SLOT_Z_COUNT*slot_pos_z + SLOT_Y_COUNT*slot_pos_y + slot_pos_x;
+
+
+    if (storage_[index] == ""){
+        printf("ERROR: SLOT %d,%d,%d EMPTY\n",slot_pos_x,slot_pos_y,slot_pos_z);
+            return;
+    }
+
+    printf("Retrieve PUCK %s FROM SLOT xyz %d,%d,%d\n",storage_[index].c_str(),slot_pos_x,slot_pos_y,slot_pos_z);
+
+    gzwrap::Pose3d pose = input();
+    world_->GZWRAP_MODEL_BY_NAME(storage_[index])->SetWorldPose(input());
+    printf("%s: Moving PUCK %s to input: %f,%f,%f",name_.c_str(),storage_[index].c_str(),pose.pos.x,pose.pos.y,pose.pos.z);
+
+    storage_[index] = "";
+    storage_cnt--;
+}
+
+
+void StorageStation::addCap(physics::ModelPtr puck,gazsim_msgs::Color clr){
+
+    //ADD CAP TO PUCK
+    gazsim_msgs::WorkpieceCommand cmd;
+    cmd.set_command(gazsim_msgs::Command::ADD_CAP);
+    cmd.set_color(clr);
+    cmd.set_puck_name(puck->GetName());
+    puck_cmd_pub_->Publish(cmd);
+
+
+    //THIS does not seem to work reliable
+    gazebo::msgs::Visual vis_msg;
+    vis_msg.set_parent_name(name_+"::body");
+    vis_msg.set_name(name_+"::body::have_cap");
+    gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,1,1));
+    visPub_->Publish(vis_msg);
+
+
+}
+
+void StorageStation::addRing(){
+
+
 }
 
 gzwrap::Pose3d StorageStation::get_slot_position(uint32_t slot_x,uint32_t slot_y,uint32_t slot_z){
@@ -154,9 +265,8 @@ gzwrap::Pose3d StorageStation::get_slot_position(uint32_t slot_x,uint32_t slot_y
     slot_z+=1;
     slot_y+=1;
     slot_x+=1;
-    x = shelf_pos_x + (slot_x * shelf_x_offset) +(slot_z *shelf_z_offset) ; //0.1/0.2 , 0.2/0.4
-    y = shelf_pos_y + (slot_y * shelf_y_offset);
-
+    x = shelf_pos_x + (slot_x * SLOT_X_OFFSET) +(slot_z *SLOT_Z_OFFSET);
+    y = shelf_pos_y + (slot_y * SLOT_Y_OFFSET);
     z = 0.0;
 
     return gzwrap::Pose3d(gazebo::math::Pose(x,y,z,0,0,0));
