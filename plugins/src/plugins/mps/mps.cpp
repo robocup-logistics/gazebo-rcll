@@ -336,7 +336,7 @@ void Mps::on_new_puck(ConstNewPuckPtr &msg)
     this->puck_subs_.push_back(this->node_->Subscribe(msg->gps_topic() , &Mps::on_puck_msg, this));
 }
 
-void Mps::spawn_puck(const gzwrap::Pose3d &spawn_pose, gazsim_msgs::Color base_color)
+std::string Mps::spawn_puck(const gzwrap::Pose3d &spawn_pose, gazsim_msgs::Color base_color)
 {
   printf("spawning puck for %s\n",name_.c_str());
   msgs::Factory new_puck_msg;
@@ -356,7 +356,7 @@ void Mps::spawn_puck(const gzwrap::Pose3d &spawn_pose, gazsim_msgs::Color base_c
     std::string old_name = "workpiece_base";
     std::size_t name_pos = raw_sdf.find(old_name);
     if(name_pos ==  std::string::npos){
-      return;
+      return "";
     }
     new_sdf = raw_sdf.erase(name_pos, old_name.length()).insert(name_pos, new_name);
     std::string old_color = "1.0 0.35 0.0 1";
@@ -377,7 +377,7 @@ void Mps::spawn_puck(const gzwrap::Pose3d &spawn_pose, gazsim_msgs::Color base_c
         break;
       default:
         printf("%s should spawn with an unsupported base color %s\n",new_name.c_str(), gazsim_msgs::Color_Name(base_color).c_str());
-        return;
+        return "";
         break;
     }
     std::size_t color_pos;
@@ -393,7 +393,7 @@ void Mps::spawn_puck(const gzwrap::Pose3d &spawn_pose, gazsim_msgs::Color base_c
   }
   else{
     printf("Cant find workpiece_base sdf file:%s", sdf_path.c_str());
-    return;
+    return "";
   }
     
 
@@ -405,6 +405,7 @@ void Mps::spawn_puck(const gzwrap::Pose3d &spawn_pose, gazsim_msgs::Color base_c
   msgs::Set(new_puck_msg.mutable_pose(), spawn_pose);
 #endif
   factoryPub->Publish(new_puck_msg);
+  return new_name;
 }
 
 gzwrap::Pose3d Mps::get_puck_world_pose(double long_side, double short_side, double height)

@@ -62,6 +62,8 @@ void CapStation::OnUpdate(const common::UpdateInfo &info)
 
 void CapStation::work_puck(std::string puck_name)
 {
+    printf("CAPSTATION: on_work_puck: %s\n",puck_name.c_str());
+
   set_state(State::AVAILABLE);
   gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
   cmd_msg.set_puck_name(puck_name);
@@ -77,7 +79,7 @@ void CapStation::work_puck(std::string puck_name)
       {
 	printf("%s mounts cap on %s with color %s\n", name_.c_str(), puck_name.c_str(), gazsim_msgs::Color_Name(stored_cap_color_).c_str());
 	cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
-	cmd_msg.set_color(stored_cap_color_);
+    cmd_msg.add_color(stored_cap_color_);
       
 	gazebo::msgs::Visual vis_msg;
 	vis_msg.set_parent_name(name_+"::body");
@@ -121,7 +123,8 @@ void CapStation::on_puck_msg(ConstPosePtr &msg)
 
 void CapStation::on_new_puck(ConstNewPuckPtr &msg)
 {
-  Mps::on_new_puck(msg);
+    Mps::on_new_puck(msg);
+
   //get model
   physics::Model_V models = world_->GZWRAP_MODELS();
   for(physics::ModelPtr model: models)
@@ -132,11 +135,11 @@ void CapStation::on_new_puck(ConstNewPuckPtr &msg)
       cmd.set_command(gazsim_msgs::Command::ADD_CAP);
       if(name_.find("CS1") != std::string::npos)
       {
-        cmd.set_color(gazsim_msgs::Color::GREY);
+        cmd.add_color(gazsim_msgs::Color::GREY);
       }
       else if(name_.find("CS2") != std::string::npos)
       {
-        cmd.set_color(gazsim_msgs::Color::BLACK);
+        cmd.add_color(gazsim_msgs::Color::BLACK);
       }
       cmd.set_puck_name(msg->puck_name());
       if(pose_in_shelf_left(model->GZWRAP_WORLD_POSE()))
@@ -184,6 +187,8 @@ void CapStation::new_machine_info(ConstMachine &machine)
 
 void CapStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
 
+    //printf("MPS:GOT INSTRUCT MESSAGE\n");
+
     if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_CS){
         return;
     }
@@ -198,6 +203,8 @@ void CapStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
 
 void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 {
+    printf("CAPSTATION: on_puck_result: %s\n",result->puck_name().c_str());
+
   if(result->puck_name() == puck_in_processing_name_)
   {
     printf("%s got cap from %s with color %s\n",name_.c_str(), result->puck_name().c_str(), gazsim_msgs::Color_Name(result->color()).c_str());

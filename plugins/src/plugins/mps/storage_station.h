@@ -24,11 +24,13 @@
 #define STORAGESTATION_H
 
 #include "mps.h"
+#include "../puck/puck.h"
 
 /// number of slots and shelfs
 #define SLOT_X_COUNT 2
 #define SLOT_Y_COUNT 4
 #define SLOT_Z_COUNT 6
+#define STORAGE_SIZE SLOT_Z_COUNT * SLOT_Y_COUNT * SLOT_X_COUNT
 #define SHELF_POS_X 10
 #define SHELF_POS_Y 10
 #define SHELF_POS_Z 0
@@ -42,6 +44,8 @@
 
 namespace gazebo
 {
+
+class Storage;
 
 class StorageStation : public Mps
 {
@@ -62,7 +66,7 @@ private:
   void retrieve_puck(uint32_t slot_pos_x, uint32_t slot_pos_y, uint32_t slot_pos_z);
 
   void addCap(physics::ModelPtr puck,gazsim_msgs::Color clr);
-  void addRing(std::__cxx11::string puck_name, llsf_msgs::RingColor clr, bool active, int number);
+  void addRings(std::__cxx11::string puck_name, std::vector<gazsim_msgs::Color> clr_list);
 
   int getStorageIndex( int x, int y, int z );
   int* to3D( int idx );
@@ -76,10 +80,24 @@ private:
   double shelf_y_offset;
   double shelf_z_offset;
 
-  std::string* storage_;
+  Storage* storage_;
+
+
+
   int storage_cnt;
 
 
+};
+
+class Storage{
+public:
+    std::string puck_name;
+    int slot_x;
+    int slot_y;
+    int slot_z;
+    gazsim_msgs::Color base_clr;
+    std::vector<gazsim_msgs::Color> ring_colors;
+    gazsim_msgs::Color cap_clr;
 };
 
 }

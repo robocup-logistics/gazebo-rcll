@@ -82,6 +82,8 @@ void DeliveryStation::new_machine_info(ConstMachine &machine)
 
 void DeliveryStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
 
+    //printf("MPS:GOT INSTRUCT MESSAGE\n");
+
     if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_DS){
         return;
     }
