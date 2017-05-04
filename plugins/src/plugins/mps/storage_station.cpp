@@ -149,18 +149,11 @@ void StorageStation::init_storage(){
 
 void StorageStation::on_puck_msg(ConstPosePtr &msg)
 {
-
-    //printf("%s: PUCK_MSG: %s\n",name_.c_str(),msg->name().c_str());
-
-    /*
-  if(msg->name() == have_puck_ &&
-     !puck_in_input(msg) &&
-     !puck_in_output(msg))
+  if(msg->name() == puck_on_conveyor && !puck_in_input(msg))
   {
-    have_puck_ = "";
+    puck_on_conveyor ="";
     set_state(State::RETRIEVED);
-  }
-  */
+  } 
 }
 
 void StorageStation::new_machine_info(ConstMachine &machine)
@@ -296,21 +289,28 @@ void StorageStation::retrieve_puck(uint32_t slot_pos_x,uint32_t slot_pos_y,uint3
 //        return;
 //    }
     // X and Z is swapped to match message coords with gazebo coords
-    int index = getStorageIndex(slot_pos_z,slot_pos_y,slot_pos_x);
+    int index = getStorageIndex(slot_pos_x,slot_pos_y,slot_pos_z);
 
     if (storage_[index].puck_name == ""){
-        printf("%s ERROR: SLOT %d,%d,%d EMPTY\n",name_.c_str(),slot_pos_z,slot_pos_y,slot_pos_x);
+        printf("%s ERROR: SLOT %d,%d,%d EMPTY\n",name_.c_str(),slot_pos_x,slot_pos_y,slot_pos_z);
             return;
     }
 
-    printf("Retrieve PUCK %s FROM SLOT xyz %d,%d,%d\n",storage_[index].puck_name.c_str(),slot_pos_z,slot_pos_y,slot_pos_x);
+    printf("Retrieve PUCK %s FROM SLOT xyz %d,%d,%d\n",storage_[index].puck_name.c_str(),slot_pos_x,slot_pos_y,slot_pos_z);
 
     gzwrap::Pose3d pose = input();
     world_->GZWRAP_MODEL_BY_NAME(storage_[index].puck_name)->SetWorldPose(input());
     printf("%s: Moving PUCK %s to input: %f,%f,%f",name_.c_str(),storage_[index].puck_name.c_str(),pose.pos.x,pose.pos.y,pose.pos.z);
 
+    puck_on_conveyor = storage_[index].puck_name;
+
     storage_[index].puck_name = "";
+    storage_[index].has_puck = false;
     storage_cnt--;
+
+    set_state(State::PROCESSED);
+    set_state(State::DELIVERED);
+
 }
 
 

@@ -83,8 +83,10 @@ private:
   Storage* storage_;
   bool pucks_spawned;
 
-
+    //not really needed just for testing
   int storage_cnt;
+
+  std::string  puck_on_conveyor;
 
 
 };
