@@ -56,7 +56,7 @@ private:
   void on_puck_msg(ConstPosePtr &msg);
   void new_machine_info(ConstMachine &machine);
   void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
-  std::string have_puck_;
+  void OnUpdate(const common::UpdateInfo &info);
   
   void on_new_puck(ConstNewPuckPtr &msg);
 
@@ -81,7 +81,7 @@ private:
   double shelf_z_offset;
 
   Storage* storage_;
-
+  bool pucks_spawned;
 
 
   int storage_cnt;
@@ -95,6 +95,7 @@ public:
     int slot_x;
     int slot_y;
     int slot_z;
+    bool has_puck;
     gazsim_msgs::Color base_clr;
     std::vector<gazsim_msgs::Color> ring_colors;
     gazsim_msgs::Color cap_clr;

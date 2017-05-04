@@ -32,9 +32,10 @@ StorageStation::StorageStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) 
     //EMPTY all storage slots
     for (int i=0;i< STORAGE_SIZE; i++){
         storage_[i].puck_name ="";
+        storage_[i].has_puck =false;
     }
 
-
+    pucks_spawned = false;
 
     storage_cnt = 0;
 
@@ -68,6 +69,32 @@ StorageStation::StorageStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) 
 StorageStation::~StorageStation(){
 
     delete storage_;
+}
+
+void StorageStation::OnUpdate(const common::UpdateInfo & info){
+ Mps::OnUpdate(info);
+    if(model_->GetWorld()->GZWRAP_SIM_TIME().Double() - created_time_ >10 &&  !pucks_spawned){
+        printf("%s: Start Spawning Pucks\n",name_.c_str());
+
+
+        for (uint i =0; i< STORAGE_SIZE; i++){
+
+            if (storage_[i].has_puck){
+
+                Storage slot =storage_[i];
+                std::string puck_name = spawn_puck(get_slot_World_position(slot.slot_x,slot.slot_y,slot.slot_z),slot.base_clr);
+
+                if(puck_name == ""){
+                    printf("%s: ERROR SPAWN of STORAGE PUCK FAILED\n",name_.c_str());
+                    continue;
+                }
+                storage_[i].puck_name = puck_name;
+            }
+        }
+        pucks_spawned = true;
+    }
+
+
 }
 
 
@@ -115,15 +142,7 @@ void StorageStation::init_storage(){
          else printf("%s: ERROR unknown cap color %s at slot%s \n",name_.c_str(),puck_cfg.at(last).c_str(),slotpos.c_str());
 
 
-         std::string puck_name = spawn_puck(get_slot_World_position(x,y,z),storage_[index].base_clr);
-
-
-         if(puck_name == ""){
-             printf("%s: ERROR SPAWN of STORAGE PUCK FAILED\n",name_.c_str());
-             return;
-         }
-
-         storage_[index].puck_name = puck_name;
+         storage_[index].has_puck = true;
     }
 }
 
