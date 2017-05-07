@@ -40,7 +40,9 @@ const std::map<std::string,std::string> Mps::name_id_match =
 	 {"M-CS1I","tag_97"},{"M-CS1O","tag_98"},{"M-CS2I","tag_113"},
 	 {"M-CS2O","tag_114"},{"M-RS1I","tag_129"},{"M-RS1O","tag_130"},
 	 {"M-RS2I","tag_145"},{"M-RS2O","tag_146"},{"M-BSI","tag_161"},
-	 {"M-BSO","tag_162"},{"M-DSI","tag_49"},{"M-DSO","tag_50"}
+	 {"M-BSO","tag_162"},{"M-DSI","tag_49"},{"M-DSO","tag_50"},
+   {"C-SSO","tag_194"},{"C-SSI","tag_193"},{"M-SSO","tag_210"},
+   {"M-SSI","tag_209"}
 	};
 
 ///Constructor
