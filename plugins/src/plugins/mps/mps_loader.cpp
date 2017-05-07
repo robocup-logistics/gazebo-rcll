@@ -74,7 +74,7 @@ void MpsLoader::Load(physics::ModelPtr _parent, sdf::ElementPtr sdf)
   }
   else
   {
-    printf("unknowen machine");
+    printf("unknowen machine: %s\n",name.c_str());
   }
 }
 

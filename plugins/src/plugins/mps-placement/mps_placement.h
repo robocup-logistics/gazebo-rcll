@@ -43,7 +43,7 @@ typedef const boost::shared_ptr<llsf_msgs::GameState const> ConstGameStatePtr;
 #define WAIT_TIME_BEFORE_PLACEMENT config->get_int("plugins/mps-placement/wait_time_before_placement")
 #define ZONE_HEIGHT config->get_float("plugins/mps-placement/zone_height")
 #define ZONE_WIDTH config->get_float("plugins/mps-placement/zone_width")
-
+#define MPS_COUNT 14
 
 namespace gazebo
 {
@@ -81,6 +81,9 @@ namespace gazebo
     ///Remove existing MPS (e.g. before spawning them at other location)
     void remove_existing_mps();
 
+    ///Check if mps already placed
+    bool mps_is_placed(std::string mps_name);
+
     /// Handler for getting refbox msgs
     void on_machine_info_msg(ConstMachineInfoPtr &msg);
     void on_game_state_msg(ConstGameStatePtr &msg);
@@ -88,6 +91,8 @@ namespace gazebo
     bool machines_placed_;
     bool is_game_started_;
     int random_seed_base_;
+    std::vector<std::string> placed_machines;
+
 
     // Create a publisher on the ~/factory topic to spawn models
     transport::PublisherPtr factoryPub;

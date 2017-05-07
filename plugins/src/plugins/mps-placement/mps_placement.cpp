@@ -100,9 +100,26 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
     llsf_msgs::Machine machine_msg = msg->machines(i);
     std::string mps_name = machine_msg.name();
 
-    //printf("Calculating Position for %s\n",mps_name.c_str());
+    if (mps_is_placed(mps_name)){
+        continue;
+    }
+
+    printf("MPS-PLACEMENT: Spawned %d of %d Machines.\n",(int)placed_machines.size(),MPS_COUNT);
+
+    if (!msg->machines(i).has_name()){
+        printf("%s: NAME not set ignoring machine\n", mps_name.c_str());
+        continue;
+    }
+
+    if (!msg->machines(i).has_zone()){
+        printf("%s: ZONE not set ignoring machine\n", mps_name.c_str());
+        continue;
+    }
 
     std::string zone = llsf_msgs::Zone_Name(msg->machines(i).zone());
+
+    printf("%s:Calculating Position for Zone %s\n",mps_name.c_str(), zone.c_str());
+
 
     float offset_x = ZONE_WIDTH*0.5 ;
     float offset_y = ZONE_HEIGHT*0.5;
@@ -141,7 +158,7 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
     } else if (mps_name.find("SS") != std::string::npos){
       mps_type = "mps_storage";
     } else {
-      printf("Unknown mps-type: %s", mps_name.c_str());
+      printf("Unknown mps-type: %s\n", mps_name.c_str());
       return;
     }
 
@@ -177,9 +194,17 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
 
     printf("Place MPS %s in Zone: name: %s Pos: (%f,%f) ori: %d\n",mps_name.c_str(), zone.c_str(), coord_x,coord_y, msg->machines(i).rotation());
     factoryPub->Publish(spawn_mps_msg);
+    placed_machines.push_back(mps_name);
   }
-  printf("MpsPlacementPlugin: All machines placed\n");
+
+
+  if (placed_machines.size() != MPS_COUNT){
+      printf("MPS-PLACEMENT: not all machineInfo messages reveived...\n");
+      return;
+  }
+
   machines_placed_ = true;
+  printf("MPS-PLACEMENT: All machines placed\n");
 }
 
 /** Functions for recieving a game state msg
@@ -199,6 +224,17 @@ void MpsPlacementPlugin::on_game_state_msg(ConstGameStatePtr &msg)
   //   is_game_started_ = false;
   //   machines_placed_ = false;
   // }
+}
+
+bool MpsPlacementPlugin::mps_is_placed(std::string mps_name){
+
+
+    for ( uint i =0; i< placed_machines.size(); i++){
+        if ( mps_name == placed_machines.at(i)){
+            return true;
+        }
+    }
+    return false;
 }
 
 void MpsPlacementPlugin::spawn_mps(const gzwrap::Pose3d &spawn_pose, std::string model_name)
