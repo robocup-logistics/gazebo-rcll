@@ -29,9 +29,9 @@ using namespace gazebo;
 CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   Mps(_parent,_sdf)
 {
-  spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
-  spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
-  spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
+  spawn_puck(shelf_left_pose(), gazsim_msgs::Color::NONE);
+  spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::NONE);
+  spawn_puck(shelf_right_pose(), gazsim_msgs::Color::NONE);
   workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
   stored_cap_color_ = gazsim_msgs::Color::NONE;
   puck_spawned_time_ = created_time_;
@@ -53,9 +53,9 @@ void CapStation::OnUpdate(const common::UpdateInfo &info)
     puck_in_shelf_right_ = nullptr;
   if(!puck_in_shelf_right_ && !puck_in_shelf_middle_ && !puck_in_shelf_left_){
     //shelf is empty -> refill
-    spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
-    spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
-    spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
+    spawn_puck(shelf_left_pose(), gazsim_msgs::Color::NONE);
+    spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::NONE);
+    spawn_puck(shelf_right_pose(), gazsim_msgs::Color::NONE);
     puck_spawned_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
   }
 }
