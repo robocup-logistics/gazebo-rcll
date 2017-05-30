@@ -40,7 +40,8 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
     world_->GZWRAP_ENTITY_BY_NAME(msg->name())->SetWorldPose(get_puck_world_pose(-0.2,-0.5));
   }
   //check if the puck is in the input area
-  if(puck_in_input(msg) &&
+  if(current_state_ == "PREPARED" &&
+     puck_in_input(msg) &&
      puck_in_processing_name_ == "" &&
      !is_puck_hold(msg->name()))
   {

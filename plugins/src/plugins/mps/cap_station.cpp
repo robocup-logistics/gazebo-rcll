@@ -169,17 +169,6 @@ void CapStation::new_machine_info(ConstMachine &machine)
   {
     set_state(State::DELIVERED);
   }
-  else if(machine.state() == "IDLE" &&
-          current_state_ == "DOWN")
-  {
-    for(gazebo::physics::ModelPtr model: world_->GZWRAP_MODELS())
-    {
-      if(pose_hit(model->GZWRAP_WORLD_POSE(),input()))
-      {
-        work_puck(model->GetName());
-      }
-    }
-  }
 }
 
 void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
