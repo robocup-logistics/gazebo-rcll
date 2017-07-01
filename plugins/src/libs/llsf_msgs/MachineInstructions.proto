@@ -88,6 +88,8 @@ enum InstructMachineSet {
   INSTRUCT_MACHINE_RS = 13;
   INSTRUCT_MACHINE_CS = 14;
   INSTRUCT_MACHINE_DS = 15;
+  INSTRUCT_MACHINE_PULL_MSGS_FROM_MPS = 31;
+  INSTRUCT_MACHINE_RESET = 51;
 }
 
 message InstructMachine {
@@ -115,6 +117,12 @@ message InstructMachine {
 
 enum MachineReplySet {
   MACHINE_REPLY_FINISHED         = 1;
+  MACHINE_REPLY_FINISHED_WITH_PAYLOAD = 2;
+}
+
+message MachineSensorInfo {
+  optional uint32 added_bases  = 11 [default = 0];
+  optional int32  barcode      = 12 [default = -1];
 }
 
 message MachineReply {
@@ -129,9 +137,9 @@ message MachineReply {
   required string machine = 3;
   // which MPS comand is set and has to be completed
   required MachineReplySet set = 4;
+
+  repeated MachineSensorInfo sensors = 11;
 }
-
-
 
 message PrepareInstructionBS {
   required MachineSide side  = 1;
@@ -170,3 +178,23 @@ message PrepareMachine {
   optional PrepareInstructionRS instruction_rs = 6;
   optional PrepareInstructionCS instruction_cs = 7;
 }
+
+message ResetMachine {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 104;
+  }
+
+  required Team   team_color = 1;
+  // Machine name which to instruct
+  required string machine = 2;
+}
+
+message MachineRequestPull {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 105;
+  }
+  required string machine = 3;
+}
+
