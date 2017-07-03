@@ -300,7 +300,12 @@ void StorageStation::retrieve_puck(uint32_t slot_pos_x,uint32_t slot_pos_y,uint3
 
     gzwrap::Pose3d pose = input();
     world_->GZWRAP_MODEL_BY_NAME(storage_[index].puck_name)->SetWorldPose(input());
-    printf("%s: Moving PUCK %s to input: %f,%f,%f",name_.c_str(),storage_[index].puck_name.c_str(),pose.pos.x,pose.pos.y,pose.pos.z);
+    printf("%s: Moving PUCK %s to input: %f,%f,%f",
+           name_.c_str(),
+           storage_[index].puck_name.c_str(),
+           pose.GZWRAP_POS.GZWRAP_X,
+           pose.GZWRAP_POS.GZWRAP_Y,
+           pose.GZWRAP_POS.GZWRAP_Z);
 
     puck_on_conveyor = storage_[index].puck_name;
 
@@ -349,7 +354,7 @@ gzwrap::Pose3d StorageStation::get_slot_World_position(uint32_t slot_x,uint32_t 
     y = shelf_pos_y + (slot_y * SLOT_Y_OFFSET);
     z = PUCK_HEIGHT*0.5;
 
-    return gzwrap::Pose3d(gazebo::math::Pose(x,y,z,0,0,0));
+    return gzwrap::Pose3d(x,y,z,0,0,0);
 }
 
 
