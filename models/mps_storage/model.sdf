@@ -3,7 +3,7 @@
   <model name="mps_storage">
     <static>true</static>
     <link name="body">
-      <pose>0 0 0.01 0 0 0</pose>
+      <pose>0 0 0.01 0 0 3.14</pose>
       <gravity>true</gravity>
       <inertial>
 	<pose>0 0 0.005 0 0 0</pose>
@@ -19,7 +19,7 @@
         </inertia>
       </inertial>
       <visual name="body-visual">
-	<pose>-0.35 .172 0 0 0 1.57</pose>
+	<pose>-0.35 .172 0 0 0 1.578</pose>
         <geometry>
           <mesh>
             <uri>model://mps_storage/meshes/mps_storage.dae</uri>
