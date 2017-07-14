@@ -14,7 +14,7 @@
     </include>
 
     <include>
-      <uri>model://sick_floor_laser</uri>
+      <uri>model://sick_backlaser</uri>
       <pose>-0.11 0 0.4 0 0 0</pose>
     </include>
 

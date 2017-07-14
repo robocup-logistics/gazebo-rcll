@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.5">
-  <model name="sick_floor_laser">
+  <model name="sick_backlaser">
     <link name="link">
       <gravity>false</gravity>
       <inertial>
@@ -9,7 +9,7 @@
       <visual name="visual">
         <geometry>
           <mesh>
-            <uri>model://sick_floor_laser/meshes/floor_laser_mount.dae</uri>
+            <uri>model://sick_backlaser/meshes/backlaser_mount.dae</uri>
           </mesh>
         </geometry>
         <cast_shadows>false</cast_shadows>
@@ -20,7 +20,7 @@
     	  <emissive>0 0 0 0</emissive>
   	</material>
       </visual>
-      <sensor name="floor_laser" type="ray">
+      <sensor name="backlaser" type="ray">
         <pose>-0.045 0.0125 -0.04 0 0.20944 3.1415</pose>
         <ray>
           <scan>
@@ -45,7 +45,7 @@
         <always_on>1</always_on>
         <update_rate>15</update_rate>
         <visualize>false</visualize>
-        <plugin name="Sick" filename="libRayPlugin.so" />
+        <plugin name="SickBackLaser" filename="libRayPlugin.so" />
       </sensor>
     </link>
   </model>
