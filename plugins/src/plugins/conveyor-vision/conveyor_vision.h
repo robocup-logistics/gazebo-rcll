@@ -83,6 +83,9 @@ namespace gazebo
     transport::NodePtr node_;
     ///name of the gyro and the communication channel
     std::string name_;
+    ///Subscriber for SetConveyor
+    transport::SubscriberPtr set_conveyor_sub_;
+    void on_set_conveyor_msg(ConstIntPtr &msg);
 
     //config values:
     int number_pucks_;
@@ -102,6 +105,8 @@ namespace gazebo
     float tag_height_;
     //Height of the center of the tag
     float tag_size_;
+    //Offset from height
+    float offset_z_;
 
     
     ///time variable to send in intervals
