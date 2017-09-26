@@ -30,22 +30,22 @@
 
     <!-- Field  -->
     <include>
-      <uri>model://german_open_field</uri>
+	<uri>model://logistics_league_field_2017</uri>
     </include>
 
     <!-- Robotinos  -->
     <!-- Team Cyan -->
     <include>
       <uri>model://robotino-nr-1</uri>
-      <pose>3.5 -0.5 0 0 0 1.57</pose>
+      <pose>4.5 0.5 0 0 0 1.57</pose>
     </include>
     <include>
       <uri>model://robotino-nr-2</uri>
-      <pose>4.5 -0.5 0 0 0 1.57</pose>
+      <pose>5.5 0.5 0 0 0 1.57</pose>
     </include>
     <include>
       <uri>model://robotino-nr-3</uri>
-      <pose>5.5 -0.5 0 0 0 1.57</pose>
+      <pose>6.5 0.5 0 0 0 1.57</pose>
     </include>
     <!-- Team Magenta -->
     
@@ -264,6 +264,27 @@
       <uri>model://tag</uri>
       <pose>0 -1 0.2 0 0 0</pose>
     </include>
+    <include>
+      <name>tag_193</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+      <include>
+      <name>tag_194</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+      <include>
+      <name>tag_210</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+      <include>
+      <name>tag_209</name>
+      <uri>model://tag</uri>
+      <pose>0 -1 0.2 0 0 0</pose>
+    </include>
+
 
     <!-- Plugins for the world -->
     <plugin name="llsf_refbox_comm" filename="libllsf_refbox_comm.so" />

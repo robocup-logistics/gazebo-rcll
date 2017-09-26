@@ -31,8 +31,8 @@ plugins:
     topic_machine_info: "~/LLSFRbSim/MachineInfo/"
     topic_game_state: "~/LLSFRbSim/GameState/"
     wait_time_before_placement: 15
-    zone_height: 1.5
-    zone_width: 2.0
+    zone_height: 1.0
+    zone_width: 1.0
 
   mps:
     #amount of pucks to listen for

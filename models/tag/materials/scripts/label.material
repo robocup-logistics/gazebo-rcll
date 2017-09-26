@@ -419,3 +419,71 @@ material tag/tag_50
     }
   }
 }
+
+material tag/tag_193
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture tag193.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material tag/tag_194
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture tag194.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material tag/tag_209
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture tag209.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
+
+material tag/tag_210
+{
+  receive_shadows off
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture tag210.png
+        filtering anistropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
