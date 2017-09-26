@@ -99,7 +99,7 @@ void RingStation::new_machine_info(ConstMachine &machine)
     }
     printf("%s is prepared to put %s on a workpiece\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str());
   }
-  else if(machine.state() == "PROCESSED")
+  else if(machine.state() == "PROCESSING")
   {
     printf("%s is putting a %s ring onto %s\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str(), puck_in_processing_name_.c_str());
     //teleport puck to output
