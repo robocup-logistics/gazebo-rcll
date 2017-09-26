@@ -22,7 +22,6 @@
 #define MPS_H
 
 #include <boost/bind.hpp>
-#include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
 #include <stdio.h>
@@ -32,6 +31,7 @@
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <llsf_msgs/MachineCommands.pb.h>
+#include <llsf_msgs/MachineReport.pb.h>
 #include <gazsim_msgs/NewPuck.pb.h>
 #include <map>
 #include <configurable/configurable.h>
@@ -59,7 +59,9 @@
 //at what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
 #define TAG_SPAWN_TIME tag_spawn_time_
 #define TOPIC_SET_MACHINE_STATE topic_set_machine_state_ 
+#define TOPIC_MACHINE_REPLY topic_machine_reply_
 #define TOPIC_MACHINE_INFO topic_machine_info_ 
+#define TOPIC_INSTRUCT_MACHINE topic_instruct_machine_
 #define TOPIC_PUCK_COMMAND topic_puck_command_ 
 #define TOPIC_PUCK_COMMAND_RESULT topic_puck_command_result_
 #define TOPIC_JOINT topic_joint_
@@ -67,6 +69,7 @@
 
 typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
+typedef const boost::shared_ptr<llsf_msgs::InstructMachine const> ConstInstructMachinePtr;
 typedef const llsf_msgs::Machine ConstMachine;
 typedef llsf_msgs::MachineState State;
 typedef const boost::shared_ptr<gazsim_msgs::NewPuck const> ConstNewPuckPtr;
@@ -105,19 +108,31 @@ namespace gazebo
     std::vector<transport::SubscriberPtr> puck_subs_;
     /// Subscriber to get machine infos
     transport::SubscriberPtr machine_info_subscriber_;
+    /// Subscriber to get machine infos
+    transport::SubscriberPtr instruct_machine_subscriber_;
+
 
     /// Handler for puck positions
     virtual void on_puck_msg(ConstPosePtr &msg);
     /// Handler for machine msgs
-    void on_machine_msg(ConstMachineInfoPtr &msg);
+    void on_machine_msg(ConstMachineInfoPtr &msg);    
+    /// Handler for machine Instruction msgs
+    virtual void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
+
+
     virtual void new_machine_info(ConstMachine &machine);
     
     transport::SubscriberPtr new_puck_subscriber_;
     virtual void on_new_puck(ConstNewPuckPtr &msg);
+
+    void refbox_reply(ConstInstructMachinePtr &msg);
     
     ///Publisher to send machine state
     transport::PublisherPtr set_machne_state_pub_;
     
+    ///Publisher to send machine reply
+    transport::PublisherPtr machine_reply_pub_;
+
     ///Publisher to send spawn machine tags
     transport::PublisherPtr visPub_;
     void grabTag(std::string link_name, std::string tag_name, gazebo::physics::JointPtr joint);
@@ -149,7 +164,7 @@ namespace gazebo
     
     physics::WorldPtr world_;
     
-    void spawn_puck(const gzwrap::Pose3d &spawn_pose, enum gazsim_msgs::Color base_color);
+    std::string spawn_puck(const gzwrap::Pose3d &spawn_pose, enum gazsim_msgs::Color base_color);
     
     // Create a publisher on the ~/factory topic
     transport::PublisherPtr factoryPub;
@@ -191,7 +206,9 @@ namespace gazebo
     //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
     float tag_spawn_time_;
     std::string topic_set_machine_state_;
+    std::string topic_machine_reply_;
     std::string topic_machine_info_;
+    std::string topic_instruct_machine_;
     std::string topic_puck_command_;
     std::string topic_puck_command_result_;
     std::string topic_joint_;

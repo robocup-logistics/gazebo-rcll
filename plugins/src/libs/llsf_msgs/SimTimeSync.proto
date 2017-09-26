@@ -36,6 +36,12 @@ syntax = "proto2";
 
 package llsf_msgs;
 
+option java_package =
+  "org.robocup_logistics.llsf_msgs";
+option java_outer_classname =
+  "SimTimeSyncProtos";
+
+
 import "Time.proto";
 
 message SimTimeSync {

@@ -80,4 +80,18 @@ void DeliveryStation::new_machine_info(ConstMachine &machine)
   printf("%s got the new gate %i\n", this->name_.c_str(), selected_gate_);
 }
 
+void DeliveryStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
+
+    //printf("MPS:GOT INSTRUCT MESSAGE\n");
+
+    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_DS){
+        return;
+    }
+
+
+    std::string machine_name = "NOT-SET";
+    machine_name = msg->machine();
+
+    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+}
 

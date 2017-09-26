@@ -4,6 +4,7 @@
  *
  *  Created: Thu Mar 07 16:07:15 2013
  *  Copyright  2013  Tim Niemueller [www.niemueller.de]
+ *             2017  Tobias Neumann
  ****************************************************************************/
 
 /*  Redistribution and use in source and binary forms, with or without
@@ -38,7 +39,6 @@ syntax = "proto2";
 
 package llsf_msgs;
 
-import "MachineInfo.proto";
 import "Team.proto";
 import "Zone.proto";
 
@@ -54,8 +54,8 @@ message MachineReportEntry {
   // Machine name and recognized type
   // and zone the machine is in
   required string name = 1;
-  required string type = 2;
-  required Zone   zone = 3;
+  optional Zone   zone = 3;
+  optional uint32 rotation = 4; // [0-360] in deg
 }
 
 // Robots send this to announce recognized

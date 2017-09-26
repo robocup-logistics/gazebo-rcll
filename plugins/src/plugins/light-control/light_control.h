@@ -26,15 +26,15 @@
 #include <gazebo/transport/transport.hh>
 #include <list>
 #include <string.h>
-#include <llsf_msgs/MachineInfo.pb.h>
+#include <llsf_msgs/MachineInstructions.pb.h>
 #include <configurable/configurable.h>
 
 
 //typedefs for sending the messages over the gazebo node
-typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
+typedef const boost::shared_ptr<llsf_msgs::InstructMachine const> ConstInstructMachinePtr;
 
 //config values
-#define TOPIC_MACHINE_INFO config->get_string("plugins/light-control/topic-machine-info").c_str()
+#define TOPIC_INSTRUCT_MACHINE config->get_string("plugins/light-control/topic-instruct-machine").c_str()
 
 
 namespace gazebo
@@ -45,14 +45,6 @@ namespace gazebo
     YELLOW,
     GREEN
   } Color;
-
-  typedef enum LightState
-  {
-    OFF,
-    ON,
-    BLINK
-  } LightState;
-
 
   namespace msgs
   {
@@ -87,19 +79,18 @@ namespace gazebo
     physics::WorldPtr world_;
 
     // Light_Control Stuff:
-
-    LightState state_red_, state_yellow_, state_green_;
-    LightState prev_state_red_, prev_state_yellow_, prev_state_green_;
+    llsf_msgs::LightState state_red_, state_yellow_, state_green_;
+    llsf_msgs::LightState prev_state_red_, prev_state_yellow_, prev_state_green_;
 
     /// Subscriber to get msgs about the light status
     transport::SubscriberPtr light_msg_sub_;
 
     /// Handler for light status msg
-    void on_light_msg(ConstMachineInfoPtr &msg);
+    void on_light_msg(ConstInstructMachinePtr &msg);
 
     ///Publisher to send visual changes to gazebo
     transport::PublisherPtr visPub_;
-    void change_light(std::string machine_name, Color color, LightState &state, LightState &prev_state);
+    void change_light(std::string machine_name, Color color, llsf_msgs::LightState &state, llsf_msgs::LightState &prev_state);
 
     ///time variable to send in intervals
     double last_sent_time_;

@@ -4,6 +4,7 @@
  *
  *  Created: Thu Apr 16 14:19:07 2015
  *  Copyright  2013  Tim Niemueller [www.niemueller.de]
+ *             2017  Tobias Neumann
  ****************************************************************************/
 
 /*  Redistribution and use in source and binary forms, with or without
@@ -38,20 +39,106 @@ syntax = "proto2";
 
 package llsf_msgs;
 
+import "MachineDescription.proto";
 import "ProductColor.proto";
 import "Team.proto";
 
 option java_package = "org.robocup_logistics.llsf_msgs";
 option java_outer_classname = "MachineInstructionProtos";
 
-enum MachineSide {
-  INPUT  = 1;
-  OUTPUT = 2;
+message SetSignalLight {
+  required LightState red    = 2;
+  required LightState yellow = 3;
+  required LightState green  = 4;
 }
 
-enum CsOp {
-  RETRIEVE_CAP = 1;
-  MOUNT_CAP    = 2;
+message MoveConveyorBelt {
+  required ConveyorDirection direction   = 2;
+  required SensorOnMPS       stop_sensor = 3;
+}
+
+message BSPushBase {
+  required uint32 slot = 2; // [0-2] where 0 is on the input side, 1 in the middle and 2 on the output side
+}
+
+message SSTask {
+  required SSOp   operation = 2;
+  required SSSlot slot      = 3;
+}
+
+message RSMountRing {
+  required uint32 feeder = 2; // [0,1] where 0 is the feeder closer to the input side and 1 is the feeder closer to the output side
+}
+
+message CSTask {
+  required CSOp operation = 2;
+}
+
+message DSActivateGate {
+  required uint32 gate = 2; // [0-2] where 0 is the gate closest to the input, 1 is the gate in the middle and 2 is the last gate from the input
+}
+
+enum InstructMachineSet {
+  INSTRUCT_MACHINE_SET_SIGNAL_LIGHT = 1;
+  INSTRUCT_MACHINE_MOVE_CONVEYOR    = 2;
+  INSTRUCT_MACHINE_STOP_CONVEYOR    = 3;
+  INSTRUCT_MACHINE_WAIT_FOR_PICKUP  = 4;
+  INSTRUCT_MACHINE_BS = 11;
+  INSTRUCT_MACHINE_SS = 12;
+  INSTRUCT_MACHINE_RS = 13;
+  INSTRUCT_MACHINE_CS = 14;
+  INSTRUCT_MACHINE_DS = 15;
+  INSTRUCT_MACHINE_PULL_MSGS_FROM_MPS = 31;
+  INSTRUCT_MACHINE_RESET = 51;
+}
+
+message InstructMachine {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 102;
+  }
+
+  required uint32 id = 1;
+//  required Team   team_color = 2;
+  // Machine name which to instruct
+  required string machine = 3;
+  // which MPS comand is set and has to be completed
+  required InstructMachineSet set = 4;
+
+  optional SetSignalLight   light_state   = 5;
+  optional MoveConveyorBelt conveyor_belt = 6;
+
+  optional BSPushBase     bs = 11;
+  optional SSTask         ss = 12;
+  optional RSMountRing    rs = 13;
+  optional CSTask         cs = 14;
+  optional DSActivateGate ds = 15;
+}
+
+enum MachineReplySet {
+  MACHINE_REPLY_FINISHED         = 1;
+  MACHINE_REPLY_FINISHED_WITH_PAYLOAD = 2;
+}
+
+message MachineSensorInfo {
+  optional uint32 added_bases  = 11 [default = 0];
+  optional int32  barcode      = 12 [default = -1];
+}
+
+message MachineReply {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 103;
+  }
+
+  required uint32 id = 1;
+//  required Team   team_color = 2;
+  // Machine name which to instruct
+  required string machine = 3;
+  // which MPS comand is set and has to be completed
+  required MachineReplySet set = 4;
+
+  repeated MachineSensorInfo sensors = 11;
 }
 
 message PrepareInstructionBS {
@@ -63,12 +150,16 @@ message PrepareInstructionDS {
   required uint32 gate = 1;
 }
 
+message PrepareInstructionSS {
+  required SSTask task = 1;
+}
+
 message PrepareInstructionRS {
   required RingColor ring_color = 1;
 }
 
 message PrepareInstructionCS {
-  required CsOp operation = 1;
+  required CSOp operation = 1;
 }
 
 message PrepareMachine {
@@ -83,6 +174,27 @@ message PrepareMachine {
 
   optional PrepareInstructionBS instruction_bs = 4;
   optional PrepareInstructionDS instruction_ds = 5;
+  optional PrepareInstructionSS instruction_ss = 8;
   optional PrepareInstructionRS instruction_rs = 6;
   optional PrepareInstructionCS instruction_cs = 7;
 }
+
+message ResetMachine {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 104;
+  }
+
+  required Team   team_color = 1;
+  // Machine name which to instruct
+  required string machine = 2;
+}
+
+message MachineRequestPull {
+  enum CompType {
+    COMP_ID  = 2000;
+    MSG_TYPE = 105;
+  }
+  required string machine = 3;
+}
+

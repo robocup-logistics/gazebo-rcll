@@ -116,7 +116,7 @@ void RingStation::new_machine_info(ConstMachine &machine)
       //TODO: dont'spawn a fixed color, get color from better source
       gazsim_msgs::WorkpieceCommand cmd;
       cmd.set_command(gazsim_msgs::Command::ADD_RING);
-      cmd.set_color(color_to_put_);
+      cmd.add_color(color_to_put_);
       cmd.set_puck_name(puck_in_processing_name_);
       puck_cmd_pub_->Publish(cmd);
     }
@@ -129,6 +129,21 @@ void RingStation::new_machine_info(ConstMachine &machine)
   {
     publish_indicator(i < machine.loaded_with(), i);
   }
+}
+
+void RingStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
+
+    //printf("MPS:GOT INSTRUCT MESSAGE\n");
+
+    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_RS){
+        return;
+    }
+
+
+    std::string machine_name = "NOT-SET";
+    machine_name = msg->machine();
+
+    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
 }
 
 void RingStation::add_base()

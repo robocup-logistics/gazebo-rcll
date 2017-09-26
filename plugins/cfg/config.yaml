@@ -18,11 +18,13 @@ plugins:
     reconnect-interval: 10
     reconnect-attempts: 50
     topic-machine-info: "~/LLSFRbSim/MachineInfo/"
+    topic-instruct-machine: "~/LLSFRbSim/InstructMachine/"
     topic-game-state: "~/LLSFRbSim/GameState/"
     topic-time: "~/gazsim/time-sync/"
     topic-set-game-state: "~/LLSFRbSim/SetGameState/"
     topic-set-game-phase: "~/LLSFRbSim/SetGamePhase/"
     topic-set-team-name: "~/LLSFRbSim/SetTeamName/"
+    topic-machine-reply: "~/LLSFRbSim/MachineReply/"
     topic-set-machine-state: "~/LLSFRbSim/SetMachineState/"
     topic-machine-add-base: "~/LLSFRbSim/MachineAddBase/"
     topic-set-order-delivery-by-color: "~/LLSFRbSim/DELIVERY"
@@ -56,7 +58,9 @@ plugins:
     # At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
     tag_spawn_time: 40.0
     topic_set_machine_state: "~/LLSFRbSim/SetMachineState/"
+    topic_machine_reply: "~/LLSFRbSim/MachineReply/"
     topic_machine_info: "~/LLSFRbSim/MachineInfo/"
+    topic-instruct-machine: "~/LLSFRbSim/InstructMachine/"
     topic_puck_command: "~/pucks/cmd"
     topic_puck_command_result: "~/pucks/cmd/result"
     topic_joint: "/GripperJoints/Holding"
@@ -67,6 +71,15 @@ plugins:
     ring-station:
       topic_machine_add_base: "~/LLSFRbSim/MachineAddBase/"
       max_num_bases: 3
+
+    storage-station:
+      slots: [000,100,200,300,400,500]
+      slot000: ["RED","YELLOW","BLACK"]
+      slot100: ["BLACK","BLUE","GRAY"]
+      slot200: ["SILVER","GREEN","BLACK"]
+      slot300: ["RED","BLACK"]
+      slot400: ["BLACK","ORANGE","GRAY"]
+      slot500: ["SILVER","BLUE","GRAY"]
 
   puck:
     #The height of one ring
@@ -95,7 +108,7 @@ plugins:
     radius-detection-area: 0.4
     search-area-rel-x: 0.4
     search-area-rel-y: 0.0
-    
+
   gripper:
     topic-set-gripper: "~/RobotinoSim/SetGripper/"
     topic-holds-puck: "~/RobotinoSim/GripperHasPuck/"
@@ -103,7 +116,7 @@ plugins:
     radius-grab-area: 0.05
 
   light-control:
-    topic-machine-info: "~/LLSFRbSim/MachineInfo/"
+    topic-instruct-machine: "~/LLSFRbSim/InstructMachine/"
 
   light-signal-detection:
     topic-machine-info: "~/LLSFRbSim/MachineInfo/"

@@ -40,6 +40,7 @@ public:
   void on_new_puck(ConstNewPuckPtr &msg);
   void OnUpdate(const common::UpdateInfo &info);
   void new_machine_info(ConstMachine &machine);
+  void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
   void on_puck_result(ConstWorkpieceResultPtr &result);
   
   gzwrap::Pose3d shelf_left_pose();
@@ -54,7 +55,7 @@ public:
   physics::ModelPtr puck_in_shelf_middle_;
   physics::ModelPtr puck_in_shelf_right_;
   
-  llsf_msgs::CsOp task_;
+  llsf_msgs::CSOp task_;
   gazsim_msgs::Color stored_cap_color_;
   std::string puck_in_processing_name_;
   

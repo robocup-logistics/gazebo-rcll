@@ -135,12 +135,14 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
   switch(cmd->command())
   {
     case gazsim_msgs::Command::ADD_RING:
-      printf("add ring with color: %s\n",gazsim_msgs::Color_Name(cmd->color()).c_str());
-      this->add_ring(cmd->color());
+      for ( int i=0; i< cmd->color_size(); i++){
+          printf("add ring with color: %s\n",gazsim_msgs::Color_Name(cmd->color(i)).c_str());
+          this->add_ring(cmd->color(i));
+      }
       break;
     case gazsim_msgs::Command::ADD_CAP:
-      printf("add cap with color: %s\n",gazsim_msgs::Color_Name(cmd->color()).c_str());
-      this->add_cap(cmd->color());
+      printf("add cap with color: %s\n",gazsim_msgs::Color_Name(cmd->color(0)).c_str());
+      this->add_cap(cmd->color(0));
       break;
     case gazsim_msgs::Command::REMOVE_CAP:
       if(have_cap)
@@ -153,7 +155,7 @@ void Puck::on_command_msg(ConstWorkpieceCommandPtr &cmd)
 	printf("Can't remove any cap from this workpiece\n");
 	gazsim_msgs::WorkpieceResult msg;
 	msg.set_puck_name(name());
-	msg.set_color(gazsim_msgs::Color::NONE);
+    msg.set_color(gazsim_msgs::Color::NONE);
 	this->workpiece_result_pub_->Publish(msg);
       }      
       break;
@@ -173,7 +175,6 @@ void Puck::add_ring(gazsim_msgs::Color clr)
   std::string ring_name = std::string("ring_") + std::to_string(this->ring_count_);
   
   msgs::Visual visual_msg = create_visual_msg(ring_name, RING_HEIGHT, clr);
-
   ring_colors_.push_back(clr);
   
   // publish visual change
@@ -185,7 +186,6 @@ void Puck::add_ring(gazsim_msgs::Color clr)
 void Puck::add_cap(gazsim_msgs::Color clr)
 {
   msgs::Visual vis_msg = create_visual_msg("cap", CAP_HEIGHT, clr);
-  
   this->visual_pub_->Publish(vis_msg);
   this->have_cap = true;
   cap_color_ = clr;
@@ -244,12 +244,18 @@ msgs::Visual Puck::create_visual_msg(std::string element_name, double element_he
   switch(clr){
     case gazsim_msgs::Color::RED:
       msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(1,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(1,0,0));
       break;
     case gazsim_msgs::Color::BLUE:
       msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0,0,1));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(0,0,1));
       break;
     case gazsim_msgs::Color::GREEN:
       msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0,1,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(0,1,0));
       break;
     case gazsim_msgs::Color::BLACK:
       msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0,0,0));
@@ -259,9 +265,13 @@ msgs::Visual Puck::create_visual_msg(std::string element_name, double element_he
       break;
     case gazsim_msgs::Color::YELLOW:
       msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(255, 255, 0));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(1,1,0));
       break;
     case gazsim_msgs::Color::ORANGE:
       msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(255, 127, 0));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(1,0.5,0));
       break;
     case gazsim_msgs::Color::GREY:
     default:

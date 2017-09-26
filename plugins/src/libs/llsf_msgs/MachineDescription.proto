@@ -1,9 +1,10 @@
 
 /***************************************************************************
- *  GameState.proto - GameState information
+ *  MachineDescription.proto - LLSF Protocol - Machine Specification message
  *
- *  Created: Mon Jan 21 12:05:03 2013
+ *  Created: Mon Mar 20 22:13:50 2017
  *  Copyright  2013  Tim Niemueller [www.niemueller.de]
+ *             2017  Tobias Neumann
  ****************************************************************************/
 
 /*  Redistribution and use in source and binary forms, with or without
@@ -38,66 +39,50 @@ syntax = "proto2";
 
 package llsf_msgs;
 
-import "Time.proto";
-
 option java_package = "org.robocup_logistics.llsf_msgs";
-option java_outer_classname = "GameStateProtos";
+option java_outer_classname = "MachineDescriptionProtos";
 
-message GameState {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 20;
-  }
-
-  enum State {
-    INIT = 0;
-    WAIT_START = 1;
-    RUNNING = 2;
-    PAUSED = 3;
-  }
-
-  enum Phase {
-    PRE_GAME    = 0;
-    SETUP       = 10;
-    EXPLORATION = 20;
-    PRODUCTION  = 30;
-    POST_GAME   = 40;
-  }
-
-  // Time in seconds since game start
-  required Time   game_time = 1;
-
-  // Current game state
-  required State  state = 3;
-  // Current game phase
-  required Phase  phase = 4;
-  // Awarded points, cyan
-  optional uint32 points_cyan = 5;
-  // Name of the currently playing team
-  optional string team_cyan = 6;
-
-  // Awarded points, magenta
-  optional uint32 points_magenta = 8;
-  // Name of the currently playing team
-  optional string team_magenta = 9;
+enum LightColor {
+  RED = 0;
+  YELLOW = 1;
+  GREEN = 2;
 }
 
-// Request setting of a new game state
-message SetGameState {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 21;
-  }
-  // The new desired state
-  required GameState.State state = 1;
+enum LightState {
+  OFF = 0;
+  ON = 1;
+  BLINK = 2;
 }
 
-// Request setting of a new game phase
-message SetGamePhase {
-  enum CompType {
-    COMP_ID  = 2000;
-    MSG_TYPE = 22;
-  }
-  // The new desired phase
-  required GameState.Phase phase = 1;
+enum MachineSide {
+  INPUT  = 1;
+  OUTPUT = 2;
+}
+
+enum ConveyorDirection {
+  FORWARD  = 1;	// from input to output
+  BACKWARD = 2;	// from output to input
+}
+
+enum SensorOnMPS {
+  SENSOR_INPUT  = 1;
+  SENSOR_OUTPUT = 2;
+  SENSOR_MIDDLE = 3;
+}
+
+enum SSOp {
+  STORE   = 1;
+  RETRIEVE = 2;
+}
+
+message SSSlot {
+  // Ordering is a right hand coordinate system, starting at the left bottom front corner
+  required uint32 x = 1; // [0-5] height; the shelfs
+  required uint32 y = 2; // [0-3] width;  the place on the shelf
+  required uint32 z = 3; // [0-1] depth;  the front or back row of the shelf
+}
+
+enum CSOp {
+  RETRIEVE_CAP = 1;
+  MOUNT_CAP    = 2;
 }
