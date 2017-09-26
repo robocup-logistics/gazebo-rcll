@@ -70,10 +70,14 @@ void ConveyorVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   belt_height_ = config->get_float("plugins/mps/belt_height");
   tag_height_ = config->get_float("plugins/mps/tag_height");
   tag_size_ = config->get_float("plugins/mps/tag_size");
-
+  std::string topic_set_conveyor = config->get_string("plugins/gripper/topic-set-conveyor");
 
   //create publisher
   this->conveyor_pub_ = this->node_->Advertise<llsf_msgs::ConveyorVisionResult>("~/RobotinoSim/ConveyorVisionResult/");
+  offset_z_ = 0;
+
+  //create subscriber
+  set_conveyor_sub_ = node_->Subscribe(topic_set_conveyor, &ConveyorVision::on_set_conveyor_msg, this);
 
   //init last sent time
   last_sent_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
@@ -97,6 +101,11 @@ void ConveyorVision::OnUpdate(const common::UpdateInfo & /*_info*/)
  */
 void ConveyorVision::Reset()
 {
+}
+
+void ConveyorVision::on_set_conveyor_msg(ConstIntPtr &msg)
+{
+  offset_z_ += ((float)msg->data())/1000.;
 }
 
 inline bool is_machine(gazebo::physics::ModelPtr model)
@@ -173,8 +182,7 @@ void ConveyorVision::send_conveyor_result()
       pose->set_y(res.GZWRAP_POS_Y);
       //pose->set_z(res.z);
       //set z to 0.005 as default so that no z alignment of the gripper is necessary
-      //TODO: simulate z movement of the gripper to make this flexible
-      pose->set_z(0.000);
+      pose->set_z( offset_z_ );
       pose->set_ori_x(0);
       pose->set_ori_y(0);
       pose->set_ori_z(0);
