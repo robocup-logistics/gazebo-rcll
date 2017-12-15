@@ -33,6 +33,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+syntax = "proto2";
+
 package gazsim_msgs;
 
 // The possible colors of the ring

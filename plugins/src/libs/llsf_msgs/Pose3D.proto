@@ -34,6 +34,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+syntax = "proto2";
+
 package llsf_msgs;
 
 option java_package = "org.robocup_logistics.llsf_msgs";
