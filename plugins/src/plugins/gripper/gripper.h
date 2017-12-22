@@ -38,6 +38,9 @@
 #define TOPIC_JOINT config->get_string("plugins/gripper/topic-joint").c_str()
 #define RADIUS_GRAB_AREA config->get_float("plugins/gripper/radius-grab-area")
 
+//probability of puck staying in the gripper (per second)
+#define PROB_PUCK_STAYS 0.90 
+
 
 enum ActionOnUpdate{
   NOTHING = 0,
@@ -105,5 +108,11 @@ namespace gazebo
     ActionOnUpdate last_action_rcvd_;
 
     gazebo::physics::LinkPtr getGripperLink();
+
+    //let Puck fall down randomly  during walking
+    void randomPuckFallDown(double delta_t);
+    common::Time oldTime_ = 0;
+    std::uniform_real_distribution<double> do_test_;
+    std::mt19937 rnd_gen_;
   };
 }
