@@ -39,7 +39,7 @@
 #define RADIUS_GRAB_AREA config->get_float("plugins/gripper/radius-grab-area")
 
 //probability of puck staying in the gripper (per second)
-#define PROB_PUCK_STAYS 0.90 
+#define PROB_PUCK_STAYS config->get_float("plugins/gripper/prob-puck-stays")
 
 
 enum ActionOnUpdate{

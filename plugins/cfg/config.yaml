@@ -115,6 +115,7 @@ plugins:
     topic-holds-puck: "~/RobotinoSim/GripperHasPuck/"
     topic-joint: "/GripperJoints/Holding"
     radius-grab-area: 0.05
+    prob-puck-stays: 0.90 #this probability is per second
 
   light-control:
     topic-instruct-machine: "~/LLSFRbSim/InstructMachine/"
