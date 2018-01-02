@@ -92,17 +92,30 @@ void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
     common::Time newTime = model_->GetWorld()->GetSimTime();
     double delta_t = (newTime - oldTime_).Double();
-    oldTime_=newTime;
-  if (last_action_rcvd_ == CLOSE)
+    oldTime_ = newTime;
+  if (last_action_rcvd_ == CLOSE) 
   {
-    this->close();
+      if (test_probability(PROB_FAILING_PICK_UP))
+          //sometimes do not pick up the puck if advised to do so
+      {
+          std::cout << "Random failue: not picking up puck" << std::endl;
+      }
+      else
+      {
+          this->close();
+      }
   }
   else if (last_action_rcvd_ == OPEN)
   {
     this->open();
   }
   last_action_rcvd_ = NOTHING;
-  if (grippedPuck) randomPuckFallDown(delta_t); 
+  if (grippedPuck && test_probability(PROB_PUCK_FALLS, delta_t))
+        //sometimes let the puck fall down while walking around with it
+  {
+      this->open(); 
+      std::cout << "Random failue: dropping puck" << std::endl;
+  }
 }
 
 /** on Gazebo reset
@@ -300,19 +313,15 @@ gazebo::physics::LinkPtr Gripper::getGripperLink()
   return res;
 }
 
-void Gripper::randomPuckFallDown(double delta_t)
+
+bool Gripper::test_probability(double p, double delta_t)
 {
-    //double p=std::pow((double)PROB_PUCK_STAYS,delta_t); // this is the probability that the puck stays
-    //the above version can lead to floating point error
-    double p = delta_t * (1.0 - PROB_PUCK_STAYS);//this is the probability that the puck falls
-    //the above version is incorrect for big delta_t but good approximation for small delta_t which occure here
+    return test_probability(delta_t * p);//this is approximation for small delta_t and p
+}
+
+bool Gripper::test_probability(double p)
+{
     double random = do_test_(rnd_gen_);
     //std::cout << "p " << p << " random " << random << std::endl;
-    //if(random>p){
-    if (random <= p)
-    {
-        this->open();
-        //let it drop
-    }
-    return;
+    return random <= p;
 }
