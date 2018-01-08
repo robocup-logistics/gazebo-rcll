@@ -38,6 +38,11 @@
 #define TOPIC_JOINT config->get_string("plugins/gripper/topic-joint").c_str()
 #define RADIUS_GRAB_AREA config->get_float("plugins/gripper/radius-grab-area")
 
+//probability of puck falling down (per second)
+#define PROB_PUCK_FALLS config->get_float("plugins/gripper/prob-puck-falls")
+//probability of fail during pick up of the puck
+#define PROB_FAILING_PICK_UP config->get_float("plugins/gripper/prob-failing-pick-up")
+
 
 enum ActionOnUpdate{
   NOTHING = 0,
@@ -105,5 +110,18 @@ namespace gazebo
     ActionOnUpdate last_action_rcvd_;
 
     gazebo::physics::LinkPtr getGripperLink();
+
+    // Function testing whether event with probability per time p happens
+    // To minimize computing cost, approximation for small absolute probability p^delta_t
+    // is used, so use carefully
+    // @param p probability per second
+    // @param delta_t timestep in which the happening of event should be calculated
+    bool test_probability(double p, double delta_t);
+    // Function testing whether event with probability p happens
+    // @param p probability
+    bool test_probability(double p);
+    common::Time oldTime_ = 0;
+    std::uniform_real_distribution<double> do_test_;
+    std::mt19937 rnd_gen_;
   };
 }
