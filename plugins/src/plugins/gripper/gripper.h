@@ -31,6 +31,8 @@
 #include <boost/thread/mutex.hpp>
 #include <configurable/configurable.h>
 
+#include <random>
+
 
 //config values
 #define TOPIC_SET_GRIPPER config->get_string("plugins/gripper/topic-set-gripper").c_str()

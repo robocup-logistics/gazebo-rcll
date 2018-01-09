@@ -33,6 +33,9 @@
 
 #include <utils/misc/gazebo_api_wrappers.h>
 
+#include <random>
+
+
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
 typedef const boost::shared_ptr<llsf_msgs::GameState const> ConstGameStatePtr;
@@ -44,6 +47,9 @@ typedef const boost::shared_ptr<llsf_msgs::GameState const> ConstGameStatePtr;
 #define ZONE_HEIGHT config->get_float("plugins/mps-placement/zone_height")
 #define ZONE_WIDTH config->get_float("plugins/mps-placement/zone_width")
 #define MPS_COUNT 14
+
+#define STD_RAND_POS_MPS config->get_float("plugins/mps-placement/std-rand-pos-mps")
+#define MAX_RAND_POS config->get_float("plugins/mps-placement/max-rand-pos")
 
 namespace gazebo
 {
@@ -92,6 +98,11 @@ namespace gazebo
     bool is_game_started_;
     int random_seed_base_;
     std::vector<std::string> placed_machines;
+
+    std::mt19937 rnd_gen_;
+    std::normal_distribution<float> dist_rcoord_;
+    //function to generate new jitter for position (clamped to +- MAX_JITTER)
+    float get_new_random();
 
 
     // Create a publisher on the ~/factory topic to spawn models

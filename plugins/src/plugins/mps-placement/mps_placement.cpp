@@ -30,6 +30,8 @@
 
 #include "mps_placement.h"
 
+#include <random>
+
 using namespace gazebo;
 using namespace gazebo_rcll;
 
@@ -68,6 +70,10 @@ void MpsPlacementPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/
 
   factoryPub = node_->Advertise<msgs::Factory>("~/factory");
   modelPub = node_->Advertise<msgs::Model>("~/model");
+
+  //init random generator and distribution
+  rnd_gen_ = std::mt19937(time(0));
+  dist_rcoord_ = std::normal_distribution<float>(0.0,STD_RAND_POS_MPS);
 }
 
 /** on Gazebo reset
@@ -141,6 +147,13 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
         return;
         break;
     }
+
+    //add some random values to coords, so position not at center of zone
+    printf("Position of %s at zone %s was %f %f\n",mps_name.c_str(),zone.c_str(),coord_x,coord_y);
+    coord_x += ZONE_WIDTH * get_new_random();
+    coord_y += ZONE_HEIGHT * get_new_random();
+    printf("Position of %s at zone %s is %f %f\n\n",mps_name.c_str(),zone.c_str(),coord_x,coord_y);
+    
 
     double ori = (M_PI *msg->machines(i).rotation())/180.0;
     ori -= M_PI/2; // substracting 90° to solve mismatch between refbox rotation and gazebo.
@@ -269,4 +282,18 @@ void MpsPlacementPlugin::remove_existing_mps()
       printf("Deleted \n");
     }
   }
+}
+
+float MpsPlacementPlugin::get_new_random()
+{
+    float temp_random;
+    int i = 0;
+    do {
+        temp_random = dist_rcoord_(rnd_gen_);
+    } while(std::abs(temp_random) > MAX_RAND_POS && i < 100);
+    if(i>=100){
+        if(temp_random > MAX_RAND_POS) return MAX_RAND_POS;
+        if(temp_random < -MAX_RAND_POS) return -MAX_RAND_POS;
+    }
+    return temp_random;
 }
