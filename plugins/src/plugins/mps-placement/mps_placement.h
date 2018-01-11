@@ -50,6 +50,7 @@ typedef const boost::shared_ptr<llsf_msgs::GameState const> ConstGameStatePtr;
 
 #define STD_RAND_POS_MPS config->get_float("plugins/mps-placement/std-rand-pos-mps")
 #define MAX_RAND_POS config->get_float("plugins/mps-placement/max-rand-pos")
+#define STD_RAND_ANGLE_MPS config->get_float("plugins/mps-placement/std-rand-angle-mps")
 
 namespace gazebo
 {
@@ -101,6 +102,7 @@ namespace gazebo
 
     std::mt19937 rnd_gen_;
     std::normal_distribution<float> dist_rcoord_;
+    std::normal_distribution<double> dist_rangle_;
     //function to generate new jitter for position (clamped to +- MAX_JITTER)
     float get_new_random();
 

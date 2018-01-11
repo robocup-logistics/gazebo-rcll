@@ -74,6 +74,7 @@ void MpsPlacementPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/
   //init random generator and distribution
   rnd_gen_ = std::mt19937(time(0));
   dist_rcoord_ = std::normal_distribution<float>(0.0,STD_RAND_POS_MPS);
+  dist_rangle_ = std::normal_distribution<double>(0.0,STD_RAND_ANGLE_MPS);
 }
 
 /** on Gazebo reset
@@ -158,6 +159,11 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
     double ori = (M_PI *msg->machines(i).rotation())/180.0;
     ori -= M_PI/2; // substracting 90° to solve mismatch between refbox rotation and gazebo.
 
+
+    //add some random value to ori, to simulate slightly wrong placing
+    double temp_random_angle = dist_rangle_(rnd_gen_);
+    ori += temp_random_angle/180.0;
+
     //get machine type
     std::string mps_type;
     if(mps_name.find("BS") != std::string::npos){
@@ -205,7 +211,7 @@ void MpsPlacementPlugin::on_machine_info_msg(ConstMachineInfoPtr &msg)
               math::Pose(coord_x, coord_y, 0, 0, 0, ori));
 #endif
 
-    printf("Place MPS %s in Zone: name: %s Pos: (%f,%f) ori: %d\n",mps_name.c_str(), zone.c_str(), coord_x,coord_y, msg->machines(i).rotation());
+    printf("Place MPS %s in Zone: name: %s Pos: (%f,%f) ori: %d\n",mps_name.c_str(), zone.c_str(), coord_x,coord_y, msg->machines(i).rotation()+(int)temp_random_angle);
     factoryPub->Publish(spawn_mps_msg);
     placed_machines.push_back(mps_name);
   }

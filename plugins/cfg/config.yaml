@@ -40,6 +40,9 @@ plugins:
     std-rand-pos-mps: 0.1
     max-rand-pos: 0.5
 
+    #the following value is in degree
+    std-rand-angle-mps: 20
+
   mps:
     #amount of pucks to listen for
     number_pucks: 20
