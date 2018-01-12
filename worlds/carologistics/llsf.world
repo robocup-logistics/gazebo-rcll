@@ -276,5 +276,6 @@
     <plugin name="llsf_refbox_comm" filename="libllsf_refbox_comm.so" />
     <plugin name="timesync" filename="libtimesync.so" />
     <plugin name="mps_placement" filename="libmps_placement.so" />
+    <plugin name="floor_clean" filename="libfloor_clean.so" />
   </world>
 </sdf>

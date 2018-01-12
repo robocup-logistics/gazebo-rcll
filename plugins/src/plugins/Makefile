@@ -19,7 +19,7 @@ include $(BASEDIR)/etc/buildsys/config.mk
 SUBDIRS	= gyro motor localization odometry \
 	  mps light-control time-sync puck gripper llsf-refbox-comm \
 	  light-signal-detection mps-placement conveyor-vision \
-	  tag tag-vision depthcam
+	  tag tag-vision depthcam floor-clean
 
 include $(BUILDSYSDIR)/rules.mk
 
