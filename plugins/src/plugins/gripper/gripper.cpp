@@ -83,6 +83,13 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   rnd_gen_ = std::mt19937(time(0));
   do_test_ = std::uniform_real_distribution<double>(0,1);
   oldTime_ = model_->GetWorld()->GetSimTime();
+
+  if (FLOOR_CLEAN_OFF)
+  {
+      x_to_put_ = 0;
+      y_to_put_ = -FIELD_Y_SIZE;
+      z_to_put_ = 0.55*PUCK_HEIGHT;
+  }
 }
 
 
@@ -115,7 +122,15 @@ void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
   {
       physics::ModelPtr puck_to_waste = grippedPuck;
       this->open(); 
-      puck_to_waste->CreateLink("puck_waste");
+      if(FLOOR_CLEAN_OFF)
+      {//need to care myself about it
+          setPuckPoseOffField(puck_to_waste);
+      }
+      else 
+      {//floor_clean plugin will care about it
+          puck_to_waste->CreateLink("puck_waste");
+      }
+
 
 
       std::cout << "Random failue: dropping puck" << std::endl;
@@ -337,4 +352,10 @@ bool Gripper::test_probability(double p)
     double random = do_test_(rnd_gen_);
     //std::cout << "p " << p << " random " << random << std::endl;
     return random <= p;
+}
+
+void Gripper::setPuckPoseOffField(physics::ModelPtr puck)
+{
+  puck->SetWorldPose(gzwrap::Pose3d(x_to_put_,y_to_put_,z_to_put_,0,0,0,0));
+  x_to_put_ += 4.0*PUCK_SIZE;
 }

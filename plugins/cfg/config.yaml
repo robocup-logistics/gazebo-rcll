@@ -145,3 +145,5 @@ plugins:
     field-x-size: 7.0
     field-y-size: 8.0
     clean-interval: 10
+    #when true the randomly fallen pucks of the gripper are send automatically offside the field
+    floor-clean-off: true

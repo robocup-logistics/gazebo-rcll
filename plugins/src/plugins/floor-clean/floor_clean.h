@@ -42,6 +42,8 @@
 #define PUCK_HEIGHT config->get_float("plugins/mps/puck_height");
 #define PUCK_SIZE config->get_float("plugins/mps/puck_size");
 
+#define FLOOR_CLEAN_OFF config->get_bool("plugins/floor-clean/floor-clean-off")
+
 
 
 namespace gazebo

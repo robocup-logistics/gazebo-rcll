@@ -46,6 +46,7 @@ FloorClean::~FloorClean()
  */
 void FloorClean::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/) 
 {
+    if(FLOOR_CLEAN_OFF) return; //this plugin is turned off, so do nothing
   // Store the pointer to the model
   this->world_ = _world;
 
