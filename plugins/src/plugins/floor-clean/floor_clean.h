@@ -40,6 +40,7 @@
 #define FIELD_Y_SIZE config->get_float("plugins/floor-clean/field-y-size")
 #define CLEAN_INTERVAL config->get_float("plugins/floor-clean/clean-interval")
 #define PUCK_HEIGHT config->get_float("plugins/mps/puck_height");
+#define PUCK_SIZE config->get_float("plugins/mps/puck_size");
 
 
 

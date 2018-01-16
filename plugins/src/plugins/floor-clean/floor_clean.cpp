@@ -57,7 +57,7 @@ void FloorClean::Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/)
   // simulation iteration.
   this->update_connection_ = event::Events::ConnectWorldUpdateBegin(boost::bind(&FloorClean::OnUpdate, this, _1));
 
-  last_clean_t_ = world_->GetSimTime();
+  last_clean_t_ = world_->GetSimTime() + common::Time(30.0);
   x_to_put_ = 0;
   y_to_put_ = -FIELD_Y_SIZE;
   z_to_put_ = 0.55*PUCK_HEIGHT;
@@ -88,10 +88,10 @@ void FloorClean::Reset()
 }
 
 
-void FloorClean::setPuckPose(physics::ModelPtr puck){
-
+void FloorClean::setPuckPose(physics::ModelPtr puck)
+{
   puck->SetWorldPose(gzwrap::Pose3d(x_to_put_,y_to_put_,z_to_put_,0,0,0,0));
-  z_to_put_ += 1.1 * PUCK_HEIGHT;
+  x_to_put_ += 4.0*PUCK_SIZE;
 }
 
 std::vector<physics::ModelPtr> FloorClean::getFloorPucks() 
@@ -107,9 +107,11 @@ std::vector<physics::ModelPtr> FloorClean::getFloorPucks()
       //std::cout << "Z_POS " << model->GetName() << " : " << model->GZWRAP_WORLD_POSE().GZWRAP_POS_Z << std::endl;
       //std::cout << "Y_POS " << model->GetName() << " : " << model->GZWRAP_WORLD_POSE().GZWRAP_POS_Y << std::endl;
       //std::cout << "X_POS " << model->GetName() << " : " << model->GZWRAP_WORLD_POSE().GZWRAP_POS_X << std::endl;
-      if(model->GZWRAP_WORLD_POSE().GZWRAP_POS_Z < CLEAN_THRESHOLD
-              && model->GZWRAP_WORLD_POSE().GZWRAP_POS_Y > 0 && model->GZWRAP_WORLD_POSE().GZWRAP_POS_Y < FIELD_Y_SIZE
-              && std::abs(model->GZWRAP_WORLD_POSE().GZWRAP_POS_X) < FIELD_X_SIZE){
+      if(
+              model->GZWRAP_WORLD_POSE().GZWRAP_POS_Y > 0 && model->GZWRAP_WORLD_POSE().GZWRAP_POS_Y < FIELD_Y_SIZE
+              && std::abs(model->GZWRAP_WORLD_POSE().GZWRAP_POS_X) < FIELD_X_SIZE
+              && (model->GZWRAP_WORLD_POSE().GZWRAP_POS_Z < CLEAN_THRESHOLD || model->GetLink("puck_waste"))) //puck is either laying on the floor or has wasted attribute
+      {
           //puck is on floor level and inside the field, so need to be removed
           FloorPucks.push_back(model);
       }

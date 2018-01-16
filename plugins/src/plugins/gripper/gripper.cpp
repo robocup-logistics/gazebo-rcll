@@ -113,7 +113,11 @@ void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
   if (grippedPuck && test_probability(PROB_PUCK_FALLS, delta_t))
         //sometimes let the puck fall down while walking around with it
   {
+      physics::ModelPtr puck_to_waste = grippedPuck;
       this->open(); 
+      puck_to_waste->CreateLink("puck_waste");
+
+
       std::cout << "Random failue: dropping puck" << std::endl;
   }
 }
