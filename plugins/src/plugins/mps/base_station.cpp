@@ -45,7 +45,7 @@ void BaseStation::on_puck_msg(ConstPosePtr &msg)
 void BaseStation::new_machine_info(ConstMachine &machine)
 {
   if((world_->GetSimTime()-last_time_rebreak_).Double()>REBREAK_BS_INTERVAL)decide_broken_state();
-  if(machine.state() == "PROCESSING" || machine.state() == "PROCESSED") // workaround, since state PROCESSING seems to be never send.
+  if(machine.state() == "PROCESSED")
   {
     if(!machine.has_instruction_bs())
     {
