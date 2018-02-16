@@ -38,6 +38,7 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
   {
     puck_ = world_->GZWRAP_MODEL_BY_NAME(msg->name());
     printf("%s got puck %s\n", name_.c_str(), puck_->GetName().c_str());
+    set_state(State::AVAILABLE);
     if (selected_gate_ > 0) {
       // We received the puck and know the gate, thus we can deliver.
       deliver();
@@ -47,11 +48,16 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 
 void DeliveryStation::new_machine_info(ConstMachine &machine)
 {
-  selected_gate_ = machine.instruction_ds().gate();
-  printf("%s got the new gate %i\n", name_.c_str(), selected_gate_);
-  if (puck_) {
-    // We already have a puck and now have the gate info, thus we can deliver.
-    deliver();
+  if (machine.state() == "IDLE") {
+    set_state(State::IDLE);
+  }
+  if (machine.has_instruction_ds()) {
+    selected_gate_ = machine.instruction_ds().gate();
+    printf("%s got the new gate %i\n", name_.c_str(), selected_gate_);
+    if (puck_) {
+      // We already have a puck and now have the gate info, thus we can deliver.
+      deliver();
+    }
   }
 }
 
@@ -67,7 +73,6 @@ void DeliveryStation::deliver()
     // Gate is 0 (no prepare msg received yet) or no puck in the machine.
     return;
   }
-  set_state(State::AVAILABLE);
   switch(selected_gate_)
   {
     case 1:
