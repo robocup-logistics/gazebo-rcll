@@ -212,6 +212,10 @@ namespace gazebo
     std::string topic_puck_command_;
     std::string topic_puck_command_result_;
     std::string topic_joint_;
+  protected:
+    bool slideInputBroken, slideOutputBroken;
+    void  add_lock(physics::ModelPtr model);
+    void  remove_lock(physics::ModelPtr model);
   };
 }
 

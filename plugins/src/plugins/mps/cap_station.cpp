@@ -44,6 +44,18 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
       std::cout << "Shelf of " << model_->GetName() << " is broken." << std::endl;
   }
 
+  //decide whether and which sides of the slide are broken
+  randomVal = rand()*1.0/RAND_MAX;
+  slideInputBroken = randomVal < PROB_SLIDE_INPUT_BROKEN;
+  randomVal = rand()*1.0/RAND_MAX;
+  slideOutputBroken = randomVal < PROB_SLIDE_OUTPUT_BROKEN;
+  if(slideInputBroken){
+      std::cout << "Input of the slide " << model_->GetName() << " is broken." << std::endl;
+  }
+  if(slideOutputBroken){
+      std::cout << "Output of the slide " << model_->GetName() << " is broken." << std::endl;
+  }
+
 }
 
 void CapStation::OnUpdate(const common::UpdateInfo &info)
@@ -106,6 +118,7 @@ void CapStation::work_puck(std::string puck_name)
   }
   //set_state(State::PROCESSED);
   world_->GZWRAP_MODEL_BY_NAME(puck_name)->SetWorldPose(output());
+  if(slideOutputBroken)add_lock(world_->GZWRAP_MODEL_BY_NAME(puck_name));
   puck_in_processing_name_ = puck_name;
 }
 
@@ -125,7 +138,8 @@ void CapStation::on_puck_msg(ConstPosePtr &msg)
     if(puck_in_input(msg)&&
        !is_puck_hold(msg->name()))
     {
-      work_puck(msg->name());
+        if(!slideInputBroken)
+            work_puck(msg->name());
     }
   }
 }
@@ -191,7 +205,8 @@ void CapStation::new_machine_info(ConstMachine &machine)
     {
       if(pose_hit(model->GZWRAP_WORLD_POSE(),input()))
       {
-        work_puck(model->GetName());
+        if(!slideInputBroken)
+                work_puck(model->GetName());
       }
     }
   }
@@ -263,17 +278,3 @@ bool CapStation::pose_in_shelf_right(const gzwrap::Pose3d &puck_pose)
   return pose_hit(puck_pose, shelf_right_pose(),0.05);
 }
 
-void CapStation::add_lock(physics::ModelPtr model)
-{
-    std::cout << "Adding lock for puck " << model->GetName() << " at machine " << model_->GetName() << std::endl;
-    model->CreateLink("puck_lock");
-}
-
-void CapStation::remove_lock(physics::ModelPtr model)
-{
-    if (!model->GetLink("puck_lock")){
-        std::cout << model->GetName() << " is not locked" << std::endl;
-       return;
-    } 
-    model->RemoveChild("puck_lock");
-}

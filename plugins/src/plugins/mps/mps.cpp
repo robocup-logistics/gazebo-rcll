@@ -73,6 +73,9 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
   topic_puck_command_result_ = config->get_string("plugins/mps/topic_puck_command_result").c_str();
   topic_joint_ = config->get_string("plugins/mps/topic_joint").c_str();
 
+  slideInputBroken = false;
+  slideOutputBroken = false;
+
   
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
@@ -291,8 +294,12 @@ float Mps::input_y()
 }
 
 
+/*if the input is broken, no pucks should be recognized at it. 
+ * Since different functions use different approaches to check for puck at input, 
+ * this is the easiest way to let them all fail if slideInputBroken == true
+ */
 gzwrap::Pose3d Mps::input()
-{ return gzwrap::Pose3d(input_x(), input_y(), BELT_HEIGHT,0,0,0); }
+{ return gzwrap::Pose3d(input_x(), input_y(), (slideInputBroken?-1:1)*BELT_HEIGHT,0,0,0); }
 
 gzwrap::Pose3d Mps::output()
 { return gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT,0,0,0); }
@@ -306,8 +313,10 @@ bool Mps::pose_hit(const gzwrap::Pose3d &to_test, const gzwrap::Pose3d &referenc
 }
 
 
+//this function also tests whether puck is in input, without using input()
 bool Mps::puck_in_input(ConstPosePtr &pose)
 {
+    if(slideInputBroken)return false;
   double dist = sqrt((pose->position().x() - input_x()) * (pose->position().x() - input_x())
 		     + (pose->position().y() - input_y()) * (pose->position().y() - input_y())
 		     + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
@@ -471,4 +480,19 @@ gazebo::physics::JointPtr Mps::getJointEndingWith(physics::ModelPtr model, std::
       return joints[i];
   }
   return gazebo::physics::JointPtr();
+}
+
+void Mps::add_lock(physics::ModelPtr model)
+{
+    std::cout << "Adding lock for puck " << model->GetName() << " at machine " << model_->GetName() << std::endl;
+    model->CreateLink("puck_lock");
+}
+
+void Mps::remove_lock(physics::ModelPtr model)
+{
+    if (!model->GetLink("puck_lock")){
+        std::cout << model->GetName() << " is not locked" << std::endl;
+       return;
+    } 
+    model->RemoveChild("puck_lock");
 }
