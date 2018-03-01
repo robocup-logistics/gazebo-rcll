@@ -75,12 +75,15 @@ plugins:
     cap-station:
       spawn_puck_time: 20
       prob-shelf-broken: 0.00
-      prob-slide-input-broken: 1.00
-      prob-slide-output-broken: 1.00
+      prob-slide-input-broken: 0.00
+      prob-slide-output-broken: 0.00
 
     ring-station:
       topic_machine_add_base: "~/LLSFRbSim/MachineAddBase/"
       max_num_bases: 3
+      prob-slide-input-broken: 0.00
+      prob-slide-output-broken: 0.00
+      prob-add-base-broken: 0.00
 
     storage-station:
       slots: [000,100,200,300,400,500]
@@ -90,6 +93,10 @@ plugins:
       slot300: ["RED","BLACK"]
       slot400: ["BLACK","ORANGE","GRAY"]
       slot500: ["SILVER","BLUE","GRAY"]
+
+    base-station:
+      prob-slide-broken: 0.50
+      rebreak-interval: 120.0
 
   puck:
     #The height of one ring

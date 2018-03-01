@@ -28,6 +28,7 @@ BaseStation::BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   Mps(_parent,_sdf)
 {
   have_puck_ = "";
+  decide_broken_state();
 }
 
 void BaseStation::on_puck_msg(ConstPosePtr &msg)
@@ -43,7 +44,8 @@ void BaseStation::on_puck_msg(ConstPosePtr &msg)
 
 void BaseStation::new_machine_info(ConstMachine &machine)
 {
-  if(machine.state() == "PROCESSING")
+  if((world_->GetSimTime()-last_time_rebreak_).Double()>REBREAK_BS_INTERVAL)decide_broken_state();
+  if(machine.state() == "PROCESSING" || machine.state() == "PROCESSED") // workaround, since state PROCESSING seems to be never send.
   {
     if(!machine.has_instruction_bs())
     {
@@ -53,16 +55,27 @@ void BaseStation::new_machine_info(ConstMachine &machine)
     gzwrap::Pose3d spawn_pose;
     if(machine.instruction_bs().side() == llsf_msgs::MachineSide::INPUT)
     {
+      if(slideInputBroken)
+      {
+        printf("machine %s cannot spawn at input bc broken\n",name_.c_str());
+        return;
+      }
       spawn_pose = gzwrap::Pose3d(input_x(),input_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
       printf("spawning puck at input\n");
     }
     else if(machine.instruction_bs().side() == llsf_msgs::MachineSide::OUTPUT)
     {
+      if(slideOutputBroken)
+      {
+        printf("machine %s cannot spawn at input bc broken\n",name_.c_str());
+        return;
+      }
       spawn_pose = gzwrap::Pose3d(output_x(), output_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
       printf("spawning puck at output\n");
     }
     else
       spawn_pose = gzwrap::Pose3d::Zero;
+
 
     gazsim_msgs::Color spawn_clr;
     switch(machine.instruction_bs().color()){
@@ -82,6 +95,8 @@ void BaseStation::new_machine_info(ConstMachine &machine)
     have_puck_ = "workpiece_base";
     set_state(State::PROCESSED);
     set_state(State::DELIVERED);
+  } else if(machine.state() == "BROKEN") {
+    decide_broken_state();
   }
 }
 
@@ -121,4 +136,22 @@ void BaseStation::on_new_puck(ConstNewPuckPtr &msg)
       have_puck_ = new_puck->GetName();
   }
   
+}
+
+
+void BaseStation::decide_broken_state()
+{
+  std::cout << "base station is thinking about it's break state again" << std::endl;
+  float randomVal;
+  randomVal = rand()*1.0/RAND_MAX;
+  slideInputBroken = randomVal < PROB_BS_SLIDE_BROKEN;
+  randomVal = rand()*1.0/RAND_MAX;
+  slideOutputBroken = randomVal < PROB_BS_SLIDE_BROKEN;
+  if(slideInputBroken){
+      std::cout << "Input of the slide of " << model_->GetName() << " is broken." << std::endl;
+  }
+  if(slideOutputBroken){
+      std::cout << "Output of the slide of " << model_->GetName() << " is broken." << std::endl;
+  }
+  last_time_rebreak_=world_->GetSimTime();
 }

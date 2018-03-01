@@ -25,6 +25,10 @@
 
 #include "mps.h"
 
+
+#define PROB_BS_SLIDE_BROKEN config->get_float("plugins/mps/base-station/prob-slide-broken")
+#define REBREAK_BS_INTERVAL config->get_float("plugins/mps/base-station/rebreak-interval")
+
 namespace gazebo
 {
 
@@ -41,6 +45,9 @@ private:
   
   
   void on_new_puck(ConstNewPuckPtr &msg);
+
+  void decide_broken_state();
+  common::Time last_time_rebreak_;
 };
 
 }
