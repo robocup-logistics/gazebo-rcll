@@ -478,13 +478,18 @@ gazebo::physics::JointPtr Mps::getJointEndingWith(physics::ModelPtr model, std::
 
 void Mps::add_lock(physics::ModelPtr model)
 {
+    if(model->GetChild("puck_lock")){
+        std::cout << model->GetName() << " is already locked" << std::endl;
+    }
     std::cout << "Adding lock for puck " << model->GetName() << " at machine " << model_->GetName() << std::endl;
-    model->CreateLink("puck_lock");
+    physics::BasePtr puck_lock(new physics::Base(model));
+    puck_lock->SetName("puck_lock");
+    model->AddChild(puck_lock);
 }
 
 void Mps::remove_lock(physics::ModelPtr model)
 {
-    if (!model->GetLink("puck_lock")){
+    if (!model->GetChild("puck_lock")){
         std::cout << model->GetName() << " is not locked" << std::endl;
        return;
     } 

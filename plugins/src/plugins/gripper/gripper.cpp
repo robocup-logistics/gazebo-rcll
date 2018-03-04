@@ -196,7 +196,7 @@ void Gripper::close() {
   }
 
   //stop picking up, when puck has lock link
-  if (potential_grippedPuck->GetLink("puck_lock")){ 
+  if (potential_grippedPuck->GetChild("puck_lock")){ 
       printf("The puck is locked! Cannot pick up.\n");
       return;
   }
