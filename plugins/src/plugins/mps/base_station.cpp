@@ -141,7 +141,7 @@ void BaseStation::on_new_puck(ConstNewPuckPtr &msg)
 
 void BaseStation::decide_broken_state()
 {
-  std::cout << "base station is thinking about it's break state again" << std::endl;
+  std::cout << "base station " << name_.c_str() << " is thinking about it's break state again" << std::endl;
   float randomVal;
   randomVal = rand()*1.0/RAND_MAX;
   slideInputBroken = randomVal < PROB_BS_SLIDE_BROKEN;

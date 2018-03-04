@@ -495,3 +495,9 @@ void Mps::remove_lock(physics::ModelPtr model)
     } 
     model->RemoveChild("puck_lock");
 }
+
+bool Mps::is_locked(physics::ModelPtr model)
+{
+    if(model->GetChild("puck_lock")) return true;
+    return false;
+}

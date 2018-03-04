@@ -77,6 +77,7 @@ plugins:
       prob-shelf-broken: 0.00
       prob-slide-input-broken: 0.00
       prob-slide-output-broken: 0.00
+      rebreak-interval: 120.0
 
     ring-station:
       topic_machine_add_base: "~/LLSFRbSim/MachineAddBase/"

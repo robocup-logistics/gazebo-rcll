@@ -24,6 +24,8 @@
 
 #include "cap_station.h"
 
+#include <fnmatch.h>
+
 using namespace gazebo;
 
 CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
@@ -32,34 +34,28 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
   spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
   spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
-  workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
+  workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT, &CapStation::on_puck_result,this);
   stored_cap_color_ = gazsim_msgs::Color::NONE;
   puck_spawned_time_ = created_time_;
 
-  //decide whether shelf broken or not
-  float randomVal = rand()*1.0/RAND_MAX;
-  shelfBroken = randomVal < PROB_SHELF_BROKEN;
-  //std::cout << "randomVal " << randomVal << std::endl;
-  if(shelfBroken){
-      std::cout << "Shelf of " << model_->GetName() << " is broken." << std::endl;
-  }
 
-  //decide whether and which sides of the slide are broken
-  randomVal = rand()*1.0/RAND_MAX;
-  slideInputBroken = randomVal < PROB_SLIDE_INPUT_BROKEN;
-  randomVal = rand()*1.0/RAND_MAX;
-  slideOutputBroken = randomVal < PROB_SLIDE_OUTPUT_BROKEN;
-  if(slideInputBroken){
-      std::cout << "Input of the slide " << model_->GetName() << " is broken." << std::endl;
-  }
-  if(slideOutputBroken){
-      std::cout << "Output of the slide " << model_->GetName() << " is broken." << std::endl;
-  }
+
+  decide_broken_state();
+
 
 }
 
 void CapStation::OnUpdate(const common::UpdateInfo &info)
 {
+  if((world_->GZWRAP_SIM_TIME()-last_time_rebreak_).Double()>REBREAK_CS_INTERVAL)
+  {
+      bool old_slideInputBroken = slideInputBroken;
+      decide_broken_state();
+      clean_up_shelf();
+      clean_up_output();
+      if(old_slideInputBroken) clean_up_input();
+      if(shelfBroken)shelf_lock();
+  }
   Mps::OnUpdate(info);
   if(model_->GetWorld()->GZWRAP_SIM_TIME().Double() - puck_spawned_time_ < SPAWN_PUCK_TIME)
   {
@@ -83,7 +79,7 @@ void CapStation::OnUpdate(const common::UpdateInfo &info)
 
 void CapStation::work_puck(std::string puck_name)
 {
-    printf("CAPSTATION: on_work_puck: %s\n",puck_name.c_str());
+  printf("CAPSTATION: on_work_puck: %s\n",puck_name.c_str());
 
   set_state(State::AVAILABLE);
   gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
@@ -209,6 +205,13 @@ void CapStation::new_machine_info(ConstMachine &machine)
                 work_puck(model->GetName());
       }
     }
+  } else if(machine.state() == "BROKEN") {
+      bool old_slideInputBroken = slideInputBroken;
+      decide_broken_state();
+      clean_up_shelf();
+      clean_up_output();
+      if(old_slideInputBroken) clean_up_input();
+      if(shelfBroken)shelf_lock();
   }
 }
 
@@ -278,3 +281,75 @@ bool CapStation::pose_in_shelf_right(const gzwrap::Pose3d &puck_pose)
   return pose_hit(puck_pose, shelf_right_pose(),0.05);
 }
 
+void CapStation::decide_broken_state()
+{
+
+  last_time_rebreak_ = world_->GZWRAP_SIM_TIME();
+  std::cout << "cap_station " << name_.c_str() << " is thinking about its break state again" << std::endl;
+  //decide whether shelf broken or not
+  float randomVal = rand()*1.0/RAND_MAX;
+  shelfBroken = randomVal < PROB_SHELF_BROKEN;
+  //std::cout << "randomVal " << randomVal << std::endl;
+  if(shelfBroken){
+      std::cout << "Shelf of " << model_->GetName() << " is broken." << std::endl;
+  }
+
+  //decide whether and which sides of the slide are broken
+  randomVal = rand()*1.0/RAND_MAX;
+  slideInputBroken = randomVal < PROB_CS_SLIDE_INPUT_BROKEN;
+  randomVal = rand()*1.0/RAND_MAX;
+  slideOutputBroken = randomVal < PROB_CS_SLIDE_OUTPUT_BROKEN;
+  if(slideInputBroken){
+      std::cout << "Input of the slide " << model_->GetName() << " is broken." << std::endl;
+  }
+  if(slideOutputBroken){
+      std::cout << "Output of the slide " << model_->GetName() << " is broken." << std::endl;
+  }
+}
+
+void CapStation::clean_up_shelf()
+{
+    if(puck_in_shelf_left_ && !shelfBroken) remove_lock(puck_in_shelf_left_);
+    if(puck_in_shelf_middle_ && !shelfBroken) remove_lock(puck_in_shelf_middle_);
+    if(puck_in_shelf_right_ && !shelfBroken) remove_lock(puck_in_shelf_right_);
+}
+void CapStation::clean_up_output()
+{
+    if(!slideOutputBroken
+              && world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_))
+        if(puck_in_output(world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE()) 
+              && is_locked(world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)))
+    {
+        static double x=-40.0;
+        remove_lock(world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_));
+        world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->SetWorldPose(gzwrap::Pose3d(x,0,0,0,0,0));
+        x-=5.0;
+    }
+}
+void CapStation::clean_up_input()
+{
+    if(!slideInputBroken)
+    {
+      unsigned int modelCount = model_->GetWorld()->GZWRAP_MODEL_COUNT();
+      physics::ModelPtr tmp;
+      //filter returned list by name. Each puck starts with "Puck", e.g. "Puck0", "Puck1", ... and then find the nearest puck
+      for(unsigned int i = 0 ; i < modelCount; i++){
+        tmp = model_->GetWorld()->GZWRAP_MODEL_BY_INDEX(i);
+        if (fnmatch("puck*",tmp->GetName().c_str(),FNM_CASEFOLD) == 0){
+            if(pose_hit(input(),tmp->GZWRAP_WORLD_POSE(),DETECT_TOLERANCE)){
+                static double x=-40.0;
+                tmp->SetWorldPose(gzwrap::Pose3d(x,-10.0,0,0,0,0));
+            }
+          
+        }
+      }
+    }
+
+}
+
+void CapStation::shelf_lock()
+{
+    if(puck_in_shelf_left_ && shelfBroken) add_lock(puck_in_shelf_left_);
+    if(puck_in_shelf_middle_ && shelfBroken) add_lock(puck_in_shelf_middle_);
+    if(puck_in_shelf_right_ && shelfBroken) add_lock(puck_in_shelf_right_);
+}

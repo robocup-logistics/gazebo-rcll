@@ -27,8 +27,9 @@
 
 #define SPAWN_PUCK_TIME config->get_int("plugins/mps/cap-station/spawn_puck_time")
 #define PROB_SHELF_BROKEN config->get_float("plugins/mps/cap-station/prob-shelf-broken")
-#define PROB_SLIDE_INPUT_BROKEN config->get_float("plugins/mps/cap-station/prob-slide-input-broken")
-#define PROB_SLIDE_OUTPUT_BROKEN config->get_float("plugins/mps/cap-station/prob-slide-output-broken")
+#define PROB_CS_SLIDE_INPUT_BROKEN config->get_float("plugins/mps/cap-station/prob-slide-input-broken")
+#define PROB_CS_SLIDE_OUTPUT_BROKEN config->get_float("plugins/mps/cap-station/prob-slide-output-broken")
+#define REBREAK_CS_INTERVAL config->get_float("plugins/mps/cap-station/rebreak-interval")
 
 typedef const boost::shared_ptr<const gazsim_msgs::WorkpieceResult> ConstWorkpieceResultPtr;
 
@@ -71,6 +72,12 @@ public:
   void work_puck(std::string puck_name);
 private:
   bool shelfBroken;
+  void decide_broken_state();
+  void clean_up_shelf();
+  void clean_up_output();
+  void clean_up_input();
+  void shelf_lock();
+  common::Time last_time_rebreak_;
 };
 
 }
