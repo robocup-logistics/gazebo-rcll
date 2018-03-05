@@ -26,6 +26,7 @@
 #include "mps.h"
 
 #define SPAWN_PUCK_TIME config->get_int("plugins/mps/cap-station/spawn_puck_time")
+#define PROB_SHELF_BROKEN config->get_float("plugins/mps/cap-station/prob-shelf-broken")
 
 typedef const boost::shared_ptr<const gazsim_msgs::WorkpieceResult> ConstWorkpieceResultPtr;
 
@@ -50,7 +51,7 @@ public:
   bool pose_in_shelf_left(const gzwrap::Pose3d &puck_pose);
   bool pose_in_shelf_middle(const gzwrap::Pose3d &puck_pose);
   bool pose_in_shelf_right(const gzwrap::Pose3d &puck_pose);
-  
+
   physics::ModelPtr puck_in_shelf_left_;
   physics::ModelPtr puck_in_shelf_middle_;
   physics::ModelPtr puck_in_shelf_right_;
@@ -64,6 +65,10 @@ public:
   double puck_spawned_time_;
   
   void work_puck(std::string puck_name);
+private:
+  bool shelfBroken;
+  void  add_lock(physics::ModelPtr model);
+  void  remove_lock(physics::ModelPtr model);
 };
 
 }

@@ -98,7 +98,7 @@ void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
       if (test_probability(PROB_FAILING_PICK_UP))
           //sometimes do not pick up the puck if advised to do so
       {
-          std::cout << "Random failue: not picking up puck" << std::endl;
+          std::cout << "Random failure: not picking up puck" << std::endl;
       }
       else
       {
@@ -169,11 +169,20 @@ void Gripper::close() {
     return;
   }
 
-  grippedPuck = getNearestPuck();
-  if (!grippedPuck){
+  //not clear yet, whether this puck will be gripped
+  physics::ModelPtr potential_grippedPuck = getNearestPuck();
+  if (!potential_grippedPuck){
     printf("No Puck found in gripper.\n");
     return;
   }
+
+  //stop picking up, when puck has lock link
+  if (potential_grippedPuck->GetLink("puck_lock")){ 
+      printf("The puck is locked! Cannot pick up.\n");
+      return;
+  }
+  
+  grippedPuck = potential_grippedPuck;
 
   //teleport puck into gripper center
   setPuckPose();

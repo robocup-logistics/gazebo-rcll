@@ -74,6 +74,7 @@ plugins:
 
     cap-station:
       spawn_puck_time: 20
+      prob-shelf-broken: 0.40
 
     ring-station:
       topic_machine_add_base: "~/LLSFRbSim/MachineAddBase/"

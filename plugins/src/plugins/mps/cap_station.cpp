@@ -35,6 +35,15 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) :
   workpiece_result_subscriber_ = node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT ,&CapStation::on_puck_result,this);
   stored_cap_color_ = gazsim_msgs::Color::NONE;
   puck_spawned_time_ = created_time_;
+
+  //decide whether shelf broken or not
+  float randomVal = rand()*1.0/RAND_MAX;
+  shelfBroken = randomVal < PROB_SHELF_BROKEN;
+  //std::cout << "randomVal " << randomVal << std::endl;
+  if(shelfBroken){
+      std::cout << "Shelf of " << model_->GetName() << " is broken." << std::endl;
+  }
+
 }
 
 void CapStation::OnUpdate(const common::UpdateInfo &info)
@@ -146,16 +155,19 @@ void CapStation::on_new_puck(ConstNewPuckPtr &msg)
       {
         puck_in_shelf_left_ = model;
         puck_cmd_pub_->Publish(cmd);
+        if(shelfBroken)add_lock(model);
       }
       else if(pose_in_shelf_middle(model->GZWRAP_WORLD_POSE()))
       {
         puck_in_shelf_middle_ = model;
         puck_cmd_pub_->Publish(cmd);
+        if(shelfBroken)add_lock(model);
       }
       else if(pose_in_shelf_right(model->GZWRAP_WORLD_POSE()))
       {
         puck_in_shelf_right_ = model;
         puck_cmd_pub_->Publish(cmd);
+        if(shelfBroken)add_lock(model);
       }
     }
   }
@@ -249,4 +261,19 @@ bool CapStation::pose_in_shelf_middle(const gzwrap::Pose3d &puck_pose)
 bool CapStation::pose_in_shelf_right(const gzwrap::Pose3d &puck_pose)
 {
   return pose_hit(puck_pose, shelf_right_pose(),0.05);
+}
+
+void CapStation::add_lock(physics::ModelPtr model)
+{
+    std::cout << "Adding lock for puck " << model->GetName() << " at machine " << model_->GetName() << std::endl;
+    model->CreateLink("puck_lock");
+}
+
+void CapStation::remove_lock(physics::ModelPtr model)
+{
+    if (!model->GetLink("puck_lock")){
+        std::cout << model->GetName() << " is not locked" << std::endl;
+       return;
+    } 
+    model->RemoveChild("puck_lock");
 }

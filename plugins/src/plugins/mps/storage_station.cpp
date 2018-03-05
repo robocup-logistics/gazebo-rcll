@@ -1,5 +1,5 @@
 /***************************************************************************
- *  base_station.cpp - controls a basesation mps
+ *  storage_station.cpp - controls a storagestation mps
  *
  *  Generated: Wed Apr 22 13:25:39 2015
  *  Copyright  2015  Randolph Maaßen
