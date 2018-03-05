@@ -218,6 +218,7 @@ namespace gazebo
     void  add_lock(physics::ModelPtr model);
     //this function removes the lock of a puck
     void  remove_lock(physics::ModelPtr model);
+    //this function checks, whether a puck is locked
     bool is_locked(physics::ModelPtr model);
   };
 }

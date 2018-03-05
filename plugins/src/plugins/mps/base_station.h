@@ -46,6 +46,7 @@ private:
   
   void on_new_puck(ConstNewPuckPtr &msg);
 
+  //this function generates random values to decide about the broken state of the base_station
   void decide_broken_state();
   common::Time last_time_rebreak_;
 };
