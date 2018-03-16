@@ -44,7 +44,9 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
      puck_in_processing_name_ == "" &&
      !is_puck_hold(msg->name()))
   {
-    set_state(State::AVAILABLE);
+    if (current_state_ == "PREPARED") {
+      set_state(State::AVAILABLE);
+    }
     puck_in_processing_name_ = msg->name();
     printf("%s got %s\n", name_.c_str(), puck_in_processing_name_.c_str());
   }
@@ -98,6 +100,9 @@ void RingStation::new_machine_info(ConstMachine &machine)
         break;
     }
     printf("%s is prepared to put %s on a workpiece\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str());
+    if (puck_in_processing_name_ != "") {
+      set_state(State::AVAILABLE);
+    }
   }
   else if(machine.state() == "PROCESSED")
   {
