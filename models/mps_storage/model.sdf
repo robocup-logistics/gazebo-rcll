@@ -3,7 +3,7 @@
   <model name="mps_storage">
     <static>true</static>
     <link name="body">
-      <pose>0 0 0.01 0 0 0</pose>
+      <pose>0 0 0.01 0 0 3.14</pose>
       <gravity>true</gravity>
       <inertial>
 	<pose>0 0 0.005 0 0 0</pose>
@@ -19,7 +19,7 @@
         </inertia>
       </inertial>
       <visual name="body-visual">
-	<pose>-0.35 .172 0 0 0 1.57</pose>
+	<pose>-0.35 .172 0 0 0 1.578</pose>
         <geometry>
           <mesh>
             <uri>model://mps_storage/meshes/mps_storage.dae</uri>
@@ -35,7 +35,55 @@
         <cast_shadows>false</cast_shadows>
       </visual>
       <!-- Collision Elements: -->
-            <collision name="collision_conveyor_belt">
+      <collision name="puckslot0">
+        <pose>.1152 0 0.97275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0985 0.2 0.002</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="puckslot1">
+        <pose>.1152 0 1.06275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0985 0.2 0.002</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="puckslot2">
+        <pose>.1152 0 1.15275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0985 0.2 0.002</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="puckslot3">
+        <pose>.1152 0 1.24275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0985 0.2 0.002</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="puckslot4">
+        <pose>.1152 0 1.33275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0985 0.2 0.002</size>
+          </box>
+        </geometry>
+      </collision>
+      <collision name="puckslot5">
+        <pose>.1152 0 1.42275 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0985 0.2 0.002</size>
+          </box>
+        </geometry>
+      </collision>
+        <collision name="collision_conveyor_belt">
         <pose>0.025 0 0.88 0 0 0 </pose>
         <geometry>
 	  <box>

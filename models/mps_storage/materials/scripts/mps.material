@@ -7,7 +7,7 @@ material mps_storage
     {
       texture_unit
       {
-        texture mps_storagetest.png
+        texture mps_storage.png
         filtering anistropic
         max_anisotropy 16
       }

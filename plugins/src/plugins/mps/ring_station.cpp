@@ -44,7 +44,6 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
      puck_in_processing_name_ == "" &&
      !is_puck_hold(msg->name()))
   {
-    set_state(State::AVAILABLE);
     puck_in_processing_name_ = msg->name();
     printf("%s got %s\n", name_.c_str(), puck_in_processing_name_.c_str());
   }
@@ -97,12 +96,15 @@ void RingStation::new_machine_info(ConstMachine &machine)
         color_to_put_ = gazsim_msgs::Color::YELLOW;
         break;
     }
+
+    set_state(State::AVAILABLE);
     printf("%s is prepared to put %s on a workpiece\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str());
   }
   else if(machine.state() == "PROCESSING")
   {
-    printf("%s is putting a %s ring onto %s\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str(), puck_in_processing_name_.c_str());
+    printf("%s: Putting a %s ring onto %s\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str(), puck_in_processing_name_.c_str());
     //teleport puck to output
+    printf("%s: Teleporting %s to output\n", name_.c_str(),puck_in_processing_name_.c_str());
     model_->GetWorld()->GZWRAP_ENTITY_BY_NAME(puck_in_processing_name_)->SetWorldPose(
           gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0) );
     //spawn a ring ontop of the puck
@@ -114,6 +116,8 @@ void RingStation::new_machine_info(ConstMachine &machine)
     else
     {
       //TODO: dont'spawn a fixed color, get color from better source
+      /// TODO: PUT THIS IN STATE PROCESSING?
+      printf("%s is in %s state: Creating Product! \n",name_.c_str(),machine.state().c_str());
       gazsim_msgs::WorkpieceCommand cmd;
       cmd.set_command(gazsim_msgs::Command::ADD_RING);
       cmd.add_color(color_to_put_);
@@ -122,7 +126,7 @@ void RingStation::new_machine_info(ConstMachine &machine)
     }
     set_state(State::DELIVERED);
   }
-  
+
   // show number of bases
   number_bases_ = machine.loaded_with();
   for(u_int32_t i=0; i < (u_int32_t) MAX_NUM_BASES; i++)
