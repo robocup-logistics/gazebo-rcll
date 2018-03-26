@@ -25,9 +25,10 @@
 using namespace gazebo;
 
 DeliveryStation::DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
-  Mps(_parent,_sdf)
+  Mps(_parent,_sdf),
+  selected_gate_(0),
+  puck_(NULL)
 {
-  selected_gate_ = 0;
 }
 
 void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
@@ -35,49 +36,75 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
   if(puck_in_input(msg) &&
      !is_puck_hold(msg->name()))
   {
-    physics::ModelPtr puck = world_->GZWRAP_MODEL_BY_NAME(msg->name());
-    printf("%s got puck %s for gate %i\n",this->name_.c_str(), puck->GetName().c_str(), selected_gate_);
-    bool successfull_deliver = true;
-    switch(selected_gate_)
-    {
-      case 1:
-        puck->SetWorldPose(get_puck_world_pose(0.3,-0.2));
-        break;
-      case 2:
-        puck->SetWorldPose(get_puck_world_pose(0.3,-0.1));
-        break;
-      case 3:
-        puck->SetWorldPose(get_puck_world_pose(0.3,-0.0));
-        break;
-      default:
-        printf("bad gateway for puck\n");
-        puck->SetWorldPose(get_puck_world_pose(-0.5,0.5));
-        successfull_deliver = false;
-        break;
-    }
+    puck_ = world_->GZWRAP_MODEL_BY_NAME(msg->name());
+    printf("%s got puck %s\n", name_.c_str(), puck_->GetName().c_str());
     set_state(State::AVAILABLE);
-    if(successfull_deliver)
-    {
-      gazsim_msgs::WorkpieceCommand cmd_msg;
-      cmd_msg.set_command(gazsim_msgs::Command::DELIVER);
-      cmd_msg.set_puck_name(msg->name());
-      if(name_[0] == 'C')
-      {
-        cmd_msg.set_team_color(gazsim_msgs::Team::CYAN);
-      }
-      else if(name_[0] == 'M')
-      {
-        cmd_msg.set_team_color(gazsim_msgs::Team::MAGENTA);
-      }
-      puck_cmd_pub_->Publish(cmd_msg);
+    if (selected_gate_ > 0) {
+      // We received the puck and know the gate, thus we can deliver.
+      deliver();
     }
   }
 }
 
 void DeliveryStation::new_machine_info(ConstMachine &machine)
 {
-  selected_gate_ = machine.instruction_ds().gate();
-  printf("%s got the new gate %i\n", this->name_.c_str(), selected_gate_);
+  if (machine.state() == "IDLE") {
+    set_state(State::IDLE);
+  }
+  if (machine.has_instruction_ds()) {
+    selected_gate_ = machine.instruction_ds().gate();
+    printf("%s got the new gate %i\n", name_.c_str(), selected_gate_);
+    if (puck_) {
+      // We already have a puck and now have the gate info, thus we can deliver.
+      deliver();
+    }
+  }
+}
+
+/** Send delivery information to the refbox and move the puck.
+ * If we have a puck in the input and we received the gate information, move the
+ * puck to the selected gate and send a DELIVER command to the refbox, then
+ * reset the puck and the selected gate.
+ * Otherwise, do nothing.
+ */
+void DeliveryStation::deliver()
+{
+  if (!selected_gate_ || !puck_) {
+    // Gate is 0 (no prepare msg received yet) or no puck in the machine.
+    return;
+  }
+  switch(selected_gate_)
+  {
+    case 1:
+      puck_->SetWorldPose(get_puck_world_pose(0.3,-0.2));
+      break;
+    case 2:
+      puck_->SetWorldPose(get_puck_world_pose(0.3,-0.1));
+      break;
+    case 3:
+      puck_->SetWorldPose(get_puck_world_pose(0.3,-0.0));
+      break;
+    default:
+      printf("bad gateway for puck\n");
+      puck_->SetWorldPose(get_puck_world_pose(-0.5,0.5));
+      return;
+  }
+  printf("%s: Sending delivery information for puck %s on gate %i\n",
+      name_.c_str(), puck_->GetName().c_str(), selected_gate_);
+  gazsim_msgs::WorkpieceCommand cmd_msg;
+  cmd_msg.set_command(gazsim_msgs::Command::DELIVER);
+  cmd_msg.set_puck_name(puck_->GetName());
+  if(name_[0] == 'C')
+  {
+    cmd_msg.set_team_color(gazsim_msgs::Team::CYAN);
+  }
+  else if(name_[0] == 'M')
+  {
+    cmd_msg.set_team_color(gazsim_msgs::Team::MAGENTA);
+  }
+  puck_cmd_pub_->Publish(cmd_msg);
+  selected_gate_ = 0;
+  puck_ = NULL;
 }
 
 void DeliveryStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
