@@ -28,6 +28,7 @@ endif
 
 ifeq ($(HAVE_GAZEBO),1)
   CFLAGS_GAZEBO  = -DHAVE_GAZEBO $(shell $(PKGCONFIG) --cflags 'gazebo')
+  CFLAGS_GAZEBO += -Wno-deprecated-declarations
   LDFLAGS_GAZEBO = $(shell $(PKGCONFIG) --libs 'gazebo') -ldl
 
   # if ffmpeg is installed, gazebo may have been compiled with support for it
