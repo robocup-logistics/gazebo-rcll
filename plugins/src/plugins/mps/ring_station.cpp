@@ -106,7 +106,7 @@ void RingStation::new_machine_info(ConstMachine &machine)
       set_state(State::AVAILABLE);
     }
   }
-  else if(machine.state() == "PROCESSING")
+  else if(machine.state() == "PROCESSED")
   {
     printf("%s: Putting a %s ring onto %s\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str(), puck_in_processing_name_.c_str());
     //teleport puck to output
