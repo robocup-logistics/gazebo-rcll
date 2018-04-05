@@ -43,7 +43,7 @@ void BaseStation::on_puck_msg(ConstPosePtr &msg)
 
 void BaseStation::new_machine_info(ConstMachine &machine)
 {
-  if(machine.state() == "PROCESSING")
+  if(machine.state() == "PROCESSED")
   {
     if(!machine.has_instruction_bs())
     {
