@@ -61,7 +61,7 @@
       <pose>-5.5 -0.5 0 0 0 1.57</pose>
     </include>
     
-    <!-- Light -->
+    <!-- Light
     <light name="light" type="point">
       <cast_shadows>false</cast_shadows>
       <pose>-12 3 1 0 0 0</pose>
@@ -74,6 +74,7 @@
 	<quadratic>0.00</quadratic>
       </attenuation>
     </light>
+    -->
 
     <!-- Machines (should later be spawned by a world plugin according to the refbox) -->
     <include>
