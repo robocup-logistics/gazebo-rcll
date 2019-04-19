@@ -175,12 +175,10 @@ void ConveyorVision::send_conveyor_result()
         res = output_pose - camera_pose;
       }
       //get position in the camera frame
-      //printf("conv-res: (%f,%f,%f)\n", res.pos.x, res.pos.y, res.pos.z);
       llsf_msgs::ConveyorVisionResult conv_msg;
       llsf_msgs::Pose3D *pose = new llsf_msgs::Pose3D();
       pose->set_x(res.GZWRAP_POS_X);
       pose->set_y(res.GZWRAP_POS_Y);
-      //pose->set_z(res.z);
       //set z to 0.005 as default so that no z alignment of the gripper is necessary
       pose->set_z( offset_z_ );
       pose->set_ori_x(res.GZWRAP_ROT_X);
