@@ -129,6 +129,12 @@ void ConveyorVision::send_conveyor_result()
     printf("Can't find conveyor camera\n");
     return;
   }
+
+  physics::LinkPtr base_link = model_->GetLink("carologistics-robotino-3::base_link");
+  if(!base_link){
+    printf("Can't find base_link on robotino model\n");
+    return;
+  }
   gzwrap::Pose3d camera_pose = camera_link->GZWRAP_WORLD_POSE();
   double look_pos_x = camera_pose.GZWRAP_POS_X
     + cos(camera_pose.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_X - sin(camera_pose.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_Y;
@@ -165,25 +171,25 @@ void ConveyorVision::send_conveyor_result()
         - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.GZWRAP_ROT_YAW);
       gzwrap::Pose3d output_pose(conv_output_x, conv_output_y, BELT_HEIGHT, 0, 0, 0);
       gzwrap::Pose3d res;
+      gzwrap::Pose3d base_link_pose = base_link->GZWRAP_WORLD_POSE();
       if(input_pose.GZWRAP_POS.Distance(camera_pose.GZWRAP_POS) <
          output_pose.GZWRAP_POS.Distance(camera_pose.GZWRAP_POS)){
         //printf("looking at input\n");
-        res = input_pose - camera_pose;
+        res = input_pose - base_link_pose;
       }
       else{
         //printf("looking at output\n");
-        res = output_pose - camera_pose;
+        res = output_pose - base_link_pose;
       }
       //get position in the camera frame
       llsf_msgs::ConveyorVisionResult conv_msg;
       llsf_msgs::Pose3D *pose = new llsf_msgs::Pose3D();
       pose->set_x(res.GZWRAP_POS_X);
       pose->set_y(res.GZWRAP_POS_Y);
-      //set z to 0.005 as default so that no z alignment of the gripper is necessary
-      pose->set_z( offset_z_ );
+      pose->set_z(res.GZWRAP_POS_Z);
       pose->set_ori_x(res.GZWRAP_ROT_X);
       pose->set_ori_y(res.GZWRAP_ROT_Y);
-      pose->set_ori_z(res.GZWRAP_ROT_Z);
+      pose->set_ori_z(0);
       pose->set_ori_w(res.GZWRAP_ROT_W);
       conv_msg.set_allocated_positions(pose);
       //send
