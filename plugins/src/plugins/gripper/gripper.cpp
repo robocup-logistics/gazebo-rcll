@@ -20,6 +20,7 @@
 
 #include <math.h>
 #include <cfloat>
+#include <queue>
 
 #include <utils/misc/gazebo_api_wrappers.h>
 
@@ -76,6 +77,8 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   grabJoint->SetName("gripper_grab_puck");
   grabJoint->SetModel( model_);
   // grabJoint->SetPose(gazebo::math::Vector3(0.0,0.0,0.0));
+
+  action_duration_ = 3.0;
 }
 
 
@@ -83,15 +86,34 @@ void Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
  */
 void Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-  if (last_action_rcvd_ == CLOSE)
-  {
-    this->close();
-  }
-  else if (last_action_rcvd_ == OPEN)
-  {
-    this->open();
-  }
-  last_action_rcvd_ = NOTHING;
+
+    if (message_queue_.empty()){
+        return;
+    }
+
+//    double time = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
+//    if(time - last_action_time_ < action_duration_){
+//        std::cout << "WAIT FOR GRIPPER_ACTION" << std::endl;
+//        return;
+//    } else{
+//      last_action_time_ = time;
+//      std::cout << "START GRIPPER ACTION" << std::endl;
+//    }
+
+    int action = message_queue_.front();
+                 message_queue_.pop();
+
+   switch (action) {
+   case CLOSE:
+       this->close();
+       break;
+   case OPEN:
+       this->open();
+       break;
+   default:
+       last_action_rcvd_ = NOTHING;
+       break;
+   }
 }
 
 /** on Gazebo reset
@@ -106,10 +128,19 @@ void Gripper::Reset()
  */
 void Gripper::on_set_gripper_msg(ConstIntPtr &msg)
 {
-  if (msg->data() == 0)
-    last_action_rcvd_ = CLOSE;
-  else
-    last_action_rcvd_ = OPEN;
+    switch (msg->data()) {
+    case 0:
+        message_queue_.push(CLOSE);
+        break;
+    case 1:
+        message_queue_.push(OPEN);
+        break;
+    case 2:
+        message_queue_.push(MOVE);
+        break;
+    default:
+        break;
+    }
 }
 
 inline bool ends_with(std::string const & value, std::string const & ending)
@@ -188,7 +219,7 @@ void Gripper::open() {
 
   grabJoint->Detach();
 
-  // std::cout << "Opening gripper!" << std::endl;
+  std::cout << "Opening gripper!" << std::endl;
   grippedPuck.reset();
 
   sendHasPuck(false);
@@ -224,7 +255,8 @@ physics::ModelPtr Gripper::getNearestPuck() {
       }
     }
   }
-  // std::cout << "Nearest puck: " << nearest->GetName() << std::endl;
+  std::cout << "Nearest puck: " << nearest->GetName() << std::endl;
+  std::cout << "Distance: " << distance << "GRAB AREA: " << RADIUS_GRAB_AREA << std::endl;
   if(distance < RADIUS_GRAB_AREA){
     return nearest;
   }

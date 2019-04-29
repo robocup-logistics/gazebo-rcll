@@ -27,6 +27,7 @@
 #include <list>
 #include <string.h>
 #include <fnmatch.h>
+#include <queue>
 
 #include <boost/thread/mutex.hpp>
 #include <configurable/configurable.h>
@@ -42,7 +43,8 @@
 enum ActionOnUpdate{
   NOTHING = 0,
   OPEN = 1,
-  CLOSE = 2
+  CLOSE = 2,
+  MOVE = 3
 } typedef ActionOnUpdate;
 
 namespace gazebo
@@ -103,6 +105,9 @@ namespace gazebo
     gazebo::physics::ModelPtr getNearestPuck();
 
     ActionOnUpdate last_action_rcvd_;
+    std::queue<ActionOnUpdate> message_queue_;
+    double action_duration_;
+    double last_action_time_;
 
     gazebo::physics::LinkPtr getGripperLink();
   };
