@@ -114,7 +114,7 @@ plugins:
     topic-set-conveyor: "~/RobotinoSim/SetConveyor/"
     topic-holds-puck: "~/RobotinoSim/GripperHasPuck/"
     topic-joint: "/GripperJoints/Holding"
-    radius-grab-area: 0.05
+    radius-grab-area: 0.1
 
   light-control:
     topic-instruct-machine: "~/LLSFRbSim/InstructMachine/"
