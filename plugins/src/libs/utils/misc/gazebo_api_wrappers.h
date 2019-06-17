@@ -112,6 +112,12 @@ typedef gazebo::math::Vector3 Vector3d;
 typedef gazebo::math::Quaternion Quaterniond;
 #endif
 
-} // namespace gazebo_wrappers
+#if GAZEBO_MAJOR_VERSION >= 10
+typedef ignition::math::Color Color;
+#else
+typedef gazebo::common::Color Color;
+#endif
+
+} // namespace gzwrap
 
 #endif // GAZEBO_API_WRAPPERS_H

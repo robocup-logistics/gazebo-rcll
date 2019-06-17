@@ -243,41 +243,41 @@ msgs::Visual Puck::create_visual_msg(std::string element_name, double element_he
   //set the color according to the message
   switch(clr){
     case gazsim_msgs::Color::RED:
-      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(1,0,0));
-      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
-      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(1,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(1,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), gzwrap::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), gzwrap::Color(1,0,0));
       break;
     case gazsim_msgs::Color::BLUE:
-      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0,0,1));
-      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
-      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(0,0,1));
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0,0,1));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), gzwrap::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), gzwrap::Color(0,0,1));
       break;
     case gazsim_msgs::Color::GREEN:
-      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0,1,0));
-      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
-      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(0,1,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0,1,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), gzwrap::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), gzwrap::Color(0,1,0));
       break;
     case gazsim_msgs::Color::BLACK:
-      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0,0,0));
-      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0,0));
-      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(0,0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), gzwrap::Color(0,0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), gzwrap::Color(0,0,0,0));
 
       break;
     case gazsim_msgs::Color::YELLOW:
-      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(255, 255, 0));
-      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
-      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(1,1,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(255, 255, 0));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), gzwrap::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), gzwrap::Color(1,1,0));
       break;
     case gazsim_msgs::Color::ORANGE:
-      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(255, 127, 0));
-      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0,0,0));
-      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(1,0.5,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(255, 127, 0));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), gzwrap::Color(0,0,0));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), gzwrap::Color(1,0.5,0));
       break;
     case gazsim_msgs::Color::GREY:
     default:
-      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), common::Color(0.2,0.2,0.2));
-      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), common::Color(0.2,0.2,0.2,0.2));
-      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), common::Color(0.2,0.2,0.2,0.2));
+      msgs::Set(visual_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(.2f, .2f, .2f));
+      msgs::Set(visual_msg.mutable_material()->mutable_emissive(), gzwrap::Color(.2f, .2f, .2f, .2f));
+      msgs::Set(visual_msg.mutable_material()->mutable_ambient(), gzwrap::Color(.2f, .2f, .2f, .2f));
       break;
   }
   // set the calculated pose for the visual
