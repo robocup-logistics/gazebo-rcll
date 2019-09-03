@@ -62,11 +62,11 @@ private:
 
   gzwrap::Pose3d get_slot_World_position(uint32_t slot_x, uint32_t slot_y, uint32_t slot_z);
   void init_storage();
-  void store_puck(std::__cxx11::string puck_name, uint32_t slot_pos_x, uint32_t slot_pos_y, uint32_t slot_pos_z);
+  void store_puck(std::string puck_name, uint32_t slot_pos_x, uint32_t slot_pos_y, uint32_t slot_pos_z);
   void retrieve_puck(uint32_t slot_pos_x, uint32_t slot_pos_y, uint32_t slot_pos_z);
 
   void addCap(physics::ModelPtr puck,gazsim_msgs::Color clr);
-  void addRings(std::__cxx11::string puck_name, std::vector<gazsim_msgs::Color> clr_list);
+  void addRings(std::string puck_name, std::vector<gazsim_msgs::Color> clr_list);
 
   int getStorageIndex( int x, int y, int z );
   int* to3D( int idx );
