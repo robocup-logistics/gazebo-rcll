@@ -189,7 +189,7 @@ void ConveyorVision::send_conveyor_result()
       pose->set_z(res.GZWRAP_POS_Z);
       pose->set_ori_x(res.GZWRAP_ROT_X);
       pose->set_ori_y(res.GZWRAP_ROT_Y);
-      pose->set_ori_z(0);
+      pose->set_ori_z(res.GZWRAP_ROT_Z);
       pose->set_ori_w(res.GZWRAP_ROT_W);
       conv_msg.set_allocated_positions(pose);
       //send
