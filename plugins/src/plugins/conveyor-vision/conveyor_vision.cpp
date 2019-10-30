@@ -156,20 +156,45 @@ void ConveyorVision::send_conveyor_result()
     {
       //check which side of the conveyor the bot is looking on
       gzwrap::Pose3d mps_pose = model->GZWRAP_WORLD_POSE();
+      const gzwrap::Quaterniond yaw_correction(0,0, IGN_PI_2 );
+      //Calculate conveyor input position (positive X points twards conveyor mid-point)
+      //        z up
+      //       /
+      //      x---> I=====O
+      //      |
+      //      y
       double conv_input_x = mps_pose.GZWRAP_POS_X
         + BELT_OFFSET_SIDE  * cos(mps_pose.GZWRAP_ROT_YAW)
         - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.GZWRAP_ROT_YAW);
       double conv_input_y = mps_pose.GZWRAP_POS_Y
         + BELT_OFFSET_SIDE  * sin(mps_pose.GZWRAP_ROT_YAW)
         + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.GZWRAP_ROT_YAW);
-      gzwrap::Pose3d input_pose(conv_input_x, conv_input_y, BELT_HEIGHT, 0, 0, 0);
+      const gzwrap::Vector3d conv_input_pose(conv_input_x,conv_input_y,BELT_HEIGHT);
+
+      const gzwrap::Quaterniond conv_input_angle =
+          mps_pose.GZWRAP_ROT_SUB(yaw_correction);
+
+      gzwrap::Pose3d input_pose(conv_input_pose,conv_input_angle);
+
+      //Calculate output conveyor position (positive X points twards conveyor mid-point)
+      //                    z up
+      //                   /
+      //    I=====O  <--- x
+      //                  |
+      //                  y
       double conv_output_x = mps_pose.GZWRAP_POS_X
         + BELT_OFFSET_SIDE  * cos(mps_pose.GZWRAP_ROT_YAW)
         + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.GZWRAP_ROT_YAW);
       double conv_output_y = mps_pose.GZWRAP_POS_Y
         + BELT_OFFSET_SIDE  * sin(mps_pose.GZWRAP_ROT_YAW)
         - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.GZWRAP_ROT_YAW);
-      gzwrap::Pose3d output_pose(conv_output_x, conv_output_y, BELT_HEIGHT, 0, 0, 0);
+      const gzwrap::Vector3d conv_output_pose(conv_output_x,conv_output_y,BELT_HEIGHT);
+
+      const gzwrap::Quaterniond conv_output_angle =
+          mps_pose.GZWRAP_ROT_ADD(yaw_correction);
+
+      gzwrap::Pose3d output_pose(conv_output_pose,conv_output_angle);
+
       gzwrap::Pose3d res;
       gzwrap::Pose3d base_link_pose = base_link->GZWRAP_WORLD_POSE();
       if(input_pose.GZWRAP_POS.Distance(camera_pose.GZWRAP_POS) <
