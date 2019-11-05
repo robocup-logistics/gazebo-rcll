@@ -38,6 +38,8 @@
 #define NUMBER_PUCKS number_pucks_
 //how far is the center of the belt hsifted from the machine center
 #define BELT_OFFSET_SIDE belt_offset_side_
+//how far is the center of the slide hsifted from the machine center
+#define SLIDE_OFFSET slide_offset_side_
 //radius of the area where a workpiece is detected by the machine
 #define DETECT_TOLERANCE detect_tolerance_
 //radius of a workpiece
@@ -91,6 +93,8 @@ namespace gazebo
     int number_pucks_;
     //how far is the center of the belt hsifted from the machine center
     float belt_offset_side_;
+    //how far is the center of the slide hsifted from the machine center
+    float slide_offset_side_;
     //radius of the area where a workpiece is detected by the machine
     float detect_tolerance_;
     //radius of a workpiece

@@ -63,6 +63,7 @@ void ConveyorVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //load config values
   number_pucks_ = config->get_int("plugins/mps/number_pucks");
   belt_offset_side_ = config->get_float("plugins/mps/belt_offset_side");
+  slide_offset_side_ = config->get_float("plugins/mps/slide_offset_side");
   detect_tolerance_ = config->get_float("plugins/mps/detect_tolerance");
   puck_size_ = config->get_float("plugins/mps/puck_size");
   puck_height_ = config->get_float("plugins/mps/puck_height");
@@ -195,29 +196,58 @@ void ConveyorVision::send_conveyor_result()
 
       gzwrap::Pose3d output_pose(conv_output_pose,conv_output_angle);
 
-      gzwrap::Pose3d res;
+	//Calculate slide pose in case of an RS
+	bool is_RS = model->GetName().find("RS") != std::string::npos;
+	gzwrap::Pose3d slide_pose(0,0,0,0,0,0);
+	if (is_RS){
+		double slide_x = mps_pose.GZWRAP_POS_X
+            + (BELT_OFFSET_SIDE + SLIDE_OFFSET)  * cos(mps_pose.GZWRAP_ROT_YAW)
+            - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.GZWRAP_ROT_YAW);
+          double slide_y = mps_pose.GZWRAP_POS_Y
+            + (BELT_OFFSET_SIDE + SLIDE_OFFSET)  * sin(mps_pose.GZWRAP_ROT_YAW)
+            + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.GZWRAP_ROT_YAW);
+         const gzwrap::Vector3d slide_input_pose(slide_x,slide_y,BELT_HEIGHT);
+         const gzwrap::Quaterniond slide_angle =
+              mps_pose.GZWRAP_ROT_SUB(yaw_correction);
+         slide_pose.Set(slide_input_pose,slide_angle);
+	 }
+
+      gzwrap::Pose3d res_conv;
+      gzwrap::Pose3d res_slide;
       gzwrap::Pose3d base_link_pose = base_link->GZWRAP_WORLD_POSE();
       if(input_pose.GZWRAP_POS.Distance(camera_pose.GZWRAP_POS) <
          output_pose.GZWRAP_POS.Distance(camera_pose.GZWRAP_POS)){
         //printf("looking at input\n");
-        res = input_pose - base_link_pose;
+        res_conv = input_pose - base_link_pose;
+	   if(is_RS){ res_slide = slide_pose - base_link_pose; }
       }
       else{
         //printf("looking at output\n");
-        res = output_pose - base_link_pose;
+        res_conv = output_pose - base_link_pose;
       }
       //get position in the camera frame
       llsf_msgs::ConveyorVisionResult conv_msg;
       llsf_msgs::Pose3D *pose = new llsf_msgs::Pose3D();
-      pose->set_x(res.GZWRAP_POS_X);
-      pose->set_y(res.GZWRAP_POS_Y);
-      pose->set_z(res.GZWRAP_POS_Z);
-      pose->set_ori_x(res.GZWRAP_ROT_X);
-      pose->set_ori_y(res.GZWRAP_ROT_Y);
-      pose->set_ori_z(res.GZWRAP_ROT_Z);
-      pose->set_ori_w(res.GZWRAP_ROT_W);
-      conv_msg.set_allocated_positions(pose);
-      //send
+      pose->set_x(res_conv.GZWRAP_POS_X);
+      pose->set_y(res_conv.GZWRAP_POS_Y);
+      pose->set_z(res_conv.GZWRAP_POS_Z);
+      pose->set_ori_x(res_conv.GZWRAP_ROT_X);
+      pose->set_ori_y(res_conv.GZWRAP_ROT_Y);
+      pose->set_ori_z(res_conv.GZWRAP_ROT_Z);
+      pose->set_ori_w(res_conv.GZWRAP_ROT_W);
+      conv_msg.set_allocated_conveyor(pose);
+      if(is_RS){
+         pose = new llsf_msgs::Pose3D();
+         pose->set_x(res_slide.GZWRAP_POS_X);
+         pose->set_y(res_slide.GZWRAP_POS_Y);
+         pose->set_z(res_slide.GZWRAP_POS_Z);
+         pose->set_ori_x(res_slide.GZWRAP_ROT_X);
+         pose->set_ori_y(res_slide.GZWRAP_ROT_Y);
+         pose->set_ori_z(res_slide.GZWRAP_ROT_Z);
+         pose->set_ori_w(res_slide.GZWRAP_ROT_W);
+         conv_msg.set_allocated_slide(pose);
+	 }
+	 //send
       conveyor_pub_->Publish(conv_msg);
       break;
     }

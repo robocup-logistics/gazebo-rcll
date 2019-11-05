@@ -41,7 +41,9 @@ plugins:
     number_pucks: 20
     #how far is the center of the belt hsifted from the machine center
     belt_offset_side: 0.025
-    #radius of the area where a workpiece is detected by the machine
+    #how far is the center of the belt hsifted from the machine center
+    slide_offset_side: -0.25
+    #radius of the area where a workpiece is detected by the machinie
     detect_tolerance: 0.06
     #radius of a workpiece
     puck_size: 0.02
