@@ -19,5 +19,6 @@ message ConveyorVisionResult {
   }
 
   // List of all known pucks
-  required Pose3D positions = 1;
+  required Pose3D conveyor = 1;
+  optional Pose3D slide = 2;
 }
