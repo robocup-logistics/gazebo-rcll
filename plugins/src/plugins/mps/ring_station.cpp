@@ -40,16 +40,15 @@ void RingStation::on_puck_msg(ConstPosePtr &msg)
     world_->GZWRAP_ENTITY_BY_NAME(msg->name())->SetWorldPose(get_puck_world_pose(-0.2,-0.5));
   }
   //check if the puck is in the input area
-  if(puck_in_input(msg) &&
-     puck_in_processing_name_ == "" &&
-     !is_puck_hold(msg->name()))
-  {
-    if (current_state_ == "PREPARED") {
-      set_state(State::AVAILABLE);
-    }
-    puck_in_processing_name_ = msg->name();
-    printf("%s got %s\n", name_.c_str(), puck_in_processing_name_.c_str());
-  }
+ if (current_state_ == "PREPARED") {
+	 if(puck_in_input(msg) && !is_puck_hold(msg->name()))
+	 {
+		puck_in_processing_name_ = msg->name();
+		printf("%s got %s\n", name_.c_str(),
+			   puck_in_processing_name_.c_str());
+		set_state(State::AVAILABLE);
+	 }
+ }
   if(current_state_ == "READY-AT-OUTPUT" &&
      msg->name() == puck_in_processing_name_ &&
      !puck_in_output(msg))
@@ -100,11 +99,7 @@ void RingStation::new_machine_info(ConstMachine &machine)
         break;
     }
 
-    set_state(State::AVAILABLE);
     printf("%s is prepared to put %s on a workpiece\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str());
-    if (puck_in_processing_name_ != "") {
-      set_state(State::AVAILABLE);
-    }
   }
   else if(machine.state() == "PROCESSED")
   {
