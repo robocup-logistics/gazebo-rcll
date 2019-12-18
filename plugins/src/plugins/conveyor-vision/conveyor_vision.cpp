@@ -63,6 +63,7 @@ void ConveyorVision::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
   //load config values
   number_pucks_ = config->get_int("plugins/mps/number_pucks");
   belt_offset_side_ = config->get_float("plugins/mps/belt_offset_side");
+  slide_offset_side_ = config->get_float("plugins/mps/slide_offset_side");
   detect_tolerance_ = config->get_float("plugins/mps/detect_tolerance");
   puck_size_ = config->get_float("plugins/mps/puck_size");
   puck_height_ = config->get_float("plugins/mps/puck_height");
@@ -129,6 +130,12 @@ void ConveyorVision::send_conveyor_result()
     printf("Can't find conveyor camera\n");
     return;
   }
+
+  physics::LinkPtr base_link = model_->GetLink("carologistics-robotino-3::base_link");
+  if(!base_link){
+    printf("Can't find base_link on robotino model\n");
+    return;
+  }
   gzwrap::Pose3d camera_pose = camera_link->GZWRAP_WORLD_POSE();
   double look_pos_x = camera_pose.GZWRAP_POS_X
     + cos(camera_pose.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_X - sin(camera_pose.GZWRAP_ROT_YAW) * SEARCH_AREA_REL_Y;
@@ -150,45 +157,97 @@ void ConveyorVision::send_conveyor_result()
     {
       //check which side of the conveyor the bot is looking on
       gzwrap::Pose3d mps_pose = model->GZWRAP_WORLD_POSE();
+      const gzwrap::Quaterniond yaw_correction(0,0, IGN_PI_2 );
+      //Calculate conveyor input position (positive X points twards conveyor mid-point)
+      //        z up
+      //       /
+      //      x---> I=====O
+      //      |
+      //      y
       double conv_input_x = mps_pose.GZWRAP_POS_X
         + BELT_OFFSET_SIDE  * cos(mps_pose.GZWRAP_ROT_YAW)
         - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.GZWRAP_ROT_YAW);
       double conv_input_y = mps_pose.GZWRAP_POS_Y
         + BELT_OFFSET_SIDE  * sin(mps_pose.GZWRAP_ROT_YAW)
         + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.GZWRAP_ROT_YAW);
-      gzwrap::Pose3d input_pose(conv_input_x, conv_input_y, BELT_HEIGHT, 0, 0, 0);
+      const gzwrap::Vector3d conv_input_pose(conv_input_x,conv_input_y,BELT_HEIGHT);
+
+      const gzwrap::Quaterniond conv_input_angle =
+          mps_pose.GZWRAP_ROT_SUB(yaw_correction);
+
+      gzwrap::Pose3d input_pose(conv_input_pose,conv_input_angle);
+
+      //Calculate output conveyor position (positive X points twards conveyor mid-point)
+      //                    z up
+      //                   /
+      //    I=====O  <--- x
+      //                  |
+      //                  y
       double conv_output_x = mps_pose.GZWRAP_POS_X
         + BELT_OFFSET_SIDE  * cos(mps_pose.GZWRAP_ROT_YAW)
         + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.GZWRAP_ROT_YAW);
       double conv_output_y = mps_pose.GZWRAP_POS_Y
         + BELT_OFFSET_SIDE  * sin(mps_pose.GZWRAP_ROT_YAW)
         - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.GZWRAP_ROT_YAW);
-      gzwrap::Pose3d output_pose(conv_output_x, conv_output_y, BELT_HEIGHT, 0, 0, 0);
-      gzwrap::Pose3d res;
+      const gzwrap::Vector3d conv_output_pose(conv_output_x,conv_output_y,BELT_HEIGHT);
+
+      const gzwrap::Quaterniond conv_output_angle =
+          mps_pose.GZWRAP_ROT_ADD(yaw_correction);
+
+      gzwrap::Pose3d output_pose(conv_output_pose,conv_output_angle);
+
+	//Calculate slide pose in case of an RS
+	bool is_RS = model->GetName().find("RS") != std::string::npos;
+	gzwrap::Pose3d slide_pose(0,0,0,0,0,0);
+	if (is_RS){
+		double slide_x = mps_pose.GZWRAP_POS_X
+            + (BELT_OFFSET_SIDE + SLIDE_OFFSET)  * cos(mps_pose.GZWRAP_ROT_YAW)
+            - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_pose.GZWRAP_ROT_YAW);
+          double slide_y = mps_pose.GZWRAP_POS_Y
+            + (BELT_OFFSET_SIDE + SLIDE_OFFSET)  * sin(mps_pose.GZWRAP_ROT_YAW)
+            + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_pose.GZWRAP_ROT_YAW);
+         const gzwrap::Vector3d slide_input_pose(slide_x,slide_y,BELT_HEIGHT);
+         const gzwrap::Quaterniond slide_angle =
+              mps_pose.GZWRAP_ROT_SUB(yaw_correction);
+         slide_pose.Set(slide_input_pose,slide_angle);
+	 }
+
+      gzwrap::Pose3d res_conv;
+      gzwrap::Pose3d res_slide;
+      gzwrap::Pose3d base_link_pose = base_link->GZWRAP_WORLD_POSE();
       if(input_pose.GZWRAP_POS.Distance(camera_pose.GZWRAP_POS) <
          output_pose.GZWRAP_POS.Distance(camera_pose.GZWRAP_POS)){
         //printf("looking at input\n");
-        res = input_pose - camera_pose;
+        res_conv = input_pose - base_link_pose;
+	   if(is_RS){ res_slide = slide_pose - base_link_pose; }
       }
       else{
         //printf("looking at output\n");
-        res = output_pose - camera_pose;
+        res_conv = output_pose - base_link_pose;
       }
       //get position in the camera frame
-      //printf("conv-res: (%f,%f,%f)\n", res.pos.x, res.pos.y, res.pos.z);
       llsf_msgs::ConveyorVisionResult conv_msg;
       llsf_msgs::Pose3D *pose = new llsf_msgs::Pose3D();
-      pose->set_x(res.GZWRAP_POS_X);
-      pose->set_y(res.GZWRAP_POS_Y);
-      //pose->set_z(res.z);
-      //set z to 0.005 as default so that no z alignment of the gripper is necessary
-      pose->set_z( offset_z_ );
-      pose->set_ori_x(0);
-      pose->set_ori_y(0);
-      pose->set_ori_z(0);
-      pose->set_ori_w(0);
-      conv_msg.set_allocated_positions(pose);
-      //send
+      pose->set_x(res_conv.GZWRAP_POS_X);
+      pose->set_y(res_conv.GZWRAP_POS_Y);
+      pose->set_z(res_conv.GZWRAP_POS_Z);
+      pose->set_ori_x(res_conv.GZWRAP_ROT_X);
+      pose->set_ori_y(res_conv.GZWRAP_ROT_Y);
+      pose->set_ori_z(res_conv.GZWRAP_ROT_Z);
+      pose->set_ori_w(res_conv.GZWRAP_ROT_W);
+      conv_msg.set_allocated_conveyor(pose);
+      if(is_RS){
+         pose = new llsf_msgs::Pose3D();
+         pose->set_x(res_slide.GZWRAP_POS_X);
+         pose->set_y(res_slide.GZWRAP_POS_Y);
+         pose->set_z(res_slide.GZWRAP_POS_Z);
+         pose->set_ori_x(res_slide.GZWRAP_ROT_X);
+         pose->set_ori_y(res_slide.GZWRAP_ROT_Y);
+         pose->set_ori_z(res_slide.GZWRAP_ROT_Z);
+         pose->set_ori_w(res_slide.GZWRAP_ROT_W);
+         conv_msg.set_allocated_slide(pose);
+	 }
+	 //send
       conveyor_pub_->Publish(conv_msg);
       break;
     }

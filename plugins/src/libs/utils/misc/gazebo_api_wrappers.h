@@ -33,9 +33,17 @@
 # define GZWRAP_Z Z()
 # define GZWRAP_W W()
 
+# define GZWRAP_ROLL Roll()
+# define GZWRAP_PITCH  Pitch()
+# define GZWRAP_YAW  Yaw()
+
 # define GZWRAP_ROT_ROLL Rot().Roll()
 # define GZWRAP_ROT_PITCH Rot().Pitch()
 # define GZWRAP_ROT_YAW Rot().Yaw()
+
+# define GZWRAP_ROTATE_POSE RotatePositionAboutOrigin()
+# define GZWRAP_ROT_ADD CoordRotationAdd
+# define GZWRAP_ROT_SUB CoordRotationSub
 
 #else
 
@@ -65,9 +73,16 @@
 # define GZWRAP_Z z
 # define GZWRAP_W w
 
+# define GZWRAP_ROLL GetRoll()
+# define GZWRAP_PITCH GetPitch()
+# define GZWRAP_YAW GetYaw()
+
 # define GZWRAP_ROT_ROLL rot.GetRoll()
 # define GZWRAP_ROT_PITCH rot.GetPitch()
 # define GZWRAP_ROT_YAW rot.GetYaw()
+# define GZWRAP_ROTATE_POSE RotatePositionAboutOrigin()
+# define GZWRAP_ROT_ADD CoordRotationAdd
+# define GZWRAP_ROT_SUB CoordRotationSub
 
 #endif
 
@@ -84,14 +99,17 @@
 # define GZWRAP_ROT_EULER_Y GZWRAP_ROT.GZWRAP_EULER.GZWRAP_Y
 # define GZWRAP_ROT_EULER_Z GZWRAP_ROT.GZWRAP_EULER.GZWRAP_Z
 
+
 namespace gzwrap {
 
 #if GAZEBO_MAJOR_VERSION >= 8
 typedef ignition::math::Pose3d Pose3d;
 typedef ignition::math::Vector3d Vector3d;
+typedef ignition::math::Quaterniond Quaterniond;
 #else
 typedef gazebo::math::Pose Pose3d;
 typedef gazebo::math::Vector3 Vector3d;
+typedef gazebo::math::Quaternion Quaterniond;
 #endif
 
 } // namespace gazebo_wrappers

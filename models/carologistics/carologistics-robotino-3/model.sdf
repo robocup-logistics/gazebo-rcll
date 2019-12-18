@@ -42,6 +42,16 @@
       <pose>0.1 0 0.57 0 0 0</pose>
     </include>
 
+    <link name="base_link">
+      <pose>0 0 0.01 0 0 0</pose>	
+    </link>
+
+    <joint name="base_link_joint" type="fixed">
+      <child>base_link</child>
+      <parent>robotino3::body</parent>
+      <pose>0 0 0 0 0 0</pose>
+    </joint>
+
     <joint name="sick_joint" type="revolute">
       <child>sick_laser::link</child>
       <parent>robotino3::body</parent>
