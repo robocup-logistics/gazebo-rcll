@@ -28,14 +28,10 @@ DeliveryStation::DeliveryStation(physics::ModelPtr _parent,
                                  sdf::ElementPtr _sdf)
     : Mps(_parent, _sdf), prepared_(false), puck_(NULL) {}
 
-void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
-{
-  if(puck_in_input(msg) &&
-     !is_puck_hold(msg->name()))
-  {
+void DeliveryStation::on_puck_msg(ConstPosePtr &msg) {
+  if (puck_in_input(msg) && !is_puck_hold(msg->name())) {
     puck_ = world_->GZWRAP_MODEL_BY_NAME(msg->name());
     printf("%s got puck %s\n", name_.c_str(), puck_->GetName().c_str());
-    set_state(State::AVAILABLE);
     if (prepared_) {
       // We received the puck and have been prepared, thus deliver.
       deliver();
@@ -43,8 +39,7 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
   }
 }
 
-void DeliveryStation::new_machine_info(ConstMachine &machine)
-{
+void DeliveryStation::new_machine_info(ConstMachine &machine) {
   if (machine.state() == "IDLE") {
     prepared_ = false;
     set_state(State::IDLE);
@@ -64,6 +59,7 @@ void DeliveryStation::new_machine_info(ConstMachine &machine)
  * Otherwise, do nothing.
  */
 void DeliveryStation::deliver() {
+  set_state(State::AVAILABLE);
   if (!prepared_ || !puck_) {
     // Machine is not prepared yet or there is no workpiece yet.
     return;
@@ -75,12 +71,9 @@ void DeliveryStation::deliver() {
   gazsim_msgs::WorkpieceCommand cmd_msg;
   cmd_msg.set_command(gazsim_msgs::Command::DELIVER);
   cmd_msg.set_puck_name(puck_->GetName());
-  if(name_[0] == 'C')
-  {
+  if (name_[0] == 'C') {
     cmd_msg.set_team_color(gazsim_msgs::Team::CYAN);
-  }
-  else if(name_[0] == 'M')
-  {
+  } else if (name_[0] == 'M') {
     cmd_msg.set_team_color(gazsim_msgs::Team::MAGENTA);
   }
   puck_cmd_pub_->Publish(cmd_msg);
@@ -88,18 +81,16 @@ void DeliveryStation::deliver() {
   puck_ = NULL;
 }
 
-void DeliveryStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg){
+void DeliveryStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg) {
 
-    //printf("MPS:GOT INSTRUCT MESSAGE\n");
+  // printf("MPS:GOT INSTRUCT MESSAGE\n");
 
-    if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_DS){
-        return;
-    }
+  if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_DS) {
+    return;
+  }
 
+  std::string machine_name = "NOT-SET";
+  machine_name = msg->machine();
 
-    std::string machine_name = "NOT-SET";
-    machine_name = msg->machine();
-
-    std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+  std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
 }
-
