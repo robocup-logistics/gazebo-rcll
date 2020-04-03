@@ -48,6 +48,9 @@ void DeliveryStation::new_machine_info(ConstMachine &machine) {
     if (puck_) {
       // We have a puck and the machine is prepared, thus we can deliver.
       deliver();
+    } else if (machine.state() == "BROKEN") {
+      puck_ = NULL;
+      prepared_ = false;
     }
   }
 }
