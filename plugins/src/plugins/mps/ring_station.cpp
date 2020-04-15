@@ -127,6 +127,10 @@ void RingStation::new_machine_info(ConstMachine &machine)
     }
     set_state(State::DELIVERED);
   }
+  else if (machine.state() == "BROKEN")
+  {
+    puck_in_processing_name_ = "";
+  }
 
   // show number of bases
   number_bases_ = machine.loaded_with();
