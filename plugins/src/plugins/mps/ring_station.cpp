@@ -101,31 +101,34 @@ void RingStation::new_machine_info(ConstMachine &machine)
 
     printf("%s is prepared to put %s on a workpiece\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str());
   }
-  else if(machine.state() == "PROCESSED")
+  else if(machine.state() == "PROCESSED" )
   {
     printf("%s: Putting a %s ring onto %s\n", name_.c_str(), gazsim_msgs::Color_Name(color_to_put_).c_str(), puck_in_processing_name_.c_str());
-    //teleport puck to output
-    printf("%s: Teleporting %s to output\n", name_.c_str(),puck_in_processing_name_.c_str());
-    model_->GetWorld()->GZWRAP_ENTITY_BY_NAME(puck_in_processing_name_)->SetWorldPose(
-          gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0) );
-    //spawn a ring ontop of the puck
-    //write to the puck plugin
-    if(!puck_cmd_pub_->HasConnections())
+    if ( puck_in_processing_name_ != "")
     {
-      printf("cannot connect to puck %s on topic %s\n",puck_in_processing_name_.c_str(),topic_puck_command_.c_str());
+        //teleport puck to output
+        printf("%s: Teleporting %s to output\n", name_.c_str(),puck_in_processing_name_.c_str());
+        model_->GetWorld()->GZWRAP_ENTITY_BY_NAME(puck_in_processing_name_)->SetWorldPose(
+            gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0) );
+       //spawn a ring ontop of the puck
+       //write to the puck plugin
+       if(!puck_cmd_pub_->HasConnections())
+          printf("cannot connect to puck %s on topic %s\n",puck_in_processing_name_.c_str(),topic_puck_command_.c_str());
+       else
+       {
+           //TODO: dont'spawn a fixed color, get color from better source
+          /// TODO: PUT THIS IN STATE PROCESSING?
+          printf("%s is in %s state: Creating Product! \n",name_.c_str(),machine.state().c_str());
+          gazsim_msgs::WorkpieceCommand cmd;
+          cmd.set_command(gazsim_msgs::Command::ADD_RING);
+          cmd.add_color(color_to_put_);
+          cmd.set_puck_name(puck_in_processing_name_);
+         puck_cmd_pub_->Publish(cmd);
+       }
+       set_state(State::DELIVERED);
     }
     else
-    {
-      //TODO: dont'spawn a fixed color, get color from better source
-      /// TODO: PUT THIS IN STATE PROCESSING?
-      printf("%s is in %s state: Creating Product! \n",name_.c_str(),machine.state().c_str());
-      gazsim_msgs::WorkpieceCommand cmd;
-      cmd.set_command(gazsim_msgs::Command::ADD_RING);
-      cmd.add_color(color_to_put_);
-      cmd.set_puck_name(puck_in_processing_name_);
-      puck_cmd_pub_->Publish(cmd);
-    }
-    set_state(State::DELIVERED);
+    printf("%s: Puck not found at input\n", name_.c_str());
   }
   else if (machine.state() == "BROKEN")
   {
