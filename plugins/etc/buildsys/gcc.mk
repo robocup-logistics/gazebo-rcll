@@ -46,6 +46,10 @@ ifeq ($(call gcc_atleast_version,4,3),1)
   ifeq ($(call gcc_atleast_version,4,7),1)
     CFLAGS_CPP11=-std=c++11
   endif
+  ifeq ($(call gcc_atleast_version,5,0),1)
+    # C++11 is the default starting from GCC 5. GCC 6 defaults to C++14, so avoid downgrading.
+    CFLAGS_CPP11=
+  endif
 endif
 
 ifeq ($(call gcc_lessthan_version,4,7),1)
