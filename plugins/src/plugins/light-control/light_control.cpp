@@ -20,6 +20,7 @@
 
 #include <math.h>
 
+#include <ignition/math/Color.hh>
 #include <utils/misc/gazebo_api_wrappers.h>
 
 #include "light_control.h"
@@ -216,20 +217,20 @@ void LightControl::change_light(std::string machine_name, Color color, llsf_msgs
       {
     case RED:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.8, 0, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(1.0, 0.3, 0.3, 1.0));
+	msgs::Set(msg.mutable_material()->mutable_diffuse(), ignition::math::Color(0.8, 0, 0, 0.8));
+	msgs::Set(msg.mutable_material()->mutable_emissive(), ignition::math::Color(1.0, 0.3, 0.3, 1.0));
 	break;
       }
     case YELLOW:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.9, 0.7, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(1.0, 0.9, 0.3, 1.0));
+	msgs::Set(msg.mutable_material()->mutable_diffuse(), ignition::math::Color(0.9, 0.7, 0, 0.8));
+	msgs::Set(msg.mutable_material()->mutable_emissive(), ignition::math::Color(1.0, 0.9, 0.3, 1.0));
 	break;
       }
     case GREEN:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0, 0.8, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.3, 1.0, 0.3, 1.0));
+	msgs::Set(msg.mutable_material()->mutable_diffuse(), ignition::math::Color(0, 0.8, 0, 0.8));
+	msgs::Set(msg.mutable_material()->mutable_emissive(), ignition::math::Color(0.3, 1.0, 0.3, 1.0));
 	break;
       }
     }
@@ -241,23 +242,23 @@ void LightControl::change_light(std::string machine_name, Color color, llsf_msgs
       {
     case RED:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.8, 0, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.0, 0.0, 0.0, 0.0));
-	msgs::Set(msg.mutable_material()->mutable_ambient(), common::Color(0.8, 0.0, 0.0, 0.8));
+	msgs::Set(msg.mutable_material()->mutable_diffuse(), ignition::math::Color(0.8, 0, 0, 0.8));
+	msgs::Set(msg.mutable_material()->mutable_emissive(), ignition::math::Color(0.0, 0.0, 0.0, 0.0));
+	msgs::Set(msg.mutable_material()->mutable_ambient(), ignition::math::Color(0.8, 0.0, 0.0, 0.8));
 	break;
       }
     case YELLOW:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.9, 0.7, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.0, 0.0, 0.0, 0.0));
-	msgs::Set(msg.mutable_material()->mutable_ambient(), common::Color(0.9, 0.7, 0.0, 0.8));
+	msgs::Set(msg.mutable_material()->mutable_diffuse(), ignition::math::Color(0.9, 0.7, 0, 0.8));
+	msgs::Set(msg.mutable_material()->mutable_emissive(), ignition::math::Color(0.0, 0.0, 0.0, 0.0));
+	msgs::Set(msg.mutable_material()->mutable_ambient(), ignition::math::Color(0.9, 0.7, 0.0, 0.8));
 	break;
       }
     case GREEN:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0, 0.8, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.0, 0.0, 0.0, 0.0));
-	msgs::Set(msg.mutable_material()->mutable_ambient(), common::Color(0, 0.8, 0, 0.8));
+	msgs::Set(msg.mutable_material()->mutable_diffuse(), ignition::math::Color(0, 0.8, 0, 0.8));
+	msgs::Set(msg.mutable_material()->mutable_emissive(), ignition::math::Color(0.0, 0.0, 0.0, 0.0));
+	msgs::Set(msg.mutable_material()->mutable_ambient(), ignition::math::Color(0, 0.8, 0, 0.8));
 	break;
       }
     }
