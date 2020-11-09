@@ -70,11 +70,11 @@ void RingStation::publish_indicator(bool active, int number)
 #endif
   if(active)
   {
-    msgs::Set(msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,0,0));
+    msgs::Set(msg.mutable_material()->mutable_diffuse(), ignition::math::Color(1,0,0));
   }
   else
   {
-    msgs::Set(msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(0.3,0,0));
+    msgs::Set(msg.mutable_material()->mutable_diffuse(), ignition::math::Color(0.3,0,0));
   }
   visPub_->Publish(msg);
 }

@@ -35,6 +35,7 @@
 #include <gazsim_msgs/NewPuck.pb.h>
 #include <map>
 #include <configurable/configurable.h>
+#include <ignition/math/Color.hh>
 
 #include <utils/misc/gazebo_api_wrappers.h>
 
