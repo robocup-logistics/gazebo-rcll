@@ -17,7 +17,7 @@ BASEDIR = ../..
 include $(BASEDIR)/etc/buildsys/config.mk
 
 SUBDIRS = gazsim_msgs llsf_msgs protobuf_comm \
-	  core utils config configurable
+	  core utils config configurable mps_comm
 
 # Explicit dependencies, this is needed to have make bail out if there is any
 # error. This is also necessary for working parallel build (i.e. for dual core)
