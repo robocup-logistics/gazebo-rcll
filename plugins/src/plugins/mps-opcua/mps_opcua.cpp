@@ -28,6 +28,7 @@
 //#include "storage_station.h"
 
 using namespace gazebo;
+using namespace gazebo_rcll;
 using namespace mps_comm;
 
 // Register this plugin to make it available in the simulator
@@ -37,52 +38,58 @@ MpsOpcUaLoader::MpsOpcUaLoader() : WorldPlugin() {
   printf("Starting MpsOpcUa Plugin!\n");
 }
 
-MpsOpcUaLoader::~MpsOpcUaLoader() {
-  delete mps_;
-  printf("Destructing MpsOpcUa Plugin!\n");
-}
+MpsOpcUaLoader::~MpsOpcUaLoader() { printf("Destructing MpsOpcUa Plugin!\n"); }
 
 void MpsOpcUaLoader::Load(physics::WorldPtr _world, sdf::ElementPtr sdf) {
-  //  std::string mps_name = _parent->GetName();
-  std::string mps_name = "C-BS";
-
-  printf(("detected machine type " + mps_name + "\n").c_str());
 
   try {
     if (config->get_bool("plugins/mps-opcua/enable")) {
 
-      //        std::string prefix = "plugins/mps-opcua/stations/";
+      std::string prefix = "plugins/mps-opcua/stations/";
+      std::set<std::string> mps_configs;
+      std::set<std::string> ignored_mps_configs;
 
-      //	   std::unique_ptr<Configuration::ValueIterator>
-      //i(config_->search(prefix.c_str())); 	    while (i->next()) { 		std::string
-      //mps_name = std::string(i->path()).substr(prefix.length()); 				cfg_name =
-      //cfg_name.substr(0, cfg_name.find("/"));
+      std::shared_ptr<Configuration::ValueIterator> i(
+          config->search(prefix.c_str()));
+      while (i->next()) {
+        std::string mps_name = std::string(i->path()).substr(prefix.length());
+        mps_name = mps_name.substr(0, mps_name.find("/"));
 
-      //                  std::string cfg_prefix = prefix + cfg_name + "/";
+        if ((mps_configs.find(mps_name) == mps_configs.end()) &&
+            (ignored_mps_configs.find(mps_name) == ignored_mps_configs.end())) {
 
-      std::string cfg_prefix = "plugins/mps-opcua/stations/" + mps_name + "/";
+          std::string cfg_prefix = prefix + mps_name + "/";
 
-      printf(("Opc Server starting for machine " + cfg_prefix).c_str());
-      bool active = true;
-      try {
-        active = config->get_bool((cfg_prefix + "active").c_str());
-      } catch (fawkes::Exception &e) {
-      } // ignored, assume enabled
+          bool active = true;
+          try {
+            active = config->get_bool((cfg_prefix + "active").c_str());
+          } catch (fawkes::Exception &e) {
+          } // ignored, assume enabled
 
-      if (active) {
-        std::string mpstype = config->get_string((cfg_prefix + "type").c_str());
-        std::string mpsip = config->get_string((cfg_prefix + "host").c_str());
-        unsigned int port = config->get_uint((cfg_prefix + "port").c_str());
+          if (active) {
+            std::string mpstype =
+                config->get_string((cfg_prefix + "type").c_str());
+            std::string mpsip =
+                config->get_string((cfg_prefix + "host").c_str());
+            unsigned int port = config->get_uint((cfg_prefix + "port").c_str());
 
-        std::string endpoint = std::string("opc.tcp://") + mpsip +
-                               std::string(":") + std::to_string(port) +
-                               std::string("/");
+            std::string endpoint = std::string("opc.tcp://") + mpsip +
+                                   std::string(":") + std::to_string(port) +
+                                   std::string("/");
 
-        printf(("Opc Server starting for machine " + mps_name + "\n").c_str());
-        printf(("Opc Sercver endpoint " + endpoint + "\n").c_str());
-        mps_ = new mps_comm::OPCServer(mps_name, mpstype, mpsip, port);
-        mps_->run_server();
-        printf(("Opc Server started for machine " + mps_name + "\n").c_str());
+            printf(
+                ("Opc Server starting for machine " + mps_name + "\n").c_str());
+            printf(("Opc Sercver endpoint " + endpoint + "\n").c_str());
+            mps_server_[mps_name] = std::make_shared<mps_comm::OPCServer>(
+                mps_name, mpstype, mpsip, port);
+            mps_server_[mps_name]->run_server();
+            printf(
+                ("Opc Server started for machine " + mps_name + "\n").c_str());
+          }
+          mps_configs.insert(mps_name);
+        } else {
+          ignored_mps_configs.insert(mps_name);
+        }
       }
     }
   } catch (fawkes::Exception &e) {
@@ -90,7 +97,5 @@ void MpsOpcUaLoader::Load(physics::WorldPtr _world, sdf::ElementPtr sdf) {
     printf(e.what());
   }
 }
-
-// void MpsOpcUaLoader::OnUpdate(const common::UpdateInfo &) {}
 
 void MpsOpcUaLoader::Reset() {}
