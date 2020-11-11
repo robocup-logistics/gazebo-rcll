@@ -11,25 +11,32 @@ using namespace OpcUa;
 
 using namespace mps_comm;
 
-OPCServer::OPCServer(std::string addr, std::string mps) {
+OPCServer::OPCServer(const std::string &name, const std::string &type,
+                     const std::string &ip, unsigned int port) {
   // First setup our server
-  logger_ = spdlog::stderr_color_mt("OPCserver" + mps);
-  server_ = new OpcUa::UaServer(logger_);
-  server_->SetEndpoint(addr);
-  server_->SetServerURI("urn://" + mps + ".opcserver");
-  // then register our server namespace and get its index in server
-  // uint32_t idx =
-  server_->RegisterNamespace("http://" + mps);
+  mps_name_ = name;
+  std::string endpoint = std::string("opc.tcp://") + ip + std::string(":") +
+                         std::to_string(port) + std::string("/");
+  printf("starting OPC Server");
+  printf(endpoint.c_str());
+  logger_ = spdlog::stderr_color_mt("OPCserver" + name);
+  server_ = std::make_shared<OpcUa::UaServer>(logger_);
+  server_->SetEndpoint(endpoint);
+  server_->SetServerURI(("urn://" + name + ".opcserver").c_str());
 }
 
 OPCServer::~OPCServer() {
-  server_->Stop();
-  delete server_;
+  if (server_started_)
+    server_->Stop();
+  // delete server_;
 }
 
 void OPCServer::run_server() {
   try {
     server_->Start();
+    // then register our server namespace and get its index in server
+    // uint32_t idx =
+    server_->RegisterNamespace("http://" + mps_name_);
 
     Node n_g = server_->GetObjectsNode()
                    .AddObject(2, "DeviceSet")
@@ -80,10 +87,11 @@ void OPCServer::run_server() {
     n_status.AddVariable(4, "Error", Variant((uint8_t)0));
     n_status.AddVariable(4, "Ready", Variant(false));
 
+    server_started_ = true;
   }
 
   catch (const std::exception &exc) {
-    std::cout << exc.what() << std::endl;
+    std::cout << "Starting Server Failed!" << exc.what() << std::endl;
   }
 }
 

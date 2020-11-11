@@ -22,7 +22,8 @@ namespace mps_comm {
 class OPCServer {
 
 public:
-  OPCServer(std::string addr, std::string mps);
+  OPCServer(const std::string &name, const std::string &type,
+            const std::string &ip, unsigned int port);
   ~OPCServer();
 
   void run_server();
@@ -30,6 +31,9 @@ public:
 
 private:
   std::shared_ptr<spdlog::logger> logger_;
-  OpcUa::UaServer *server_;
+  std::shared_ptr<OpcUa::UaServer> server_;
+
+  std::string mps_name_;
+  bool server_started_ = 0;
 };
 } // namespace mps_comm
