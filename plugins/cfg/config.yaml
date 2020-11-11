@@ -131,3 +131,77 @@ plugins:
 
   depthcam:
     topic-pcl: "~/depthcam-pcl/"
+
+  mps-opcua:
+    enable: true
+    stations:
+      C-BS:
+        active: true
+        type: BS
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4840
+      C-CS1:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4841
+        type: CS
+      C-CS2:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4842
+        type: CS
+      C-RS1:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4843
+        type: RS
+      C-RS2:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4844
+        type: RS
+      C-DS:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4845
+        type: DS
+      C-SS:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4846
+        type: SS
+      M-BS:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4850
+        type: BS
+      M-CS1:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4851
+        type: CS
+      M-CS2:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4852
+        type: CS
+      M-RS1:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4853
+        type: RS
+      M-RS2:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4854
+        type: RS
+      M-DS:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4855
+        type: DS
+      M-SS:
+        active: true
+        host: !ipv4 127.0.0.1
+        port: !tcp-port 4856
+        type: SS
