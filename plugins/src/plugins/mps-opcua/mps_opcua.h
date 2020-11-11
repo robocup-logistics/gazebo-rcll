@@ -1,5 +1,5 @@
 /***************************************************************************
- *  mps_loader.h - loads an mps of a specific type for the plugin
+ *  mps_opcua__loader.h - loads an mps opcua server for each mps
  *
  *  Generated: Wed Apr 22 12:48:29 2015
  *  Copyright  2015  Randolph Maaßen
@@ -20,30 +20,38 @@
  *  Read the full text in the LICENSE.GPL_WRE file in the doc directory.
  */
 
-#ifndef MPSLOADER_H
-#define MPSLOADER_H
+#ifndef MPSOPCUALOADER_H
+#define MPSOPCUALOADER_H
 
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
-#include "mps.h"
+#include <gazebo/physics/physics.hh>
 
-namespace gazebo
-{
+#include <configurable/configurable.h>
+#include <core/exception.h>
+#include <mps_comm/mps_server.h>
 
-class MpsLoader : public ModelPlugin
+namespace gazebo {
+
+class MpsOpcUaLoader : public WorldPlugin,
+                       public gazebo_rcll::ConfigurableAspect
+
 {
 public:
-  MpsLoader();
-  ~MpsLoader();
-  
-  //Overridden ModelPlugin-Functions
-  virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
-  virtual void OnUpdate(const common::UpdateInfo &);
+  MpsOpcUaLoader();
+  ~MpsOpcUaLoader();
+
+  // Overridden WorldPlugin-Functions
+  virtual void Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/);
   virtual void Reset();
-  
+
 private:
-  Mps *mps_;
+  /// Pointer to the gazbeo world
+  physics::WorldPtr world_;
+
+  mps_comm::OPCServer *mps_;
 };
 
-}
+} // namespace gazebo
 
 #endif // MPSLOADER_H

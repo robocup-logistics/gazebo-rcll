@@ -22,23 +22,17 @@ include $(BUILDSYSDIR)/protobuf.mk
 GAZEBO_LIBDIR = $(LIBDIR)/gazebo
 LIBDIRS_BASE += $(GAZEBO_LIBDIR)
 
-LIBS_gazebo_libmps = gazsim_msgs\
-                     llsf_msgs configurable
-OBJS_gazebo_libmps = mps.o\
-                     mps_loader.o\
-                     base_station.o\
-                     ring_station.o\
-                     cap_station.o\
-                     delivery_station.o\
-		     storage_station.o
+LIBS_gazebo_libmps_opcua = mps_comm\
+                           configurable core
+OBJS_gazebo_libmps_opcua = mps_opcua.o
 
-OBJS_all    = $(OBJS_gazebo_libmps)
+OBJS_all    = $(OBJS_gazebo_libmps_opcua )
 
 ifeq ($(HAVE_GAZEBO)$(HAVE_PROTOBUF)$(HAVE_CPP11),111)
   CFLAGS  += $(CFLAGS_GAZEBO) $(CFLAGS_PROTOBUF) $(CFLAGS_CPP11)
   LDFLAGS += $(LDFLAGS_GAZEBO) $(LDFLAGS_PROTOBUF) -lm $(call boost-libs-ldflags,system) -lboost_system
 
-  LIBS_all = $(LIBDIR)/gazebo/libmps.so
+  LIBS_all = $(LIBDIR)/gazebo/libmps_opcua.so
 else
   ifneq ($(HAVE_GAZEBO),1)
     WARN_TARGETS += warning_gazebo

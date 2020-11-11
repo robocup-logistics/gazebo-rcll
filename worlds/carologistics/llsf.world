@@ -274,6 +274,7 @@
 
     <!-- Plugins for the world -->
     <plugin name="llsf_refbox_comm" filename="libllsf_refbox_comm.so" />
+    <plugin name="mps_opcua" filename="libmps_opcua.so" />
     <plugin name="timesync" filename="libtimesync.so" />
     <plugin name="mps_placement" filename="libmps_placement.so" />
   </world>
