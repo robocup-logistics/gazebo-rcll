@@ -1,3 +1,5 @@
+[![robocup-logistics](https://circleci.com/gh/robocup-logistics/gazebo-rcll.svg?style=shield)](https://app.circleci.com/pipelines/github/robocup-logistics/gazebo-rcll)
+
 # RoboCup-Logistics Gazebo Simulation
 
 This repository includes the models, worlds and plugins to simulate the RoboCup Logistics League with Gazebo.
