@@ -216,21 +216,21 @@ void LightControl::change_light(std::string machine_name, Color color, llsf_msgs
       {
     case RED:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.8, 0, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(1.0, 0.3, 0.3, 1.0));
-	break;
+          msgs::Set(msg.mutable_material()->mutable_diffuse(), gzwrap::Color(.8f, 0, 0, .8f));
+          msgs::Set(msg.mutable_material()->mutable_emissive(), gzwrap::Color(1.0, .3f, .3f, 1.0));
+          break;
       }
     case YELLOW:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.9, 0.7, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(1.0, 0.9, 0.3, 1.0));
-	break;
+          msgs::Set(msg.mutable_material()->mutable_diffuse(), gzwrap::Color(.9f, .7f, 0, .8f));
+          msgs::Set(msg.mutable_material()->mutable_emissive(), gzwrap::Color(1.0, .9f, .3f, 1.0));
+          break;
       }
     case GREEN:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0, 0.8, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.3, 1.0, 0.3, 1.0));
-	break;
+          msgs::Set(msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0, .8f, 0, .8f));
+          msgs::Set(msg.mutable_material()->mutable_emissive(), gzwrap::Color(.3f, 1.0, .3f, 1.0));
+          break;
       }
     }
   }
@@ -241,24 +241,24 @@ void LightControl::change_light(std::string machine_name, Color color, llsf_msgs
       {
     case RED:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.8, 0, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.0, 0.0, 0.0, 0.0));
-	msgs::Set(msg.mutable_material()->mutable_ambient(), common::Color(0.8, 0.0, 0.0, 0.8));
-	break;
+          msgs::Set(msg.mutable_material()->mutable_diffuse(), gzwrap::Color(.8f, 0, 0, .8f));
+          msgs::Set(msg.mutable_material()->mutable_emissive(), gzwrap::Color(0.0, 0.0, 0.0, 0.0));
+          msgs::Set(msg.mutable_material()->mutable_ambient(), gzwrap::Color(.8f, 0.0, 0.0, .8f));
+          break;
       }
     case YELLOW:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0.9, 0.7, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.0, 0.0, 0.0, 0.0));
-	msgs::Set(msg.mutable_material()->mutable_ambient(), common::Color(0.9, 0.7, 0.0, 0.8));
-	break;
+          msgs::Set(msg.mutable_material()->mutable_diffuse(), gzwrap::Color(.9f, .7f, 0, .8f));
+          msgs::Set(msg.mutable_material()->mutable_emissive(), gzwrap::Color(0.0, 0.0, 0.0, 0.0));
+          msgs::Set(msg.mutable_material()->mutable_ambient(), gzwrap::Color(.9f, .7f, 0.0, .8f));
+          break;
       }
     case GREEN:
       {
-	msgs::Set(msg.mutable_material()->mutable_diffuse(), common::Color(0, 0.8, 0, 0.8));
-	msgs::Set(msg.mutable_material()->mutable_emissive(), common::Color(0.0, 0.0, 0.0, 0.0));
-	msgs::Set(msg.mutable_material()->mutable_ambient(), common::Color(0, 0.8, 0, 0.8));
-	break;
+          msgs::Set(msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0, .8f, 0, .8f));
+          msgs::Set(msg.mutable_material()->mutable_emissive(), gzwrap::Color(0.0, 0.0, 0.0, 0.0));
+          msgs::Set(msg.mutable_material()->mutable_ambient(), gzwrap::Color(0, .8f, 0, .8f));
+          break;
       }
     }
   }

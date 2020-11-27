@@ -84,7 +84,7 @@ void CapStation::work_puck(std::string puck_name)
 	gazebo::msgs::Visual vis_msg;
 	vis_msg.set_parent_name(name_+"::body");
 	vis_msg.set_name(name_+"::body::have_cap");
-	gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(),gazebo::common::Color(0.3,0,0));
+	gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0.3,0,0));
 	visPub_->Publish(vis_msg);
 	puck_cmd_pub_->Publish(cmd_msg);
 	stored_cap_color_ = gazsim_msgs::Color::NONE;
@@ -214,7 +214,7 @@ void CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
       gazebo::msgs::Visual vis_msg;
       vis_msg.set_parent_name(name_+"::body");
       vis_msg.set_name(name_+"::body::have_cap");
-      gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gazebo::common::Color(1,0,0));
+      gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(1,0,0));
       visPub_->Publish(vis_msg);
     }
   }
