@@ -1,0 +1,49 @@
+# vim:syntax=yaml
+version: 2.1
+jobs:
+  build_fedora:
+    docker:
+      - image: fedora:32
+    steps:
+      - run:
+          name: Install dependencies
+          command: |
+            dnf install -y --nodocs \
+              boost-devel \
+              gazebo-devel \
+              gcc-c++ \
+              git \
+              make \
+              ogre-devel \
+              openssl-devel \
+              protobuf-compiler \
+              protobuf-devel \
+              which \
+              yaml-cpp-devel
+      - checkout
+      - run: make all
+  build_ubuntu:
+    docker:
+      - image: ubuntu:bionic
+    steps:
+      - run:
+          name: Install dependencies
+          command: |
+            apt-get update
+            apt-get -y install \
+              gcc \
+              git \
+              libboost-all-dev \
+              libgazebo9-dev \
+              libprotobuf-dev \
+              libprotoc-dev \
+              libssl-dev \
+              libyaml-cpp-dev \
+              protobuf-compiler
+      - checkout
+      - run: make all
+workflows:
+  build:
+    jobs:
+      - build_fedora
+      - build_ubuntu
