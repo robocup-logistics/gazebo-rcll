@@ -24,12 +24,9 @@
 
 using namespace gazebo;
 
-DeliveryStation::DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr  _sdf) :
-  Mps(_parent,_sdf),
-  selected_gate_(0),
-  puck_(NULL)
-{
-}
+DeliveryStation::DeliveryStation(physics::ModelPtr _parent,
+                                 sdf::ElementPtr _sdf)
+    : Mps(_parent, _sdf), prepared_(false), puck_(NULL) {}
 
 void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 {
@@ -39,8 +36,8 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
     puck_ = world_->GZWRAP_MODEL_BY_NAME(msg->name());
     printf("%s got puck %s\n", name_.c_str(), puck_->GetName().c_str());
     set_state(State::AVAILABLE);
-    if (selected_gate_ > 0) {
-      // We received the puck and know the gate, thus we can deliver.
+    if (prepared_) {
+      // We received the puck and have been prepared, thus deliver.
       deliver();
     }
   }
@@ -49,48 +46,32 @@ void DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 void DeliveryStation::new_machine_info(ConstMachine &machine)
 {
   if (machine.state() == "IDLE") {
+    prepared_ = false;
     set_state(State::IDLE);
-  }
-  if (machine.has_instruction_ds()) {
-    selected_gate_ = machine.instruction_ds().gate();
-    printf("%s got the new gate %i\n", name_.c_str(), selected_gate_);
+  } else if (machine.state() == "PREPARED") {
+    prepared_ = true;
     if (puck_) {
-      // We already have a puck and now have the gate info, thus we can deliver.
+      // We have a puck and the machine is prepared, thus we can deliver.
       deliver();
     }
   }
 }
 
 /** Send delivery information to the refbox and move the puck.
- * If we have a puck in the input and we received the gate information, move the
+ * If we have a puck in the input and we received a prepare message, move the
  * puck to the selected gate and send a DELIVER command to the refbox, then
- * reset the puck and the selected gate.
+ * reset the puck and the prepared status.
  * Otherwise, do nothing.
  */
-void DeliveryStation::deliver()
-{
-  if (!selected_gate_ || !puck_) {
-    // Gate is 0 (no prepare msg received yet) or no puck in the machine.
+void DeliveryStation::deliver() {
+  if (!prepared_ || !puck_) {
+    // Machine is not prepared yet or there is no workpiece yet.
     return;
   }
-  switch(selected_gate_)
-  {
-    case 1:
-      puck_->SetWorldPose(get_puck_world_pose(0.3,-0.2));
-      break;
-    case 2:
-      puck_->SetWorldPose(get_puck_world_pose(0.3,-0.1));
-      break;
-    case 3:
-      puck_->SetWorldPose(get_puck_world_pose(0.3,-0.0));
-      break;
-    default:
-      printf("bad gateway for puck\n");
-      puck_->SetWorldPose(get_puck_world_pose(-0.5,0.5));
-      return;
-  }
-  printf("%s: Sending delivery information for puck %s on gate %i\n",
-      name_.c_str(), puck_->GetName().c_str(), selected_gate_);
+  // TODO use the right gate
+  puck_->SetWorldPose(get_puck_world_pose(0.3, -0.2));
+  printf("%s: Sending delivery information for puck %s\n", name_.c_str(),
+         puck_->GetName().c_str());
   gazsim_msgs::WorkpieceCommand cmd_msg;
   cmd_msg.set_command(gazsim_msgs::Command::DELIVER);
   cmd_msg.set_puck_name(puck_->GetName());
@@ -103,7 +84,7 @@ void DeliveryStation::deliver()
     cmd_msg.set_team_color(gazsim_msgs::Team::MAGENTA);
   }
   puck_cmd_pub_->Publish(cmd_msg);
-  selected_gate_ = 0;
+  prepared_ = false;
   puck_ = NULL;
 }
 

@@ -38,7 +38,7 @@ public:
   void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
   void deliver();
 
-  uint selected_gate_;
+  bool prepared_;
   physics::ModelPtr puck_;
 };
 
