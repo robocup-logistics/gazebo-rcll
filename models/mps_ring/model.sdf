@@ -43,6 +43,14 @@
 	    <size>0.03 0.35 0.04</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <collision name="collision_conveyor_belt_border_west">
         <pose>0 0 0.9 0 0 0 </pose>
@@ -51,6 +59,14 @@
 	    <size>0.01 0.35 0.02</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <collision name="collision_conveyor_belt_border_east">
         <pose>0.05 0 0.9 0 0 0 </pose>
@@ -59,6 +75,14 @@
 	    <size>0.01 0.35 0.02</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
 
       <!-- Box -->
@@ -69,6 +93,14 @@
 	    <size>0.69 0.35 0.01</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <collision name="collision_base_box_wall_south">
         <pose>0 -0.175 0.42 0 0 0 </pose>
@@ -77,6 +109,14 @@
 	    <size>0.69 0.01 0.72</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <collision name="collision_base_box_wall_north">
         <pose>0 0.175 0.42 0 0 0 </pose>
@@ -85,6 +125,14 @@
 	    <size>0.69 0.01 0.72</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <!-- On both ends of the mps are transparent walls a laser sensor can look through, in the middle are solid walls -->
       <collision name="collision_base_box_wall_middle_1">
@@ -94,6 +142,14 @@
 	    <size>0.01 0.35 0.72</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <collision name="collision_base_box_wall_middle_2">
         <pose>0.035 0 0.42 0 0 0 </pose>
@@ -102,6 +158,14 @@
 	    <size>0.01 0.35 0.72</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <collision name="collision_base_box_top">
         <pose>0 0 0.78 0 0 0 </pose>
@@ -110,6 +174,14 @@
 	    <size>0.69 0.35 0.01</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <collision name="collision_wheels">
 	<!-- Collision to avoid that the box falls down (In reality done by wheels) -->
@@ -119,6 +191,14 @@
 	    <size>0.69 0.35 0.02</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+              <max_vel>0.1</max_vel>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <visual name="base_0">
         <cast_shadows>false</cast_shadows>
