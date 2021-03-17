@@ -42,6 +42,13 @@
 	    <size>0.03 0.35 0.04</size>
           </box>
         </geometry>
+        <surface>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+            </ode>
+          </contact>
+        </surface>
       </collision>
       <collision name="collision_conveyor_belt_border_west">
         <pose>0 0 0.9 0 0 0 </pose>
