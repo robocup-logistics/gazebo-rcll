@@ -24,6 +24,11 @@
               <slip2>0.0</slip2>
       	    </ode>
       	  </friction>
+          <contact>
+            <ode>
+              <min_depth>0.01</min_depth>
+            </ode>
+          </contact>
       	</surface>
       </collision>
       <visual name="cylinder_visual">
