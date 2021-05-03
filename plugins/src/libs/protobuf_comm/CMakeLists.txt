@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Created:   Mon  3 May 14:09:28 CEST 2021
+# Created:   Mon  3 May 14:50:32 CEST 2021
 #
 # Copyright  2021  Till Hofmann <hofmann@kbsg.rwth-aachen.de>
 # ****************************************************************************/
@@ -16,9 +16,16 @@
 # Read the full text in the LICENSE.md file.
 #
 
-add_subdirectory(core)
-add_subdirectory(config)
-add_subdirectory(configurable)
-add_subdirectory(gazsim_msgs)
-add_subdirectory(llsf_msgs)
-add_subdirectory(protobuf_comm)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(libcrypto IMPORTED_TARGET libcrypto)
+if(NOT libcrypto_FOUND)
+  pkg_check_modules(libcrypto IMPORTED_TARGET openssl)
+endif()
+
+add_library(protobuf_comm SHARED client.cpp crypto.cpp message_register.cpp
+                                 peer.cpp server.cpp)
+
+if(libcrypto_FOUND)
+  target_link_libraries(protobuf_comm PkgConfig::libcrypto)
+  target_compile_options(protobuf_comm PRIVATE "-DHAVE_LIBCRYPTO")
+endif()
