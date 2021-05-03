@@ -21,8 +21,6 @@ cmake_minimum_required(VERSION 3.14)
 project(gazebo-rcll)
 include(GNUInstallDirs)
 
-find_package(gazebo REQUIRED)
-
 set(USERDIR
     ".fawkes"
     CACHE PATH

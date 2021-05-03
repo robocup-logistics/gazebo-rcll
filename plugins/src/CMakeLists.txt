@@ -18,8 +18,20 @@
 
 find_package(gazebo REQUIRED)
 
-list(APPEND GAZEBO_CFLAGS -DTBB_SUPPRESS_DEPRECATED_MESSAGES
-     -DBOOST_BIND_GLOBAL_PLACEHOLDERS -Wno-range-loop-construct)
+if(gazebo_VERSION_MAJOR LESS_EQUAL 11)
+  list(APPEND GAZEBO_CFLAGS -DTBB_SUPPRESS_DEPRECATED_MESSAGES
+       -DBOOST_BIND_GLOBAL_PLACEHOLDERS)
+endif()
+
+if(gazebo_VERSION_MAJOR LESS_EQUAL 9)
+  # Gazebo on Ubuntu Focal produces this warning, disable it.
+  list(APPEND GAZEBO_CFLAGS -Wno-deprecated-declarations)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION
+                                            GREATER_EQUAL 11)
+  list(APPEND GAZEBO_CFLAGS -Wno-range-loop-construct)
+endif()
 
 add_subdirectory(libs)
 add_subdirectory(plugins)
