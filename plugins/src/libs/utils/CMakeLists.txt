@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Created:   Mon  3 May 14:09:28 CEST 2021
+# Created:   Mon  3 May 15:02:09 CEST 2021
 #
 # Copyright  2021  Till Hofmann <hofmann@kbsg.rwth-aachen.de>
 # ****************************************************************************/
@@ -16,10 +16,7 @@
 # Read the full text in the LICENSE.md file.
 #
 
-add_subdirectory(core)
-add_subdirectory(config)
-add_subdirectory(configurable)
-add_subdirectory(gazsim_msgs)
-add_subdirectory(llsf_msgs)
-add_subdirectory(protobuf_comm)
-add_subdirectory(utils)
+add_library(
+  utils SHARED
+  llsf/machines.cpp misc/string_compare.cpp misc/string_conversions.cpp
+  system/argparser.cpp system/hostinfo.cpp)
