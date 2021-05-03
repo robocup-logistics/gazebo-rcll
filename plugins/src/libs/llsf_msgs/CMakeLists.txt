@@ -50,6 +50,7 @@ protobuf_generate_cpp(
   VersionInfo.proto
   Zone.proto)
 
-add_library(llsf_msgs SHARED ${PROTO_SRCS})
+add_library(llsf_msgs SHARED ${PROTO_SRCS} ${PROTO_HDRS})
+target_link_libraries(llsf_msgs PUBLIC protobuf::libprotobuf)
 target_include_directories(llsf_msgs
-                           INTERFACE ${CMAKE_BINARY_DIR}/plugins/src/libs)
+                           PUBLIC ${CMAKE_BINARY_DIR}/plugins/src/libs)
