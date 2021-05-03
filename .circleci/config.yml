@@ -9,6 +9,7 @@ jobs:
           name: Install dependencies
           command: |
             dnf install -y --nodocs \
+              cmake \
               boost-devel \
               gazebo-devel \
               gcc-c++ \
@@ -21,7 +22,8 @@ jobs:
               which \
               yaml-cpp-devel
       - checkout
-      - run: make all
+      - run: cmake -B build
+      - run: cmake --build build
   build_ubuntu:
     docker:
       - image: ubuntu:bionic
@@ -31,6 +33,7 @@ jobs:
           command: |
             apt-get update
             apt-get -y install \
+              cmake \
               gcc \
               git \
               libboost-all-dev \
@@ -41,7 +44,8 @@ jobs:
               libyaml-cpp-dev \
               protobuf-compiler
       - checkout
-      - run: make all
+      - run: mkdir -p build && cmake -B build
+      - run: cmake --build build
 workflows:
   build:
     jobs:
