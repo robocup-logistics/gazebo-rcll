@@ -51,3 +51,5 @@ protobuf_generate_cpp(
   Zone.proto)
 
 add_library(llsf_msgs SHARED ${PROTO_SRCS})
+target_include_directories(llsf_msgs
+                           INTERFACE ${CMAKE_BINARY_DIR}/plugins/src/libs)

@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Created:   Mon  3 May 14:08:58 CEST 2021
+# Created:   Mon  3 May 15:26:16 CEST 2021
 #
 # Copyright  2021  Till Hofmann <hofmann@kbsg.rwth-aachen.de>
 # ****************************************************************************/
@@ -16,10 +16,10 @@
 # Read the full text in the LICENSE.md file.
 #
 
-find_package(gazebo REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
 
-list(APPEND GAZEBO_CFLAGS -DTBB_SUPPRESS_DEPRECATED_MESSAGES
-     -DBOOST_BIND_GLOBAL_PLACEHOLDERS -Wno-range-loop-construct)
-
-add_subdirectory(libs)
-add_subdirectory(plugins)
+add_library(conveyor_vision SHARED conveyor_vision.cpp)
+target_link_libraries(conveyor_vision PUBLIC gazebo llsf_msgs configurable core
+                                             Boost::system)
+target_include_directories(conveyor_vision PUBLIC ${GAZEBO_INCLUDE_DIRS})
+target_compile_options(conveyor_vision PUBLIC ${GAZEBO_CFLAGS})
