@@ -17,3 +17,4 @@
 #
 
 add_subdirectory(conveyor-vision)
+add_subdirectory(depthcam)
