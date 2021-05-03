@@ -1,6 +1,6 @@
 # ***************************************************************************
-# Created:   Mon  3 May 14:09:28 CEST 2021
-#
+# Created:   Mon  3 May 14:11:20 CEST 2021
+
 # Copyright  2021  Till Hofmann <hofmann@kbsg.rwth-aachen.de>
 # ****************************************************************************/
 # This program is free software; you can redistribute it and/or modify it under
@@ -16,6 +16,5 @@
 # Read the full text in the LICENSE.md file.
 #
 
-add_subdirectory(core)
-add_subdirectory(config)
-add_subdirectory(configurable)
+add_library(configurable SHARED configurable.cpp)
+target_link_libraries(configurable config)
