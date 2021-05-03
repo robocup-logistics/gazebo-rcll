@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Created:   Mon  3 May 14:09:28 CEST 2021
+# Created:   Mon  3 May 14:44:57 CEST 2021
 #
 # Copyright  2021  Till Hofmann <hofmann@kbsg.rwth-aachen.de>
 # ****************************************************************************/
@@ -16,8 +16,38 @@
 # Read the full text in the LICENSE.md file.
 #
 
-add_subdirectory(core)
-add_subdirectory(config)
-add_subdirectory(configurable)
-add_subdirectory(gazsim_msgs)
-add_subdirectory(llsf_msgs)
+find_package(Protobuf REQUIRED)
+protobuf_generate_cpp(
+  PROTO_SRCS
+  PROTO_HDRS
+  AttentionMessage.proto
+  BeaconSignal.proto
+  ConveyorVisionResult.proto
+  ExplorationInfo.proto
+  GameInfo.proto
+  GameState.proto
+  LightSignals.proto
+  LockMasterAnnounce.proto
+  LockMessage.proto
+  MachineCommands.proto
+  MachineDescription.proto
+  MachineInfo.proto
+  MachineInstructions.proto
+  MachineReport.proto
+  OrderInfo.proto
+  Pose2D.proto
+  Pose3D.proto
+  PreparedForProduction.proto
+  ProductColor.proto
+  PuckDetectionResult.proto
+  RingInfo.proto
+  RobotCommands.proto
+  RobotInfo.proto
+  SimTimeSync.proto
+  Sync.proto
+  Team.proto
+  Time.proto
+  VersionInfo.proto
+  Zone.proto)
+
+add_library(llsf_msgs SHARED ${PROTO_SRCS})
