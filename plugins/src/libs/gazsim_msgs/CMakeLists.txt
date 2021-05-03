@@ -25,6 +25,7 @@ protobuf_generate_cpp(
   SimTime.proto
   WorkpieceCommand.proto
   LightSignalDetection.proto)
-add_library(gazsim_msgs SHARED ${PROTO_SRCS})
+add_library(gazsim_msgs SHARED ${PROTO_SRCS} ${PROTO_HDRS})
+target_link_libraries(gazsim_msgs PUBLIC protobuf::libprotobuf)
 target_include_directories(gazsim_msgs
-                           INTERFACE ${CMAKE_BINARY_DIR}/plugins/src/libs)
+                           PUBLIC ${CMAKE_BINARY_DIR}/plugins/src/libs)
