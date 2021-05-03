@@ -26,3 +26,5 @@ protobuf_generate_cpp(
   WorkpieceCommand.proto
   LightSignalDetection.proto)
 add_library(gazsim_msgs SHARED ${PROTO_SRCS})
+target_include_directories(gazsim_msgs
+                           INTERFACE ${CMAKE_BINARY_DIR}/plugins/src/libs)
