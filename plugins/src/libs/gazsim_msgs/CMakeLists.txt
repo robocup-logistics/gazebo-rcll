@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Created:   Mon  3 May 14:09:28 CEST 2021
+# Created:   Mon  3 May 14:33:33 CEST 2021
 #
 # Copyright  2021  Till Hofmann <hofmann@kbsg.rwth-aachen.de>
 # ****************************************************************************/
@@ -16,7 +16,13 @@
 # Read the full text in the LICENSE.md file.
 #
 
-add_subdirectory(core)
-add_subdirectory(config)
-add_subdirectory(configurable)
-add_subdirectory(gazsim_msgs)
+find_package(Protobuf REQUIRED)
+protobuf_generate_cpp(
+  PROTO_SRCS
+  PROTO_HDRS
+  Float.proto
+  NewPuck.proto
+  SimTime.proto
+  WorkpieceCommand.proto
+  LightSignalDetection.proto)
+add_library(gazsim_msgs SHARED ${PROTO_SRCS})
