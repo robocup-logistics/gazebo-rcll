@@ -32,5 +32,4 @@ set(CONFDIR
 add_compile_options(-g -Wall -Werror)
 add_compile_options(-DUSERDIR="${USERDIR}" -DCONFDIR="${CONFDIR}")
 
-include_directories(plugins/src/libs)
 add_subdirectory(plugins/src)

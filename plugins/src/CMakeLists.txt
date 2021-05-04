@@ -33,5 +33,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION
   list(APPEND GAZEBO_CFLAGS -Wno-range-loop-construct)
 endif()
 
+include_directories(libs)
 add_subdirectory(libs)
 add_subdirectory(plugins)
