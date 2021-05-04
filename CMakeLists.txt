@@ -22,9 +22,11 @@ project(gazebo-rcll)
 include(GNUInstallDirs)
 
 set(USERDIR
-    ".fawkes"
-    CACHE PATH
-          "The directory for user config files, relative to its home directory")
+    ".config/rcll-refbox"
+    CACHE
+      PATH
+      "The directory for user config files, relative to the user's home directory"
+)
 set(CONFDIR
     "${CMAKE_SOURCE_DIR}/cfg"
     CACHE PATH "The directory where config files are stored")
