@@ -3,12 +3,13 @@ version: 2.1
 jobs:
   build_fedora:
     docker:
-      - image: fedora:32
+      - image: fedora:34
     steps:
       - run:
           name: Install dependencies
           command: |
             dnf install -y --nodocs \
+              cmake \
               boost-devel \
               gazebo-devel \
               gcc-c++ \
@@ -21,17 +22,20 @@ jobs:
               which \
               yaml-cpp-devel
       - checkout
-      - run: make all
+      - run: cmake -B build
+      - run: cmake --build build
   build_ubuntu:
     docker:
-      - image: ubuntu:bionic
+      - image: ubuntu:focal
     steps:
       - run:
           name: Install dependencies
           command: |
             apt-get update
+            DEBIAN_FRONTEND=noninteractive \
             apt-get -y install \
-              gcc \
+              cmake \
+              g++ \
               git \
               libboost-all-dev \
               libgazebo9-dev \
@@ -41,7 +45,8 @@ jobs:
               libyaml-cpp-dev \
               protobuf-compiler
       - checkout
-      - run: make all
+      - run: mkdir -p build && cmake -B build
+      - run: cmake --build build
 workflows:
   build:
     jobs:
