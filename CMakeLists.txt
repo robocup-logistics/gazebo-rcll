@@ -22,7 +22,7 @@ project(gazebo-rcll)
 include(GNUInstallDirs)
 
 set(USERDIR
-    ".config/rcll-refbox"
+    ".config/rcll/gazebo"
     CACHE
       PATH
       "The directory for user config files, relative to the user's home directory"
