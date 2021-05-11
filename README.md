@@ -12,8 +12,7 @@ This repository includes the models, worlds and plugins to simulate the RoboCup 
    $ cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
    $ cmake --build build
    ```
-3. Set up the environment by adding the following variables to your `~/.bashrc`:
-   You may have to change the path depending on where you cloned the repository and which world you want to run.
+3. Set up the environment. Open `~/.bashrc` with your favorite text editor and add the following lines:
    ```bash
    source /usr/share/gazebo/setup.sh
    export GAZEBO_RCLL=~/gazebo-rcll
@@ -22,7 +21,8 @@ This repository includes the models, worlds and plugins to simulate the RoboCup 
    export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$GAZEBO_RCLL/models/carologistics
    export GAZEBO_WORLD_PATH=$GAZEBO_RCLL/worlds/carologistics/llsf.world
    ```
-   **Note:** If you want to start Gazebo as a ROS node you need to add those changes in the /usr/share/gazebo/setup.sh.
+   You may have to change the path depending on where you cloned the repository and which world you want to run.
+4. Restart your terminal to make sure the environment variables are set correctly.
 
 Then you can start gazebo from the terminal.
 
