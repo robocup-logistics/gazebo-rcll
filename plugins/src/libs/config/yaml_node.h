@@ -39,18 +39,6 @@
 #include <stack>
 #include <unistd.h>
 
-#ifndef HAVE_YAMLCPP_0_5
-// older versions of yaml-cpp had these functions in the
-// YAML, rather than in the YAML::conversion namespace.
-namespace YAML {
-namespace conversion {
-using YAML::IsInfinity;
-using YAML::IsNaN;
-using YAML::IsNegativeInfinity;
-} // namespace conversion
-} // namespace YAML
-#endif
-
 namespace gazebo_rcll {
 
 /// @cond INTERNALS
@@ -235,11 +223,7 @@ public:
 	YamlConfigurationNode(std::string name, const YAML::Node &node)
 	: name_(name), type_(Type::UNKNOWN), is_default_(false)
 	{
-#ifdef HAVE_YAMLCPP_0_5
 		scalar_value_ = node.Scalar();
-#else
-		node.GetScalar(scalar_value_);
-#endif
 		switch (node.Type()) {
 		case YAML::NodeType::Null: type_ = Type::NONE; break;
 		case YAML::NodeType::Scalar: type_ = determine_scalar_type(); break;
@@ -801,13 +785,8 @@ public:
 		type_ = Type::SEQUENCE;
 		list_values_.resize(n.size());
 		unsigned int i = 0;
-#ifdef HAVE_YAMLCPP_0_5
 		for (YAML::const_iterator it = n.begin(); it != n.end(); ++it) {
 			list_values_[i++] = it->as<std::string>();
-#else
-		for (YAML::Iterator it = n.begin(); it != n.end(); ++it) {
-			*it >> list_values_[i++];
-#endif
 		}
 	}
 
