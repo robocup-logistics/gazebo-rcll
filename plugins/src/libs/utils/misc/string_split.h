@@ -24,6 +24,11 @@
 #ifndef __UTILS_MISC_STRING_SPLIT_H_
 #define __UTILS_MISC_STRING_SPLIT_H_
 
+#include <list>
+#include <queue>
+#include <string>
+#include <vector>
+
 namespace fawkes {
 
 /** Split string by delimiter.
