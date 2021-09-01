@@ -42,23 +42,23 @@ DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 	}
 }
 
-void
-DeliveryStation::new_machine_info(ConstMachine &machine)
-{
-	if (machine.state() == "IDLE") {
-		prepared_ = false;
-		set_state(State::IDLE);
-	} else if (machine.state() == "PREPARED") {
-		prepared_ = true;
-		if (puck_) {
-			// We have a puck and the machine is prepared, thus we can deliver.
-			deliver();
-		} else if (machine.state() == "BROKEN") {
-			puck_     = NULL;
-			prepared_ = false;
-		}
-	}
-}
+//void
+//DeliveryStation::new_machine_info(ConstMachine &machine)
+//{
+//	if (machine.state() == "IDLE") {
+//		prepared_ = false;
+//		set_state(State::IDLE);
+//	} else if (machine.state() == "PREPARED") {
+//		prepared_ = true;
+//		if (puck_) {
+//			// We have a puck and the machine is prepared, thus we can deliver.
+//			deliver();
+//		} else if (machine.state() == "BROKEN") {
+//			puck_     = NULL;
+//			prepared_ = false;
+//		}
+//	}
+//}
 
 /** Send delivery information to the refbox and move the puck.
  * If we have a puck in the input and we received a prepare message, move the
@@ -69,7 +69,7 @@ DeliveryStation::new_machine_info(ConstMachine &machine)
 void
 DeliveryStation::deliver()
 {
-	set_state(State::AVAILABLE);
+	//set_state(State::AVAILABLE);
 	if (!prepared_ || !puck_) {
 		// Machine is not prepared yet or there is no workpiece yet.
 		return;
@@ -90,17 +90,17 @@ DeliveryStation::deliver()
 	puck_     = NULL;
 }
 
-void
-DeliveryStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-{
-	// printf("MPS:GOT INSTRUCT MESSAGE\n");
-
-	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_DS) {
-		return;
-	}
-
-	std::string machine_name = "NOT-SET";
-	machine_name             = msg->machine();
-
-	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
-}
+//void
+//DeliveryStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
+//{
+//	// printf("MPS:GOT INSTRUCT MESSAGE\n");
+//
+//	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_DS) {
+//		return;
+//	}
+//
+//	std::string machine_name = "NOT-SET";
+//	machine_name             = msg->machine();
+//
+//	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+//}

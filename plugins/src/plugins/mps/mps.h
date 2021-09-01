@@ -38,12 +38,7 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
-typedef const boost::shared_ptr<llsf_msgs::MachineInfo const>     ConstMachineInfoPtr;
-typedef const boost::shared_ptr<llsf_msgs::InstructMachine const> ConstInstructMachinePtr;
-typedef const llsf_msgs::Machine                                  ConstMachine;
-typedef llsf_msgs::MachineState                                   State;
-typedef const boost::shared_ptr<gazsim_msgs::NewPuck const>       ConstNewPuckPtr;
+typedef const boost::shared_ptr<gazsim_msgs::NewPuck const> ConstNewPuckPtr;
 
 namespace gazebo {
 /**
@@ -75,24 +70,24 @@ protected:
 
 	/// Subscriber to get puck positions
 	std::vector<transport::SubscriberPtr> puck_subs_;
-	/// Subscriber to get machine infos
-	transport::SubscriberPtr machine_info_subscriber_;
-	/// Subscriber to get machine infos
-	transport::SubscriberPtr instruct_machine_subscriber_;
+	///// Subscriber to get machine infos
+	//transport::SubscriberPtr machine_info_subscriber_;
+	///// Subscriber to get machine infos
+	//transport::SubscriberPtr instruct_machine_subscriber_;
 
 	/// Handler for puck positions
 	virtual void on_puck_msg(ConstPosePtr &msg);
 	/// Handler for machine msgs
-	void on_machine_msg(ConstMachineInfoPtr &msg);
+	//void on_machine_msg(ConstMachineInfoPtr &msg);
 	/// Handler for machine Instruction msgs
-	virtual void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
+	//virtual void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
 
-	virtual void new_machine_info(ConstMachine &machine);
+	//virtual void new_machine_info(ConstMachine &machine);
 
 	transport::SubscriberPtr new_puck_subscriber_;
 	virtual void             on_new_puck(ConstNewPuckPtr &msg);
 
-	void refbox_reply(ConstInstructMachinePtr &msg);
+	//void refbox_reply(ConstInstructMachinePtr &msg);
 
 	///Publisher to send machine state
 	transport::PublisherPtr set_machne_state_pub_;
@@ -120,7 +115,7 @@ protected:
 
 	std::string current_state_;
 
-	void set_state(State state);
+	//void set_state(State state);
 
 	bool
 	pose_hit(const gzwrap::Pose3d &to_test, const gzwrap::Pose3d &reference, double tolerance = -1.0);

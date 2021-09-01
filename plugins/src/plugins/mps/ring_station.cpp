@@ -46,12 +46,12 @@ RingStation::on_puck_msg(ConstPosePtr &msg)
 		if (puck_in_input(msg) && !is_puck_hold(msg->name())) {
 			puck_in_processing_name_ = msg->name();
 			printf("%s got %s\n", name_.c_str(), puck_in_processing_name_.c_str());
-			set_state(State::AVAILABLE);
+			//set_state(State::AVAILABLE);
 		}
 	}
 	if (current_state_ == "READY-AT-OUTPUT" && msg->name() == puck_in_processing_name_
 	    && !puck_in_output(msg)) {
-		set_state(State::RETRIEVED);
+		//set_state(State::RETRIEVED);
 		puck_in_processing_name_ = "";
 	}
 }
@@ -78,84 +78,85 @@ RingStation::publish_indicator(bool active, int number)
 	visPub_->Publish(msg);
 }
 
-void
-RingStation::new_machine_info(ConstMachine &machine)
-{
-	if (machine.state() == "PREPARED") {
-		switch (machine.instruction_rs().ring_color()) {
-		case llsf_msgs::RingColor::RING_BLUE: color_to_put_ = gazsim_msgs::Color::BLUE; break;
-		case llsf_msgs::RingColor::RING_GREEN: color_to_put_ = gazsim_msgs::Color::GREEN; break;
-		case llsf_msgs::RingColor::RING_ORANGE: color_to_put_ = gazsim_msgs::Color::ORANGE; break;
-		case llsf_msgs::RingColor::RING_YELLOW: color_to_put_ = gazsim_msgs::Color::YELLOW; break;
-		}
-
-		printf("%s is prepared to put %s on a workpiece\n",
-		       name_.c_str(),
-		       gazsim_msgs::Color_Name(color_to_put_).c_str());
-	} else if (machine.state() == "PROCESSED") {
-		printf("%s: Putting a %s ring onto %s\n",
-		       name_.c_str(),
-		       gazsim_msgs::Color_Name(color_to_put_).c_str(),
-		       puck_in_processing_name_.c_str());
-		if (puck_in_processing_name_ != "") {
-			//teleport puck to output
-			printf("%s: Teleporting %s to output\n", name_.c_str(), puck_in_processing_name_.c_str());
-			model_->GetWorld()
-			  ->GZWRAP_ENTITY_BY_NAME(puck_in_processing_name_)
-			  ->SetWorldPose(gzwrap::Pose3d(output_x(), output_y(), belt_height_, 0, 0, 0));
-			//spawn a ring ontop of the puck
-			//write to the puck plugin
-			if (!puck_cmd_pub_->HasConnections())
-				printf("cannot connect to puck %s on topic %s\n",
-				       puck_in_processing_name_.c_str(),
-				       topic_puck_command_.c_str());
-			else {
-				//TODO: dont'spawn a fixed color, get color from better source
-				/// TODO: PUT THIS IN STATE PROCESSING?
-				printf("%s is in %s state: Creating Product! \n", name_.c_str(), machine.state().c_str());
-				gazsim_msgs::WorkpieceCommand cmd;
-				cmd.set_command(gazsim_msgs::Command::ADD_RING);
-				cmd.add_color(color_to_put_);
-				cmd.set_puck_name(puck_in_processing_name_);
-				puck_cmd_pub_->Publish(cmd);
-			}
-			set_state(State::DELIVERED);
-		} else
-			printf("%s: Puck not found at input\n", name_.c_str());
-	} else if (machine.state() == "BROKEN") {
-		puck_in_processing_name_ = "";
-	}
-
-	// show number of bases
-	number_bases_ = machine.loaded_with();
-	for (u_int32_t i = 0; i < (u_int32_t)MAX_NUM_BASES; i++) {
-		publish_indicator(i < machine.loaded_with(), i);
-	}
-}
-
-void
-RingStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-{
-	//printf("MPS:GOT INSTRUCT MESSAGE\n");
-
-	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_RS) {
-		return;
-	}
-
-	std::string machine_name = "NOT-SET";
-	machine_name             = msg->machine();
-
-	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
-}
+//void
+//RingStation::new_machine_info(ConstMachine &machine)
+//{
+//	if (machine.state() == "PREPARED") {
+//		switch (machine.instruction_rs().ring_color()) {
+//		case llsf_msgs::RingColor::RING_BLUE: color_to_put_ = gazsim_msgs::Color::BLUE; break;
+//		case llsf_msgs::RingColor::RING_GREEN: color_to_put_ = gazsim_msgs::Color::GREEN; break;
+//		case llsf_msgs::RingColor::RING_ORANGE: color_to_put_ = gazsim_msgs::Color::ORANGE; break;
+//		case llsf_msgs::RingColor::RING_YELLOW: color_to_put_ = gazsim_msgs::Color::YELLOW; break;
+//		}
+//
+//		printf("%s is prepared to put %s on a workpiece\n",
+//		       name_.c_str(),
+//		       gazsim_msgs::Color_Name(color_to_put_).c_str());
+//	} else if (machine.state() == "PROCESSED") {
+//		printf("%s: Putting a %s ring onto %s\n",
+//		       name_.c_str(),
+//		       gazsim_msgs::Color_Name(color_to_put_).c_str(),
+//		       puck_in_processing_name_.c_str());
+//		if (puck_in_processing_name_ != "") {
+//			//teleport puck to output
+//			printf("%s: Teleporting %s to output\n", name_.c_str(), puck_in_processing_name_.c_str());
+//			model_->GetWorld()
+//			  ->GZWRAP_ENTITY_BY_NAME(puck_in_processing_name_)
+//			  ->SetWorldPose(gzwrap::Pose3d(output_x(), output_y(), belt_height_, 0, 0, 0));
+//			//spawn a ring ontop of the puck
+//			//write to the puck plugin
+//			if (!puck_cmd_pub_->HasConnections())
+//				printf("cannot connect to puck %s on topic %s\n",
+//				       puck_in_processing_name_.c_str(),
+//				       topic_puck_command_.c_str());
+//			else {
+//				//TODO: dont'spawn a fixed color, get color from better source
+//				/// TODO: PUT THIS IN STATE PROCESSING?
+//				printf("%s is in %s state: Creating Product! \n", name_.c_str(), machine.state().c_str());
+//				gazsim_msgs::WorkpieceCommand cmd;
+//				cmd.set_command(gazsim_msgs::Command::ADD_RING);
+//				cmd.add_color(color_to_put_);
+//				cmd.set_puck_name(puck_in_processing_name_);
+//				puck_cmd_pub_->Publish(cmd);
+//			}
+//			set_state(State::DELIVERED);
+//		} else
+//			printf("%s: Puck not found at input\n", name_.c_str());
+//	} else if (machine.state() == "BROKEN") {
+//		puck_in_processing_name_ = "";
+//	}
+//
+//	// show number of bases
+//	number_bases_ = machine.loaded_with();
+//	for (u_int32_t i = 0; i < (u_int32_t)MAX_NUM_BASES; i++) {
+//		publish_indicator(i < machine.loaded_with(), i);
+//	}
+//}
+//
+//void
+//RingStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
+//{
+//	//printf("MPS:GOT INSTRUCT MESSAGE\n");
+//
+//	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_RS) {
+//		return;
+//	}
+//
+//	std::string machine_name = "NOT-SET";
+//	machine_name             = msg->machine();
+//
+//	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+//}
 
 void
 RingStation::add_base()
 {
+	// TODO reimplement
 	printf("Adding Base to %s\n", name_.c_str());
-	llsf_msgs::MachineAddBase add_base_msg;
-	add_base_msg.set_machine_name(name_);
-	add_base_publisher_->Publish(add_base_msg);
-	publish_indicator(true, number_bases_++);
+	//llsf_msgs::MachineAddBase add_base_msg;
+	//add_base_msg.set_machine_name(name_);
+	//add_base_publisher_->Publish(add_base_msg);
+	//publish_indicator(true, number_bases_++);
 }
 
 gzwrap::Pose3d

@@ -33,8 +33,6 @@ public:
 	DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
 	void on_puck_msg(ConstPosePtr &msg);
-	void new_machine_info(ConstMachine &machine);
-	void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
 	void deliver();
 
 	bool              prepared_;

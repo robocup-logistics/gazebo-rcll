@@ -84,22 +84,22 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	spawned_tags_last_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 
 	//subscribe to machine info
-	this->machine_info_subscriber_ =
-	  this->node_->Subscribe(topic_machine_info_, &Mps::on_machine_msg, this);
+	//this->machine_info_subscriber_ =
+	//  this->node_->Subscribe(topic_machine_info_, &Mps::on_machine_msg, this);
 
 	//subscribe to machine info
-	this->instruct_machine_subscriber_ =
-	  this->node_->Subscribe(topic_instruct_machine_, &Mps::on_instruct_machine_msg, this);
+	//this->instruct_machine_subscriber_ =
+	//  this->node_->Subscribe(topic_instruct_machine_, &Mps::on_instruct_machine_msg, this);
 
 	this->new_puck_subscriber_ = node_->Subscribe("~/new_puck", &Mps::on_new_puck, this);
 
 	//Create publisher to spawn tags
 	visPub_ = this->node_->Advertise<msgs::Visual>("~/visual", /*number of lights*/ 3 * 12);
-	set_machne_state_pub_ =
-	  this->node_->Advertise<llsf_msgs::SetMachineState>(topic_set_machine_state_);
+	//set_machne_state_pub_ =
+	//  this->node_->Advertise<llsf_msgs::SetMachineState>(topic_set_machine_state_);
 
-	machine_reply_pub_ = this->node_->Advertise<llsf_msgs::MachineReply>(topic_machine_reply_);
-	world_             = model_->GetWorld();
+	//machine_reply_pub_ = this->node_->Advertise<llsf_msgs::MachineReply>(topic_machine_reply_);
+	world_ = model_->GetWorld();
 
 	factoryPub         = node_->Advertise<msgs::Factory>("~/factory");
 	puck_cmd_pub_      = node_->Advertise<gazsim_msgs::WorkpieceCommand>(topic_puck_command_);
@@ -159,51 +159,51 @@ Mps::on_puck_msg(ConstPosePtr &msg)
 {
 }
 
-void
-Mps::on_machine_msg(ConstMachineInfoPtr &msg)
-{
-	for (const llsf_msgs::Machine &machine : msg->machines()) {
-		if (machine.name() == this->name_ && machine.state() != current_state_) {
-			printf("new_info for %s, state: %s \n", machine.name().c_str(), machine.state().c_str());
-			new_machine_info(machine);
-			current_state_ = machine.state();
-		}
-	}
-}
+//void
+//Mps::on_machine_msg(ConstMachineInfoPtr &msg)
+//{
+//	for (const llsf_msgs::Machine &machine : msg->machines()) {
+//		if (machine.name() == this->name_ && machine.state() != current_state_) {
+//			printf("new_info for %s, state: %s \n", machine.name().c_str(), machine.state().c_str());
+//			new_machine_info(machine);
+//			current_state_ = machine.state();
+//		}
+//	}
+//}
 
-void
-Mps::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-{
-}
+//void
+//Mps::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
+//{
+//}
+//
+//void
+//Mps::new_machine_info(ConstMachine &machine)
+//{
+//}
 
-void
-Mps::new_machine_info(ConstMachine &machine)
-{
-}
-
-void
-Mps::refbox_reply(ConstInstructMachinePtr &msg)
-{
-	printf("Reply msg_ID: %d\n", msg->id());
-
-	llsf_msgs::MachineReply reply;
-	reply.set_id(msg->id());
-	reply.set_machine(msg->machine());
-	reply.set_set(llsf_msgs::MACHINE_REPLY_FINISHED);
-	machine_reply_pub_->Publish(reply);
-}
-
-void
-Mps::set_state(State state)
-{
-	printf("Setting state for machine %s to %s \n",
-	       name_.c_str(),
-	       llsf_msgs::MachineState_Name(state).c_str());
-	llsf_msgs::SetMachineState set_state;
-	set_state.set_machine_name(name_);
-	set_state.set_state(state);
-	set_machne_state_pub_->Publish(set_state);
-}
+//void
+//Mps::refbox_reply(ConstInstructMachinePtr &msg)
+//{
+//	printf("Reply msg_ID: %d\n", msg->id());
+//
+//	llsf_msgs::MachineReply reply;
+//	reply.set_id(msg->id());
+//	reply.set_machine(msg->machine());
+//	reply.set_set(llsf_msgs::MACHINE_REPLY_FINISHED);
+//	machine_reply_pub_->Publish(reply);
+//}
+//
+//void
+//Mps::set_state(State state)
+//{
+//	printf("Setting state for machine %s to %s \n",
+//	       name_.c_str(),
+//	       llsf_msgs::MachineState_Name(state).c_str());
+//	llsf_msgs::SetMachineState set_state;
+//	set_state.set_machine_name(name_);
+//	set_state.set_state(state);
+//	set_machne_state_pub_->Publish(set_state);
+//}
 
 /**
  * Find the tag with the id matching to the tag_name (e.g. C-BSI), grap it to mount it at the side of the mps (where the link link_name is placed)

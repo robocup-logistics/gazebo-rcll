@@ -162,83 +162,83 @@ StorageStation::on_puck_msg(ConstPosePtr &msg)
 {
 	if (msg->name() == puck_on_conveyor && !puck_in_input(msg)) {
 		puck_on_conveyor = "";
-		set_state(State::RETRIEVED);
+		//set_state(State::RETRIEVED);
 	}
 }
 
-void
-StorageStation::new_machine_info(ConstMachine &machine)
-{
-	/*
-  if(machine.state() == "PROCESSED")
-  {
-    if(!machine.has_instruction_bs())
-    {
-      printf("machine %s without instructions",name_.c_str());
-      return;
-    }
-    gzwrap::Pose3d spawn_pose;
-    if(machine.instruction_bs().side() == llsf_msgs::MachineSide::INPUT)
-    {
-      spawn_pose = gzwrap::Pose3d(input_x(),input_y(),BELT_HEIGHT+(puck_height_/2),0,0,0);
-      printf("spawning puck at input\n");
-    }
-    else if(machine.instruction_bs().side() == llsf_msgs::MachineSide::OUTPUT)
-    {
-      spawn_pose = gzwrap::Pose3d(output_x(), output_y(),BELT_HEIGHT+(puck_height_/2),0,0,0);
-      printf("spawning puck at output\n");
-    }
-    else
-      spawn_pose = gzwrap::Pose3d::Zero;
+//void
+//StorageStation::new_machine_info(ConstMachine &machine)
+//{
+///*
+//  if(machine.state() == "PROCESSED")
+//  {
+//    if(!machine.has_instruction_bs())
+//    {
+//      printf("machine %s without instructions",name_.c_str());
+//      return;
+//    }
+//    gzwrap::Pose3d spawn_pose;
+//    if(machine.instruction_bs().side() == llsf_msgs::MachineSide::INPUT)
+//    {
+//      spawn_pose = gzwrap::Pose3d(input_x(),input_y(),BELT_HEIGHT+(puck_height_/2),0,0,0);
+//      printf("spawning puck at input\n");
+//    }
+//    else if(machine.instruction_bs().side() == llsf_msgs::MachineSide::OUTPUT)
+//    {
+//      spawn_pose = gzwrap::Pose3d(output_x(), output_y(),BELT_HEIGHT+(puck_height_/2),0,0,0);
+//      printf("spawning puck at output\n");
+//    }
+//    else
+//      spawn_pose = gzwrap::Pose3d::Zero;
+//
+//    gazsim_msgs::Color spawn_clr;
+//    switch(machine.instruction_bs().color()){
+//      case llsf_msgs::BaseColor::BASE_BLACK:
+//        spawn_clr = gazsim_msgs::Color::BLACK;
+//        break;
+//      case llsf_msgs::BaseColor::BASE_SILVER:
+//        spawn_clr = gazsim_msgs::Color::SILVER;
+//        break;
+//      case llsf_msgs::BaseColor::BASE_RED:
+//      default:
+//        spawn_clr = gazsim_msgs::Color::RED;
+//        break;
+//    }
+//
+//    spawn_puck(spawn_pose, spawn_clr);
+//    have_puck_ = "workpiece_base";
+//    set_state(State::PROCESSED);
+//    set_state(State::DELIVERED);
+//  }
+//  */
+//}
 
-    gazsim_msgs::Color spawn_clr;
-    switch(machine.instruction_bs().color()){
-      case llsf_msgs::BaseColor::BASE_BLACK:
-        spawn_clr = gazsim_msgs::Color::BLACK;
-        break;
-      case llsf_msgs::BaseColor::BASE_SILVER:
-        spawn_clr = gazsim_msgs::Color::SILVER;
-        break;
-      case llsf_msgs::BaseColor::BASE_RED:
-      default:
-        spawn_clr = gazsim_msgs::Color::RED;
-        break;
-    }
-
-    spawn_puck(spawn_pose, spawn_clr);
-    have_puck_ = "workpiece_base";
-    set_state(State::PROCESSED);
-    set_state(State::DELIVERED);
-  }
-  */
-}
-
-void
-StorageStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-{
-	//printf("MPS:GOT INSTRUCT MESSAGE\n");
-
-	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_SS || msg->machine() != name_) {
-		return;
-	}
-
-	std::string machine_name = msg->machine();
-
-	//std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
-
-	switch (msg->ss().operation()) {
-	case llsf_msgs::STORE:
-		printf("%s: STORE PUCK\n", machine_name.c_str());
-		refbox_reply(msg);
-		break;
-	case llsf_msgs::RETRIEVE:
-		printf("%s: RETRIEVE PUCK\n", machine_name.c_str());
-		retrieve_puck(msg->ss().slot().x(), msg->ss().slot().y(), msg->ss().slot().z());
-		refbox_reply(msg);
-		break;
-	default: printf("%s: unknown ss TASK\n", machine_name.c_str()); break;
-	}
-}
+//void
+//StorageStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
+//{
+//	//printf("MPS:GOT INSTRUCT MESSAGE\n");
+//
+//	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_SS || msg->machine() != name_) {
+//		return;
+//	}
+//
+//	std::string machine_name = msg->machine();
+//
+//	//std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+//
+//	switch (msg->ss().operation()) {
+//	case llsf_msgs::STORE:
+//		printf("%s: STORE PUCK\n", machine_name.c_str());
+//		refbox_reply(msg);
+//		break;
+//	case llsf_msgs::RETRIEVE:
+//		printf("%s: RETRIEVE PUCK\n", machine_name.c_str());
+//		retrieve_puck(msg->ss().slot().x(), msg->ss().slot().y(), msg->ss().slot().z());
+//		refbox_reply(msg);
+//		break;
+//	default: printf("%s: unknown ss TASK\n", machine_name.c_str()); break;
+//	}
+//}
 
 void
 StorageStation::on_new_puck(ConstNewPuckPtr &msg)
@@ -336,8 +336,8 @@ StorageStation::retrieve_puck(uint32_t slot_pos_x, uint32_t slot_pos_y, uint32_t
 	storage_[index].has_puck  = false;
 	storage_cnt--;
 
-	set_state(State::PROCESSED);
-	set_state(State::DELIVERED);
+	//set_state(State::PROCESSED);
+	//set_state(State::DELIVERED);
 }
 
 void

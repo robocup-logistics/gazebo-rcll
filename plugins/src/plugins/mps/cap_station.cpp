@@ -68,41 +68,43 @@ CapStation::work_puck(std::string puck_name)
 {
 	printf("CAPSTATION: on_work_puck: %s\n", puck_name.c_str());
 
-	set_state(State::AVAILABLE);
-	gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
-	cmd_msg.set_puck_name(puck_name);
-	switch (task_) {
-	case llsf_msgs::CSOp::RETRIEVE_CAP:
-		printf("%s retrives cap from %s\n ", name_.c_str(), puck_name.c_str());
-		cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
-		puck_cmd_pub_->Publish(cmd_msg);
-		break;
-	case llsf_msgs::CSOp::MOUNT_CAP:
-		if (stored_cap_color_ != gazsim_msgs::Color::NONE) {
-			printf("%s mounts cap on %s with color %s\n",
-			       name_.c_str(),
-			       puck_name.c_str(),
-			       gazsim_msgs::Color_Name(stored_cap_color_).c_str());
-			cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
-			cmd_msg.add_color(stored_cap_color_);
+	// TODO reimplement
 
-			gazebo::msgs::Visual vis_msg;
-			vis_msg.set_parent_name(name_ + "::body");
-			vis_msg.set_name(name_ + "::body::have_cap");
-			gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0.3, 0, 0));
-			visPub_->Publish(vis_msg);
-			puck_cmd_pub_->Publish(cmd_msg);
-			stored_cap_color_ = gazsim_msgs::Color::NONE;
-		} else {
-			printf("%s can't mount cap on %s without a cap loaded first\n",
-			       name_.c_str(),
-			       puck_name.c_str());
-		}
-		break;
-	}
-	//set_state(State::PROCESSED);
-	world_->GZWRAP_MODEL_BY_NAME(puck_name)->SetWorldPose(output());
-	puck_in_processing_name_ = puck_name;
+	//	set_state(State::AVAILABLE);
+	//	gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
+	//	cmd_msg.set_puck_name(puck_name);
+	//	switch (task_) {
+	//	case llsf_msgs::CSOp::RETRIEVE_CAP:
+	//		printf("%s retrives cap from %s\n ", name_.c_str(), puck_name.c_str());
+	//		cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
+	//		puck_cmd_pub_->Publish(cmd_msg);
+	//		break;
+	//	case llsf_msgs::CSOp::MOUNT_CAP:
+	//		if (stored_cap_color_ != gazsim_msgs::Color::NONE) {
+	//			printf("%s mounts cap on %s with color %s\n",
+	//			       name_.c_str(),
+	//			       puck_name.c_str(),
+	//			       gazsim_msgs::Color_Name(stored_cap_color_).c_str());
+	//			cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
+	//			cmd_msg.add_color(stored_cap_color_);
+	//
+	//			gazebo::msgs::Visual vis_msg;
+	//			vis_msg.set_parent_name(name_ + "::body");
+	//			vis_msg.set_name(name_ + "::body::have_cap");
+	//			gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0.3, 0, 0));
+	//			visPub_->Publish(vis_msg);
+	//			puck_cmd_pub_->Publish(cmd_msg);
+	//			stored_cap_color_ = gazsim_msgs::Color::NONE;
+	//		} else {
+	//			printf("%s can't mount cap on %s without a cap loaded first\n",
+	//			       name_.c_str(),
+	//			       puck_name.c_str());
+	//		}
+	//		break;
+	//	}
+	//	//set_state(State::PROCESSED);
+	//	world_->GZWRAP_MODEL_BY_NAME(puck_name)->SetWorldPose(output());
+	//	puck_in_processing_name_ = puck_name;
 }
 
 void
@@ -112,7 +114,7 @@ CapStation::on_puck_msg(ConstPosePtr &msg)
 		if (puck_in_processing_name_ != ""
 		    && !puck_in_output(
 		      world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE())) {
-			set_state(State::RETRIEVED);
+			//set_state(State::RETRIEVED);
 			puck_in_processing_name_ = "";
 		}
 	} else if (current_state_ == "PREPARED") {
@@ -153,39 +155,39 @@ CapStation::on_new_puck(ConstNewPuckPtr &msg)
 	}
 }
 
-void
-CapStation::new_machine_info(ConstMachine &machine)
-{
-	if (machine.state() == "PREPARED") {
-		task_ = machine.instruction_cs().operation();
-		printf("%s got a new task: %s\n", name_.c_str(), llsf_msgs::CSOp_Name(task_).c_str());
-	} else if (machine.state() == "PROCESSED"
-	           && puck_in_output(
-	             world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE())) {
-		set_state(State::DELIVERED);
-	} else if (machine.state() == "IDLE" && current_state_ == "DOWN") {
-		for (gazebo::physics::ModelPtr model : world_->GZWRAP_MODELS()) {
-			if (pose_hit(model->GZWRAP_WORLD_POSE(), input())) {
-				work_puck(model->GetName());
-			}
-		}
-	}
-}
+//void
+//CapStation::new_machine_info(ConstMachine &machine)
+//{
+//	if (machine.state() == "PREPARED") {
+//		task_ = machine.instruction_cs().operation();
+//		printf("%s got a new task: %s\n", name_.c_str(), llsf_msgs::CSOp_Name(task_).c_str());
+//	} else if (machine.state() == "PROCESSED"
+//	           && puck_in_output(
+//	             world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE())) {
+//		set_state(State::DELIVERED);
+//	} else if (machine.state() == "IDLE" && current_state_ == "DOWN") {
+//		for (gazebo::physics::ModelPtr model : world_->GZWRAP_MODELS()) {
+//			if (pose_hit(model->GZWRAP_WORLD_POSE(), input())) {
+//				work_puck(model->GetName());
+//			}
+//		}
+//	}
+//}
 
-void
-CapStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-{
-	//printf("MPS:GOT INSTRUCT MESSAGE\n");
-
-	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_CS) {
-		return;
-	}
-
-	std::string machine_name = "NOT-SET";
-	machine_name             = msg->machine();
-
-	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
-}
+//void
+//CapStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
+//{
+//	//printf("MPS:GOT INSTRUCT MESSAGE\n");
+//
+//	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_CS) {
+//		return;
+//	}
+//
+//	std::string machine_name = "NOT-SET";
+//	machine_name             = msg->machine();
+//
+//	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+//}
 
 void
 CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
