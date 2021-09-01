@@ -18,18 +18,17 @@
  *
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
-#include <boost/bind.hpp>
-#include <gazebo/gazebo.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
-#include <gazebo/transport/transport.hh>
-#include <gazebo/physics/physics.hh>
-#include <cmath>
-
 #include "time_sync.h"
 
-using namespace gazebo;
+#include <boost/bind.hpp>
+#include <cmath>
+#include <gazebo/common/common.hh>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/transport.hh>
+#include <stdio.h>
 
+using namespace gazebo;
 
 /** Constructor
  * @param world World, where to get the time from
@@ -37,38 +36,39 @@ using namespace gazebo;
  */
 TimeSync::TimeSync(physics::WorldPtr world, transport::NodePtr gazebo_node)
 {
-  gazebo_node_ = gazebo_node;
-  world_ = world;
+	gazebo_node_ = gazebo_node;
+	world_       = world;
 
-  //create publisher
-  this->time_sync_pub_ = gazebo_node_->Advertise<gazsim_msgs::SimTime>("~/gazsim/time-sync/");
-  
-  //init variables
-  last_real_time_ = 0.0;
-  last_sim_time_ = 0.0;
+	//create publisher
+	this->time_sync_pub_ = gazebo_node_->Advertise<gazsim_msgs::SimTime>("~/gazsim/time-sync/");
+
+	//init variables
+	last_real_time_ = 0.0;
+	last_sim_time_  = 0.0;
 }
 
 TimeSync::~TimeSync()
 {
 }
 
-void TimeSync::send_time_sync()
+void
+TimeSync::send_time_sync()
 {
-  double sim_time = world_->GetSimTime().Double();
-  double real_time = world_->GetRealTime().Double();
+	double sim_time  = world_->GetSimTime().Double();
+	double real_time = world_->GetRealTime().Double();
 
-  gazsim_msgs::SimTime msg;
+	gazsim_msgs::SimTime msg;
 
-  msg.set_sim_time_sec(sim_time); //automatically rounded to integer
-  msg.set_sim_time_nsec((sim_time - msg.sim_time_sec()) * 1000000000.f);
+	msg.set_sim_time_sec(sim_time); //automatically rounded to integer
+	msg.set_sim_time_nsec((sim_time - msg.sim_time_sec()) * 1000000000.f);
 
-  //Calculate real time factor (did not find it in gazebo api)
-  double real_time_factor = (sim_time - last_sim_time_) / (real_time - last_real_time_);
-  msg.set_real_time_factor(real_time_factor);
+	//Calculate real time factor (did not find it in gazebo api)
+	double real_time_factor = (sim_time - last_sim_time_) / (real_time - last_real_time_);
+	msg.set_real_time_factor(real_time_factor);
 
-  msg.set_paused(!world_->GetRunning());
-  time_sync_pub_->Publish(msg);
+	msg.set_paused(!world_->GetRunning());
+	time_sync_pub_->Publish(msg);
 
-  last_sim_time_ = sim_time;
-  last_real_time_ = real_time;
+	last_sim_time_  = sim_time;
+	last_real_time_ = real_time;
 }

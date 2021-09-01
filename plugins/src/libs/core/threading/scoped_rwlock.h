@@ -32,29 +32,28 @@ class ReadWriteLock;
 
 class ScopedRWLock
 {
- public:
-  /** What to lock for. */
-  typedef enum {
-    LOCK_WRITE,	///< Lock for writing
-    LOCK_READ	///< Lock for reading
-  } LockType;
+public:
+	/** What to lock for. */
+	typedef enum {
+		LOCK_WRITE, ///< Lock for writing
+		LOCK_READ   ///< Lock for reading
+	} LockType;
 
-  ScopedRWLock(RefPtr<ReadWriteLock> rwlock, LockType lock_type = LOCK_WRITE,
-               bool initially_lock = true);
-  ScopedRWLock(ReadWriteLock *rwlock, LockType lock_type = LOCK_WRITE,
-               bool initially_lock = true);
-  ~ScopedRWLock();
+	ScopedRWLock(RefPtr<ReadWriteLock> rwlock,
+	             LockType              lock_type      = LOCK_WRITE,
+	             bool                  initially_lock = true);
+	ScopedRWLock(ReadWriteLock *rwlock, LockType lock_type = LOCK_WRITE, bool initially_lock = true);
+	~ScopedRWLock();
 
-  void relock();
-  void unlock();
+	void relock();
+	void unlock();
 
- private:
-  LockType               __lock_type;
-  bool                   __locked;
-  RefPtr<ReadWriteLock>  __refrwlock;
-  ReadWriteLock         *__rawrwlock;
+private:
+	LockType              __lock_type;
+	bool                  __locked;
+	RefPtr<ReadWriteLock> __refrwlock;
+	ReadWriteLock *       __rawrwlock;
 };
-
 
 } // end namespace fawkes
 

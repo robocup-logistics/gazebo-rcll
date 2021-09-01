@@ -32,14 +32,14 @@ namespace gazebo_rcll {
 
 class ConfigurableAspect
 {
- public:
-  ConfigurableAspect();
-  ~ConfigurableAspect();
+public:
+	ConfigurableAspect();
+	~ConfigurableAspect();
 
- protected:
-  Configuration *config;
+protected:
+	Configuration *config;
 };
 
-} // end namespace fawkes
+} // namespace gazebo_rcll
 
 #endif

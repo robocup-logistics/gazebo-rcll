@@ -25,23 +25,21 @@
 
 #include "mps.h"
 
-namespace gazebo
-{
+namespace gazebo {
 
 class BaseStation : public Mps
 {
 public:
-  BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
-  
+	BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
+
 private:
-  void on_puck_msg(ConstPosePtr &msg);
-  void new_machine_info(ConstMachine &machine);
-  void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
-  std::string have_puck_;
-  
-  
-  void on_new_puck(ConstNewPuckPtr &msg);
+	void        on_puck_msg(ConstPosePtr &msg);
+	void        new_machine_info(ConstMachine &machine);
+	void        on_instruct_machine_msg(ConstInstructMachinePtr &msg);
+	std::string have_puck_;
+
+	void on_new_puck(ConstNewPuckPtr &msg);
 };
 
-}
+} // namespace gazebo
 #endif // BASESTATION_H

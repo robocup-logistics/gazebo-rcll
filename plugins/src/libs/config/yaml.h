@@ -27,205 +27,214 @@
 #include <config/config.h>
 
 #ifdef HAVE_FAM
-#  include <utils/system/fam.h>
+#	include <utils/system/fam.h>
 #endif
 
 #include <yaml-cpp/yaml.h>
 #ifdef USE_REGEX_CPP
 // we do not use it atm because it does not work as epxect atm,
 // cf. https://bugzilla.redhat.com/show_bug.cgi?id=718711
-#  include <regex>
+#	include <regex>
 #else
-#  include <regex.h>
+#	include <regex.h>
 #endif
 #include <memory>
+#include <queue>
 #include <string>
 #include <vector>
-#include <queue>
 
 namespace gazebo_rcll {
 
 class YamlConfigurationNode;
 
-class YamlConfiguration
-: public Configuration
+class YamlConfiguration : public Configuration
 #ifdef HAVE_FAM
-  ,public FamListener
+,
+                          public FamListener
 #endif
 {
- public:
-  YamlConfiguration();
-  YamlConfiguration(const char *sysconfdir, const char *userconfdir = NULL);
-  virtual ~YamlConfiguration();
+public:
+	YamlConfiguration();
+	YamlConfiguration(const char *sysconfdir, const char *userconfdir = NULL);
+	virtual ~YamlConfiguration();
 
-  virtual void          copy(Configuration *copyconf);
+	virtual void copy(Configuration *copyconf);
 
-  virtual void          load(const char *file_path);
+	virtual void load(const char *file_path);
 
-  virtual bool          exists(const char *path);
-  virtual bool          is_float(const char *path);
-  virtual bool          is_uint(const char *path);
-  virtual bool          is_int(const char *path);
-  virtual bool          is_bool(const char *path);
-  virtual bool          is_string(const char *path);
-  virtual bool          is_list(const char *path);
+	virtual bool exists(const char *path);
+	virtual bool is_float(const char *path);
+	virtual bool is_uint(const char *path);
+	virtual bool is_int(const char *path);
+	virtual bool is_bool(const char *path);
+	virtual bool is_string(const char *path);
+	virtual bool is_list(const char *path);
 
-  virtual bool          is_default(const char *path);
+	virtual bool is_default(const char *path);
 
-  virtual std::string     get_type(const char *path);
-  virtual float           get_float(const char *path);
-  virtual unsigned int    get_uint(const char *path);
-  virtual int             get_int(const char *path);
-  virtual bool            get_bool(const char *path);
-  virtual std::string     get_string(const char *path);
-  virtual std::vector<float>         get_floats(const char *path);
-  virtual std::vector<unsigned int>  get_uints(const char *path);
-  virtual std::vector<int>           get_ints(const char *path);
-  virtual std::vector<bool>          get_bools(const char *path);
-  virtual std::vector<std::string>   get_strings(const char *path);
-  virtual ValueIterator * get_value(const char *path);
-  virtual std::string     get_comment(const char *path);
-  virtual std::string     get_default_comment(const char *path);
+	virtual std::string               get_type(const char *path);
+	virtual float                     get_float(const char *path);
+	virtual unsigned int              get_uint(const char *path);
+	virtual int                       get_int(const char *path);
+	virtual bool                      get_bool(const char *path);
+	virtual std::string               get_string(const char *path);
+	virtual std::vector<float>        get_floats(const char *path);
+	virtual std::vector<unsigned int> get_uints(const char *path);
+	virtual std::vector<int>          get_ints(const char *path);
+	virtual std::vector<bool>         get_bools(const char *path);
+	virtual std::vector<std::string>  get_strings(const char *path);
+	virtual ValueIterator *           get_value(const char *path);
+	virtual std::string               get_comment(const char *path);
+	virtual std::string               get_default_comment(const char *path);
 
-  virtual void          set_float(const char *path, float f);
-  virtual void          set_uint(const char *path, unsigned int uint);
-  virtual void          set_int(const char *path, int i);
-  virtual void          set_bool(const char *path, bool b);
-  virtual void          set_string(const char *path, std::string &s);
-  virtual void          set_string(const char *path, const char *s);
-  virtual void          set_floats(const char *path, std::vector<float> &f);
-  virtual void          set_uints(const char *path, std::vector<unsigned int> &uint);
-  virtual void          set_ints(const char *path, std::vector<int> &i);
-  virtual void          set_bools(const char *path, std::vector<bool> &b);
-  virtual void          set_strings(const char *path, std::vector<std::string> &s);
-  virtual void          set_strings(const char *path, std::vector<const char *> &s);
-  virtual void          set_comment(const char *path, std::string &comment);
-  virtual void          set_comment(const char *path, const char *comment);
+	virtual void set_float(const char *path, float f);
+	virtual void set_uint(const char *path, unsigned int uint);
+	virtual void set_int(const char *path, int i);
+	virtual void set_bool(const char *path, bool b);
+	virtual void set_string(const char *path, std::string &s);
+	virtual void set_string(const char *path, const char *s);
+	virtual void set_floats(const char *path, std::vector<float> &f);
+	virtual void set_uints(const char *path, std::vector<unsigned int> &uint);
+	virtual void set_ints(const char *path, std::vector<int> &i);
+	virtual void set_bools(const char *path, std::vector<bool> &b);
+	virtual void set_strings(const char *path, std::vector<std::string> &s);
+	virtual void set_strings(const char *path, std::vector<const char *> &s);
+	virtual void set_comment(const char *path, std::string &comment);
+	virtual void set_comment(const char *path, const char *comment);
 
-  virtual void          erase(const char *path);
+	virtual void erase(const char *path);
 
-  virtual void          set_default_float(const char *path, float f);
-  virtual void          set_default_uint(const char *path, unsigned int uint);
-  virtual void          set_default_int(const char *path, int i);
-  virtual void          set_default_bool(const char *path, bool b);
-  virtual void          set_default_string(const char *path, std::string &s);
-  virtual void          set_default_string(const char *path, const char *s);
-  virtual void          set_default_comment(const char *path, const char *comment);
-  virtual void          set_default_comment(const char *path, std::string &comment);
+	virtual void set_default_float(const char *path, float f);
+	virtual void set_default_uint(const char *path, unsigned int uint);
+	virtual void set_default_int(const char *path, int i);
+	virtual void set_default_bool(const char *path, bool b);
+	virtual void set_default_string(const char *path, std::string &s);
+	virtual void set_default_string(const char *path, const char *s);
+	virtual void set_default_comment(const char *path, const char *comment);
+	virtual void set_default_comment(const char *path, std::string &comment);
 
-  virtual void          erase_default(const char *path);
+	virtual void erase_default(const char *path);
 
-  ValueIterator * iterator();
-  ValueIterator * search(const char *path);
+	ValueIterator *iterator();
+	ValueIterator *search(const char *path);
 
-  void lock();
-  bool try_lock();
-  void unlock();
+	void lock();
+	bool try_lock();
+	void unlock();
 
-  virtual void            try_dump();
+	virtual void try_dump();
 
 #ifdef HAVE_FAM
-  virtual void fam_event(const char *filename, unsigned int mask);
+	virtual void fam_event(const char *filename, unsigned int mask);
 #endif
 
- public:
-  class YamlValueIterator : public Configuration::ValueIterator
- {
-  public:
-   YamlValueIterator();
-   YamlValueIterator(std::map<std::string, YamlConfigurationNode *> &nodes);
+public:
+	class YamlValueIterator : public Configuration::ValueIterator
+	{
+	public:
+		YamlValueIterator();
+		YamlValueIterator(std::map<std::string, YamlConfigurationNode *> &nodes);
 
-   virtual ~YamlValueIterator() {}
-   virtual bool          next();
-   virtual bool          valid() const;
-    
-   virtual const char *  path() const;
-   virtual const char *  type() const;
-    
-   virtual bool          is_float() const;
-   virtual bool          is_uint() const;
-   virtual bool          is_int() const;
-   virtual bool          is_bool() const;
-   virtual bool          is_string() const;
-   virtual bool          is_list() const;
-   virtual size_t        get_list_size() const;
+		virtual ~YamlValueIterator()
+		{
+		}
+		virtual bool next();
+		virtual bool valid() const;
 
-   virtual float         get_float() const;
-   virtual unsigned int  get_uint() const;
-   virtual int           get_int() const;
-   virtual bool          get_bool() const;
-   virtual std::string   get_string() const;
-   virtual std::vector<float>         get_floats() const;
-   virtual std::vector<unsigned int>  get_uints() const;
-   virtual std::vector<int>           get_ints() const;
-   virtual std::vector<bool>          get_bools() const;
-   virtual std::vector<std::string>   get_strings() const;
-   virtual std::string   get_as_string() const;
+		virtual const char *path() const;
+		virtual const char *type() const;
 
-   virtual std::string   get_comment() const;
+		virtual bool   is_float() const;
+		virtual bool   is_uint() const;
+		virtual bool   is_int() const;
+		virtual bool   is_bool() const;
+		virtual bool   is_string() const;
+		virtual bool   is_list() const;
+		virtual size_t get_list_size() const;
 
-   virtual bool          is_default() const;
+		virtual float                     get_float() const;
+		virtual unsigned int              get_uint() const;
+		virtual int                       get_int() const;
+		virtual bool                      get_bool() const;
+		virtual std::string               get_string() const;
+		virtual std::vector<float>        get_floats() const;
+		virtual std::vector<unsigned int> get_uints() const;
+		virtual std::vector<int>          get_ints() const;
+		virtual std::vector<bool>         get_bools() const;
+		virtual std::vector<std::string>  get_strings() const;
+		virtual std::string               get_as_string() const;
 
-  private:
-   bool                                    first_;
-   std::map<std::string, YamlConfigurationNode *>           nodes_;
-   std::map<std::string, YamlConfigurationNode *>::iterator current_;
- };
+		virtual std::string get_comment() const;
 
- private:
-  /// @cond INTERNALS
-  class LoadQueueEntry {
-   public:
-  LoadQueueEntry(std::string fn, bool im, bool id = false)
-    : filename(fn), ignore_missing(im), is_dir(id) {}
+		virtual bool is_default() const;
 
-    std::string filename;
-    bool ignore_missing;
-    bool is_dir;
-  };
-  /// @endcond
+	private:
+		bool                                                     first_;
+		std::map<std::string, YamlConfigurationNode *>           nodes_;
+		std::map<std::string, YamlConfigurationNode *>::iterator current_;
+	};
 
-  YamlConfigurationNode *  query(const char *path) const;
-  void read_meta_doc(YAML::Node &doc, std::queue<LoadQueueEntry> &load_queue,
-                     std::string &host_file);
-  void read_config_doc(const YAML::Node &doc, YamlConfigurationNode *&node);
-  YamlConfigurationNode * read_yaml_file(std::string filename, bool ignore_missing,
-			std::queue<LoadQueueEntry> &load_queue, std::string &host_file);
-  void read_yaml_config(std::string filename, std::string &host_file,
-                        YamlConfigurationNode *& root, YamlConfigurationNode *& host_root,
-                        std::list<std::string> &files, std::list<std::string> &dirs);
-  void write_host_file();
+private:
+	/// @cond INTERNALS
+	class LoadQueueEntry
+	{
+	public:
+		LoadQueueEntry(std::string fn, bool im, bool id = false)
+		: filename(fn), ignore_missing(im), is_dir(id)
+		{
+		}
 
-  std::string config_file_;
-  std::string host_file_;
+		std::string filename;
+		bool        ignore_missing;
+		bool        is_dir;
+	};
+	/// @endcond
 
-  YamlConfigurationNode  *root_;
-  YamlConfigurationNode  *host_root_;
+	YamlConfigurationNode *query(const char *path) const;
+	void
+	read_meta_doc(YAML::Node &doc, std::queue<LoadQueueEntry> &load_queue, std::string &host_file);
+	void                   read_config_doc(const YAML::Node &doc, YamlConfigurationNode *&node);
+	YamlConfigurationNode *read_yaml_file(std::string                 filename,
+	                                      bool                        ignore_missing,
+	                                      std::queue<LoadQueueEntry> &load_queue,
+	                                      std::string &               host_file);
+	void                   read_yaml_config(std::string             filename,
+	                                        std::string &           host_file,
+	                                        YamlConfigurationNode *&root,
+	                                        YamlConfigurationNode *&host_root,
+	                                        std::list<std::string> &files,
+	                                        std::list<std::string> &dirs);
+	void                   write_host_file();
 
- private:
-  fawkes::Mutex *mutex;
+	std::string config_file_;
+	std::string host_file_;
+
+	YamlConfigurationNode *root_;
+	YamlConfigurationNode *host_root_;
+
+private:
+	fawkes::Mutex *mutex;
 
 #ifdef USE_REGEX_CPP
-  std::regex __yaml_regex;
-  std::regex __url_regex;
-  std::regex __frame_regex;
+	std::regex __yaml_regex;
+	std::regex __url_regex;
+	std::regex __frame_regex;
 #else
-  regex_t    __yaml_regex;
-  regex_t    __url_regex;
-  regex_t    __frame_regex;
+	regex_t __yaml_regex;
+	regex_t __url_regex;
+	regex_t __frame_regex;
 #endif
 
-  typedef std::map<std::string, YAML::Node *> DocMap;
-  mutable DocMap __documents;
+	typedef std::map<std::string, YAML::Node *> DocMap;
+	mutable DocMap                              __documents;
 
-  char *__sysconfdir;
-  char *__userconfdir;
+	char *__sysconfdir;
+	char *__userconfdir;
 
 #ifdef HAVE_FAM
-  FamThread *fam_thread_;
+	FamThread *fam_thread_;
 #endif
 };
-
 
 } // end namespace gazebo_rcll
 

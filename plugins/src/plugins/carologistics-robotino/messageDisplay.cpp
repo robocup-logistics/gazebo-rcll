@@ -18,14 +18,16 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#include "messageDisplay.h"
+
+#include "simDevice.h"
+
 #include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
 #include <gazebo/transport/transport.hh>
-#include "simDevice.h"
-#include "messageDisplay.h"
+#include <stdio.h>
 
 using namespace gazebo;
 
@@ -34,34 +36,41 @@ using namespace gazebo;
  * @param node Transport node to publish and subscribe messages on
  */
 MessageDisplay::MessageDisplay(physics::ModelPtr model, transport::NodePtr node)
- : SimDevice(model, node)
+: SimDevice(model, node)
 {
 }
 MessageDisplay::~MessageDisplay()
 {
 }
 
-void MessageDisplay::init()
+void
+MessageDisplay::init()
 {
-  printf("Initialize MessageDisplay Device \n");
+	printf("Initialize MessageDisplay Device \n");
 }
 
-void MessageDisplay::create_publishers()
-{
-}
-
-void MessageDisplay::create_subscribers()
-{
-  this->string_sub_ = this->node->Subscribe(std::string("~/RobotinoSim/String/"), &MessageDisplay::on_string_msg, this);
-}
-
-void MessageDisplay::update()
+void
+MessageDisplay::create_publishers()
 {
 }
 
-void MessageDisplay::on_string_msg(ConstHeaderPtr &msg)
+void
+MessageDisplay::create_subscribers()
 {
-  printf("Msg from Fawkes: ");
-  fputs(msg->str_id().c_str(),stdout);
-  printf("\n");
+	this->string_sub_ = this->node->Subscribe(std::string("~/RobotinoSim/String/"),
+	                                          &MessageDisplay::on_string_msg,
+	                                          this);
+}
+
+void
+MessageDisplay::update()
+{
+}
+
+void
+MessageDisplay::on_string_msg(ConstHeaderPtr &msg)
+{
+	printf("Msg from Fawkes: ");
+	fputs(msg->str_id().c_str(), stdout);
+	printf("\n");
 }

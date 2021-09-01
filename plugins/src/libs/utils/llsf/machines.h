@@ -34,36 +34,26 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef __UTILS_LLSF_MACHINES_H_
 #define __UTILS_LLSF_MACHINES_H_
 
-#include <string>
 #include <core/exception.h>
+
+#include <string>
 
 namespace llsf_utils {
 #if 0 /* just to make Emacs auto-indent happy */
 }
 #endif
 
-typedef enum {
-  ASSIGNMENT_2013,
-  ASSIGNMENT_2014
-} MachineAssignment;
+typedef enum { ASSIGNMENT_2013, ASSIGNMENT_2014 } MachineAssignment;
 
-typedef enum {
-  TEAM_CYAN,
-  TEAM_MAGENTA
-} TeamAssignment;
+typedef enum { TEAM_CYAN, TEAM_MAGENTA } TeamAssignment;
 
-extern unsigned int
-to_machine(std::string &machine_name, MachineAssignment machine_assignment);
+extern unsigned int to_machine(std::string &machine_name, MachineAssignment machine_assignment);
 
-extern const char *
-to_string(unsigned int machine, MachineAssignment machine_assignment);
+extern const char *to_string(unsigned int machine, MachineAssignment machine_assignment);
 
-
-} // end of namespace gazebo_rcll
-
+} // namespace llsf_utils
 
 #endif

@@ -18,84 +18,80 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#include <configurable/configurable.h>
+#include <llsf_msgs/MachineInstructions.pb.h>
+
 #include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
 #include <gazebo/transport/transport.hh>
 #include <list>
+#include <stdio.h>
 #include <string.h>
-#include <llsf_msgs/MachineInstructions.pb.h>
-#include <configurable/configurable.h>
-
 
 //typedefs for sending the messages over the gazebo node
 typedef const boost::shared_ptr<llsf_msgs::InstructMachine const> ConstInstructMachinePtr;
 
 //config values
-#define TOPIC_INSTRUCT_MACHINE config->get_string("plugins/light-control/topic-instruct-machine").c_str()
+#define TOPIC_INSTRUCT_MACHINE \
+	config->get_string("plugins/light-control/topic-instruct-machine").c_str()
 
+namespace gazebo {
+typedef enum Color { RED, YELLOW, GREEN } Color;
 
-namespace gazebo
-{
-  typedef enum Color
-  {
-    RED,
-    YELLOW,
-    GREEN
-  } Color;
+namespace msgs {
+class Visual;
+}
 
-  namespace msgs
-  {
-    class Visual;
-  }
-
-  /**
+/**
    * Plugin to control the light signals on an MPS
    * @author Frederik Zwilling
    */
-  class LightControl : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
-  {
-  public:
-    LightControl();
-   ~LightControl();
+class LightControl : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
+{
+public:
+	LightControl();
+	~LightControl();
 
-    //Overridden ModelPlugin-Functions
-    virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
-    virtual void OnUpdate(const common::UpdateInfo &);
-    virtual void Reset();
+	//Overridden ModelPlugin-Functions
+	virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
+	virtual void OnUpdate(const common::UpdateInfo &);
+	virtual void Reset();
 
-  private:
-    /// Pointer to the gazbeo model
-    physics::ModelPtr model_;
-    /// Pointer to the update event connection
-    event::ConnectionPtr update_connection_;
-    ///Node for communication
-    transport::NodePtr node_;
-    ///name of the light signal models
-    std::string name_;
-    ///pointer to the world
-    physics::WorldPtr world_;
+private:
+	/// Pointer to the gazbeo model
+	physics::ModelPtr model_;
+	/// Pointer to the update event connection
+	event::ConnectionPtr update_connection_;
+	///Node for communication
+	transport::NodePtr node_;
+	///name of the light signal models
+	std::string name_;
+	///pointer to the world
+	physics::WorldPtr world_;
 
-    // Light_Control Stuff:
-    llsf_msgs::LightState state_red_, state_yellow_, state_green_;
-    llsf_msgs::LightState prev_state_red_, prev_state_yellow_, prev_state_green_;
+	// Light_Control Stuff:
+	llsf_msgs::LightState state_red_, state_yellow_, state_green_;
+	llsf_msgs::LightState prev_state_red_, prev_state_yellow_, prev_state_green_;
 
-    /// Subscriber to get msgs about the light status
-    transport::SubscriberPtr light_msg_sub_;
+	/// Subscriber to get msgs about the light status
+	transport::SubscriberPtr light_msg_sub_;
 
-    /// Handler for light status msg
-    void on_light_msg(ConstInstructMachinePtr &msg);
+	/// Handler for light status msg
+	void on_light_msg(ConstInstructMachinePtr &msg);
 
-    ///Publisher to send visual changes to gazebo
-    transport::PublisherPtr visPub_;
-    void change_light(std::string machine_name, Color color, llsf_msgs::LightState &state, llsf_msgs::LightState &prev_state);
+	///Publisher to send visual changes to gazebo
+	transport::PublisherPtr visPub_;
+	void                    change_light(std::string            machine_name,
+	                                     Color                  color,
+	                                     llsf_msgs::LightState &state,
+	                                     llsf_msgs::LightState &prev_state);
 
-    ///time variable to send in intervals
-    double last_sent_time_;
+	///time variable to send in intervals
+	double last_sent_time_;
 
-    ///name of the machine containing the light signal
-    std::string machine_name_;
-  };
-}
+	///name of the machine containing the light signal
+	std::string machine_name_;
+};
+} // namespace gazebo

@@ -18,14 +18,14 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#include "simDevice.h"
+
 #include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
 #include <gazebo/transport/transport.hh>
-
-#include "simDevice.h"
+#include <stdio.h>
 
 using namespace gazebo;
 
@@ -35,13 +35,13 @@ using namespace gazebo;
  */
 SimDevice::SimDevice(physics::ModelPtr model, transport::NodePtr node)
 {
-  //Store the pointer to the model
-  this->model = model;
+	//Store the pointer to the model
+	this->model = model;
 
-  //communication Node
-  this->node = node;
+	//communication Node
+	this->node = node;
 
-  last_sent_time_ = 0.0;
+	last_sent_time_ = 0.0;
 }
 
 SimDevice::~SimDevice()

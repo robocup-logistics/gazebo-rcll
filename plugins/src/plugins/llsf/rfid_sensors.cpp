@@ -19,52 +19,46 @@
  */
 
 #include "rfid_sensors.h"
-#include <stdio.h>
 
+#include <stdio.h>
 
 using namespace gazebo;
 
 RfidSensors::RfidSensors()
 {
-  table_ = LlsfDataTable::get_table();
+	table_ = LlsfDataTable::get_table();
 }
 
 RfidSensors::~RfidSensors()
 {
-
 }
 
-void RfidSensors::update()
-{ 
-  //for all machines check if there is any puck anderneath it
-  Machine* machines = table_->get_machines();
-  for(int m = 0; m < NUMBER_MACHINES; m++)
-  {
-    Machine machine = machines[m];
-    //calculate center of rfid-sensor
-    double rfid_x = machine.x + DIST_CENTER_RFID * cos(machine.ori);
-    double rfid_y = machine.y + DIST_CENTER_RFID * sin(machine.ori);
-    
-    //check all pucks
-    for(int p = 0; p < NUMBER_PUCKS; p++)
-    {
-      Puck puck = table_->get_puck(p);
-      double dist = sqrt((puck.x - rfid_x) * (puck.x - rfid_x)
-			 + (puck.y - rfid_y) * (puck.y - rfid_y));
-      if(dist < UNDER_RFID_TOL)
-      {
-	//printf("Puck %d is under %s\n", p, machine.name_link.c_str());
-	if(puck.under_rfid != NONE && puck.under_rfid != machine.name)
-	{
-	  table_->remove_puck_under_rfid(p, puck.under_rfid);
+void
+RfidSensors::update()
+{
+	//for all machines check if there is any puck anderneath it
+	Machine *machines = table_->get_machines();
+	for (int m = 0; m < NUMBER_MACHINES; m++) {
+		Machine machine = machines[m];
+		//calculate center of rfid-sensor
+		double rfid_x = machine.x + DIST_CENTER_RFID * cos(machine.ori);
+		double rfid_y = machine.y + DIST_CENTER_RFID * sin(machine.ori);
+
+		//check all pucks
+		for (int p = 0; p < NUMBER_PUCKS; p++) {
+			Puck   puck = table_->get_puck(p);
+			double dist =
+			  sqrt((puck.x - rfid_x) * (puck.x - rfid_x) + (puck.y - rfid_y) * (puck.y - rfid_y));
+			if (dist < UNDER_RFID_TOL) {
+				//printf("Puck %d is under %s\n", p, machine.name_link.c_str());
+				if (puck.under_rfid != NONE && puck.under_rfid != machine.name) {
+					table_->remove_puck_under_rfid(p, puck.under_rfid);
+				}
+				table_->set_puck_under_rfid(p, machine.name);
+			} else if (puck.under_rfid == machine.name) {
+				//printf("Puck %d is no longer under %s\n", p, machine.name_link.c_str());
+				table_->remove_puck_under_rfid(p, machine.name);
+			}
+		}
 	}
-	table_->set_puck_under_rfid(p, machine.name);
-      }
-      else if (puck.under_rfid == machine.name)
-      {
-	//printf("Puck %d is no longer under %s\n", p, machine.name_link.c_str());
-	table_->remove_puck_under_rfid(p, machine.name);
-      }
-    }
-  }
 }

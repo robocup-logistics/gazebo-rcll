@@ -18,57 +18,56 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#include "simDevice.h"
+
 #include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
 #include <gazebo/transport/transport.hh>
 #include <list>
-#include "simDevice.h"
+#include <stdio.h>
 #include <string.h>
 
-namespace gazebo
-{
+namespace gazebo {
 
-  /** 
+/** 
    * Gazebo Plugin for the Robotino Robot
    * @author Frederik Zwilling
-   */   
-  class Robotino : public ModelPlugin
-  {
-  public:
-    ///Constructor
-    Robotino();
+   */
+class Robotino : public ModelPlugin
+{
+public:
+	///Constructor
+	Robotino();
 
-    ///Destructor
-    ~Robotino();
+	///Destructor
+	~Robotino();
 
-    //Overridden ModelPlugin-Functions
-    virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
-    virtual void OnUpdate(const common::UpdateInfo &);
-    virtual void Reset();
+	//Overridden ModelPlugin-Functions
+	virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
+	virtual void OnUpdate(const common::UpdateInfo &);
+	virtual void Reset();
 
-  private:
+private:
+	///simulated devices
+	std::list<SimDevice *> devices_list_;
 
-    ///simulated devices
-    std::list<SimDevice*> devices_list_;
+	/// Pointer to the model
+	physics::ModelPtr model_;
+	/// Pointer to the update event connection
+	event::ConnectionPtr update_connection_;
+	///Node for communication to fawkes
+	transport::NodePtr node_;
 
-    /// Pointer to the model
-    physics::ModelPtr model_;
-    /// Pointer to the update event connection
-    event::ConnectionPtr update_connection_;
-    ///Node for communication to fawkes
-    transport::NodePtr node_;
-    
-    ///Node for Spawning a number label
-    transport::NodePtr visual_node_;
-    ///Publisher for spawning a number label
-    transport::PublisherPtr visual_pub_;
-    void spawn_label();
-    double label_last_sent_;
+	///Node for Spawning a number label
+	transport::NodePtr visual_node_;
+	///Publisher for spawning a number label
+	transport::PublisherPtr visual_pub_;
+	void                    spawn_label();
+	double                  label_last_sent_;
 
-    ///name of the robotino and the communication channel
-    std::string name_;
-  };
-}
+	///name of the robotino and the communication channel
+	std::string name_;
+};
+} // namespace gazebo

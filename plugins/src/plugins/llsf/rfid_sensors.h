@@ -26,36 +26,35 @@
 //distance of the rfid-sensor-center from machine-center in x-dim
 #define DIST_CENTER_RFID 0.06
 
-
-#include <string>
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
 #include "data_table.h"
 
-namespace gazebo
-{
-  /**
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <string>
+
+namespace gazebo {
+/**
    * checks if a puck is under a rfid sensor
    *
    * (only works if you do not move the field)
    */
-  class RfidSensors
-  {
-  public: 
-    ///Constructor
-    RfidSensors();
-    ///Deconstructor
-    ~RfidSensors();
-    
-    ///what to do on the plugin update (check for puck under rfid-sensors and write results to data table)
-    void update();
+class RfidSensors
+{
+public:
+	///Constructor
+	RfidSensors();
+	///Deconstructor
+	~RfidSensors();
 
-  private:
-    ///time variable to send in intervals
-    double last_sent_time_;
+	///what to do on the plugin update (check for puck under rfid-sensors and write results to data table)
+	void update();
 
-    ///Pointer to simulation data
-    LlsfDataTable *table_;
-  };
-}
+private:
+	///time variable to send in intervals
+	double last_sent_time_;
+
+	///Pointer to simulation data
+	LlsfDataTable *table_;
+};
+} // namespace gazebo
 #endif

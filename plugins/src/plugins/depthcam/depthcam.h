@@ -18,70 +18,75 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#include <configurable/configurable.h>
+
 #include <boost/bind.hpp>
-#include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
-#include <stdio.h>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/rendering/DepthCamera.hh>
+#include <gazebo/sensors/sensors.hh>
 #include <gazebo/transport/transport.hh>
 #include <list>
 #include <map>
+#include <stdio.h>
 #include <string>
-#include <gazebo/rendering/DepthCamera.hh>
-#include <gazebo/sensors/sensors.hh>
-#include <configurable/configurable.h>
 
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    * Provides depthcam pointcloud in gazebo topic
    * @author Frederik Zwilling
    */
-  class DepthCam : public SensorPlugin, public gazebo_rcll::ConfigurableAspect
-  {
-  public:
-    DepthCam();
-   ~DepthCam();
+class DepthCam : public SensorPlugin, public gazebo_rcll::ConfigurableAspect
+{
+public:
+	DepthCam();
+	~DepthCam();
 
-    //Overridden ModelPlugin-Functions
-    virtual void Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*/);
-    virtual void Reset();
+	//Overridden ModelPlugin-Functions
+	virtual void Load(sensors::SensorPtr _sensor, sdf::ElementPtr /*_sdf*/);
+	virtual void Reset();
 
-    virtual void OnNewDepthFrame(const float *_image,
-    				 unsigned int _width, unsigned int _height,
-    				 unsigned int _depth, const std::string &_format);
+	virtual void OnNewDepthFrame(const float *      _image,
+	                             unsigned int       _width,
+	                             unsigned int       _height,
+	                             unsigned int       _depth,
+	                             const std::string &_format);
 
-    virtual void OnNewRGBPointCloud(const float *_pcd,
-    				    unsigned int _width, unsigned int _height,
-    				    unsigned int _depth, const std::string &_format);
+	virtual void OnNewRGBPointCloud(const float *      _pcd,
+	                                unsigned int       _width,
+	                                unsigned int       _height,
+	                                unsigned int       _depth,
+	                                const std::string &_format);
 
-    virtual void OnNewImageFrame(const unsigned char *_image,
-    				 unsigned int _width, unsigned int _height,
-    				 unsigned int _depth, const std::string &_format);
+	virtual void OnNewImageFrame(const unsigned char *_image,
+	                             unsigned int         _width,
+	                             unsigned int         _height,
+	                             unsigned int         _depth,
+	                             const std::string &  _format);
 
-  private:
-    ///Node for communication to fawkes
-    transport::NodePtr node_;
-    ///Node for communication in gazebo
-    transport::NodePtr world_node_;
+private:
+	///Node for communication to fawkes
+	transport::NodePtr node_;
+	///Node for communication in gazebo
+	transport::NodePtr world_node_;
 
-    transport::PublisherPtr pcl_pub_;
+	transport::PublisherPtr pcl_pub_;
 
-    ///name of the communication channel and the sensor
-    std::string name_;
+	///name of the communication channel and the sensor
+	std::string name_;
 
-    //config values:
-    std::string pcl_topic_;
+	//config values:
+	std::string pcl_topic_;
 
-    unsigned int width_, height_, depth_;
-    std::string format_;
+	unsigned int width_, height_, depth_;
+	std::string  format_;
 
-    //Depth camera stuff:
-    sensors::DepthCameraSensorPtr parentSensor;
-    rendering::DepthCameraPtr depthCamera;
+	//Depth camera stuff:
+	sensors::DepthCameraSensorPtr parentSensor;
+	rendering::DepthCameraPtr     depthCamera;
 
-    event::ConnectionPtr newDepthFrameConnection;
-    event::ConnectionPtr newRGBPointCloudConnection;
-    event::ConnectionPtr newImageFrameConnection;
-
-  };
-}
+	event::ConnectionPtr newDepthFrameConnection;
+	event::ConnectionPtr newRGBPointCloudConnection;
+	event::ConnectionPtr newImageFrameConnection;
+};
+} // namespace gazebo

@@ -32,20 +32,19 @@ class Mutex;
 
 class MutexLocker
 {
- public:
-  MutexLocker(RefPtr<Mutex> mutex, bool initially_lock = true);
-  MutexLocker(Mutex *mutex, bool initially_lock = true);
-  ~MutexLocker();
+public:
+	MutexLocker(RefPtr<Mutex> mutex, bool initially_lock = true);
+	MutexLocker(Mutex *mutex, bool initially_lock = true);
+	~MutexLocker();
 
-  void relock();
-  void unlock();
+	void relock();
+	void unlock();
 
- private:
-  bool           __locked;
-  RefPtr<Mutex>  __refmutex;
-  Mutex         *__rawmutex;
+private:
+	bool          __locked;
+	RefPtr<Mutex> __refmutex;
+	Mutex *       __rawmutex;
 };
-
 
 } // end namespace fawkes
 

@@ -21,10 +21,11 @@
  */
 
 #include "mps_loader.h"
+
 #include "base_station.h"
-#include "ring_station.h"
 #include "cap_station.h"
 #include "delivery_station.h"
+#include "ring_station.h"
 #include "storage_station.h"
 
 using namespace gazebo;
@@ -34,58 +35,46 @@ GZ_REGISTER_MODEL_PLUGIN(MpsLoader)
 
 MpsLoader::MpsLoader()
 {
-
 }
 
 MpsLoader::~MpsLoader()
 {
-  delete mps_;
-  printf("Destructing Mps Plugin!\n");
+	delete mps_;
+	printf("Destructing Mps Plugin!\n");
 }
 
-void MpsLoader::Load(physics::ModelPtr _parent, sdf::ElementPtr sdf)
+void
+MpsLoader::Load(physics::ModelPtr _parent, sdf::ElementPtr sdf)
 {
-  std::string name = _parent->GetName();
-  //set the machine type
-  if(name.find("BS")!=std::string::npos)
-  {
-    printf("detected machine type: base \n");
-    mps_ = new BaseStation(_parent, sdf);
-  }
-  if(name.find("SS")!=std::string::npos)
-  {
-    printf("detected machine type: Storage \n");
-    mps_ = new StorageStation(_parent, sdf);
-  }
-  else if(name.find("CS")!=std::string::npos)
-  {
-    printf("detected machine type: cap \n");
-    mps_= new CapStation(_parent, sdf);
-  }
-  else if(name.find("RS")!=std::string::npos)
-  {
-    printf("detected machine type: ring \n");
-    mps_ = new RingStation(_parent, sdf);
-  }
-  else if(name.find("DS")!=std::string::npos)
-  {
-    printf("detected machine type: delivery \n");
-    mps_ = new DeliveryStation(_parent, sdf);
-  }
-  else
-  {
-    printf("unknowen machine: %s\n",name.c_str());
-  }
+	std::string name = _parent->GetName();
+	//set the machine type
+	if (name.find("BS") != std::string::npos) {
+		printf("detected machine type: base \n");
+		mps_ = new BaseStation(_parent, sdf);
+	}
+	if (name.find("SS") != std::string::npos) {
+		printf("detected machine type: Storage \n");
+		mps_ = new StorageStation(_parent, sdf);
+	} else if (name.find("CS") != std::string::npos) {
+		printf("detected machine type: cap \n");
+		mps_ = new CapStation(_parent, sdf);
+	} else if (name.find("RS") != std::string::npos) {
+		printf("detected machine type: ring \n");
+		mps_ = new RingStation(_parent, sdf);
+	} else if (name.find("DS") != std::string::npos) {
+		printf("detected machine type: delivery \n");
+		mps_ = new DeliveryStation(_parent, sdf);
+	} else {
+		printf("unknowen machine: %s\n", name.c_str());
+	}
 }
 
-void MpsLoader::OnUpdate(const common::UpdateInfo &)
+void
+MpsLoader::OnUpdate(const common::UpdateInfo &)
 {
-  
 }
 
-void MpsLoader::Reset()
+void
+MpsLoader::Reset()
 {
-  
 }
-
-

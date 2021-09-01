@@ -28,24 +28,22 @@
 
 namespace fawkes {
 
-
 class Thread;
 
 class CannotInitializeThreadException : public Exception
 {
- public:
-  CannotInitializeThreadException(const char *format, ...);
-  CannotInitializeThreadException();
+public:
+	CannotInitializeThreadException(const char *format, ...);
+	CannotInitializeThreadException();
 };
 
 class ThreadInitializer
 {
- public:
-  virtual ~ThreadInitializer();
+public:
+	virtual ~ThreadInitializer();
 
-  virtual void init(Thread *thread) = 0;
+	virtual void init(Thread *thread) = 0;
 };
-
 
 } // end namespace fawkes
 
