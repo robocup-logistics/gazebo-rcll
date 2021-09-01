@@ -38,34 +38,6 @@
 #include <stdio.h>
 #include <string.h>
 
-//amount of pucks to listen for
-#define NUMBER_PUCKS number_pucks_
-//how far is the center of the belt hsifted from the machine center
-#define BELT_OFFSET_SIDE belt_offset_side_
-//radius of the area where a workpiece is detected by the machine
-#define DETECT_TOLERANCE detect_tolerance_
-//radius of a workpiece
-#define PUCK_SIZE puck_size_
-//height of a puck
-#define PUCK_HEIGHT puck_height_
-//length of the belt to calculate pos of input/output area
-#define BELT_LENGTH belt_length_
-//height of the belt
-#define BELT_HEIGHT belt_height_
-//height of the center of the tag
-#define TAG_HEIGHT tag_height_
-//height of the center of the tag
-#define TAG_SIZE tag_size_
-//at what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
-#define TAG_SPAWN_TIME tag_spawn_time_
-#define TOPIC_SET_MACHINE_STATE topic_set_machine_state_
-#define TOPIC_MACHINE_REPLY topic_machine_reply_
-#define TOPIC_MACHINE_INFO topic_machine_info_
-#define TOPIC_INSTRUCT_MACHINE topic_instruct_machine_
-#define TOPIC_PUCK_COMMAND topic_puck_command_
-#define TOPIC_PUCK_COMMAND_RESULT topic_puck_command_result_
-#define TOPIC_JOINT topic_joint_
-
 typedef const boost::shared_ptr<llsf_msgs::SetMachineState const> ConstSetMachineStatePtr;
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const>     ConstMachineInfoPtr;
 typedef const boost::shared_ptr<llsf_msgs::InstructMachine const> ConstInstructMachinePtr;

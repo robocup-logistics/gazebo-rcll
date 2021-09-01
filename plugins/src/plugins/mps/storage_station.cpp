@@ -180,12 +180,12 @@ StorageStation::new_machine_info(ConstMachine &machine)
     gzwrap::Pose3d spawn_pose;
     if(machine.instruction_bs().side() == llsf_msgs::MachineSide::INPUT)
     {
-      spawn_pose = gzwrap::Pose3d(input_x(),input_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
+      spawn_pose = gzwrap::Pose3d(input_x(),input_y(),BELT_HEIGHT+(puck_height_/2),0,0,0);
       printf("spawning puck at input\n");
     }
     else if(machine.instruction_bs().side() == llsf_msgs::MachineSide::OUTPUT)
     {
-      spawn_pose = gzwrap::Pose3d(output_x(), output_y(),BELT_HEIGHT+(PUCK_HEIGHT/2),0,0,0);
+      spawn_pose = gzwrap::Pose3d(output_x(), output_y(),BELT_HEIGHT+(puck_height_/2),0,0,0);
       printf("spawning puck at output\n");
     }
     else
@@ -372,7 +372,7 @@ StorageStation::get_slot_World_position(uint32_t slot_x, uint32_t slot_y, uint32
 	slot_x += 1;
 	x = shelf_pos_x + (slot_x * SLOT_X_OFFSET) + (slot_z * SLOT_Z_OFFSET);
 	y = shelf_pos_y + (slot_y * SLOT_Y_OFFSET);
-	z = PUCK_HEIGHT * 0.5;
+	z = puck_height_ * 0.5;
 
 	return gzwrap::Pose3d(x, y, z, 0, 0, 0);
 }

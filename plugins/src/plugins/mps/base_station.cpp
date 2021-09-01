@@ -48,10 +48,11 @@ BaseStation::new_machine_info(ConstMachine &machine)
 		}
 		gzwrap::Pose3d spawn_pose;
 		if (machine.instruction_bs().side() == llsf_msgs::MachineSide::INPUT) {
-			spawn_pose = gzwrap::Pose3d(input_x(), input_y(), BELT_HEIGHT + (PUCK_HEIGHT / 2), 0, 0, 0);
+			spawn_pose = gzwrap::Pose3d(input_x(), input_y(), belt_height_ + (puck_height_ / 2), 0, 0, 0);
 			printf("spawning puck at input\n");
 		} else if (machine.instruction_bs().side() == llsf_msgs::MachineSide::OUTPUT) {
-			spawn_pose = gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT + (PUCK_HEIGHT / 2), 0, 0, 0);
+			spawn_pose =
+			  gzwrap::Pose3d(output_x(), output_y(), belt_height_ + (puck_height_ / 2), 0, 0, 0);
 			printf("spawning puck at output\n");
 		} else
 			spawn_pose = gzwrap::Pose3d::Zero;

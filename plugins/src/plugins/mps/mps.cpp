@@ -85,25 +85,25 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 
 	//subscribe to machine info
 	this->machine_info_subscriber_ =
-	  this->node_->Subscribe(TOPIC_MACHINE_INFO, &Mps::on_machine_msg, this);
+	  this->node_->Subscribe(topic_machine_info_, &Mps::on_machine_msg, this);
 
 	//subscribe to machine info
 	this->instruct_machine_subscriber_ =
-	  this->node_->Subscribe(TOPIC_INSTRUCT_MACHINE, &Mps::on_instruct_machine_msg, this);
+	  this->node_->Subscribe(topic_instruct_machine_, &Mps::on_instruct_machine_msg, this);
 
 	this->new_puck_subscriber_ = node_->Subscribe("~/new_puck", &Mps::on_new_puck, this);
 
 	//Create publisher to spawn tags
 	visPub_ = this->node_->Advertise<msgs::Visual>("~/visual", /*number of lights*/ 3 * 12);
 	set_machne_state_pub_ =
-	  this->node_->Advertise<llsf_msgs::SetMachineState>(TOPIC_SET_MACHINE_STATE);
+	  this->node_->Advertise<llsf_msgs::SetMachineState>(topic_set_machine_state_);
 
-	machine_reply_pub_ = this->node_->Advertise<llsf_msgs::MachineReply>(TOPIC_MACHINE_REPLY);
+	machine_reply_pub_ = this->node_->Advertise<llsf_msgs::MachineReply>(topic_machine_reply_);
 	world_             = model_->GetWorld();
 
 	factoryPub         = node_->Advertise<msgs::Factory>("~/factory");
-	puck_cmd_pub_      = node_->Advertise<gazsim_msgs::WorkpieceCommand>(TOPIC_PUCK_COMMAND);
-	joint_message_sub_ = node_->Subscribe(TOPIC_JOINT, &Mps::on_joint_msg, this);
+	puck_cmd_pub_      = node_->Advertise<gazsim_msgs::WorkpieceCommand>(topic_puck_command_);
+	joint_message_sub_ = node_->Subscribe(topic_joint_, &Mps::on_joint_msg, this);
 
 	//create joints to hold tags
 	tag_joint_input = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint("revolute", model_);
@@ -260,7 +260,7 @@ Mps::output_x()
 {
 	double mps_x   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
-	return mps_x + BELT_OFFSET_SIDE * cos(mps_ori) + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+	return mps_x + belt_offset_side_ * cos(mps_ori) + (belt_length_ / 2 - puck_size_) * sin(mps_ori);
 }
 
 float
@@ -268,7 +268,7 @@ Mps::output_y()
 {
 	double mps_y   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
-	return mps_y + BELT_OFFSET_SIDE * sin(mps_ori) - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+	return mps_y + belt_offset_side_ * sin(mps_ori) - (belt_length_ / 2 - puck_size_) * cos(mps_ori);
 }
 
 float
@@ -276,7 +276,7 @@ Mps::input_x()
 {
 	double mps_x   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
-	return mps_x + BELT_OFFSET_SIDE * cos(mps_ori) - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+	return mps_x + belt_offset_side_ * cos(mps_ori) - (belt_length_ / 2 - puck_size_) * sin(mps_ori);
 }
 
 float
@@ -284,57 +284,59 @@ Mps::input_y()
 {
 	double mps_y   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
-	return mps_y + BELT_OFFSET_SIDE * sin(mps_ori) + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+	return mps_y + belt_offset_side_ * sin(mps_ori) + (belt_length_ / 2 - puck_size_) * cos(mps_ori);
 }
 
 gzwrap::Pose3d
 Mps::input()
 {
-	return gzwrap::Pose3d(input_x(), input_y(), BELT_HEIGHT, 0, 0, 0);
+	return gzwrap::Pose3d(input_x(), input_y(), belt_height_, 0, 0, 0);
 }
 
 gzwrap::Pose3d
 Mps::output()
 {
-	return gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0);
+	return gzwrap::Pose3d(output_x(), output_y(), belt_height_, 0, 0, 0);
 }
 
 bool
 Mps::pose_hit(const gzwrap::Pose3d &to_test, const gzwrap::Pose3d &reference, double tolerance)
 {
 	if (tolerance == -1.0)
-		tolerance = DETECT_TOLERANCE;
+		tolerance = detect_tolerance_;
 	return (to_test.GZWRAP_POS - reference.GZWRAP_POS).GZWRAP_LENGTH() < tolerance;
 }
 
 bool
 Mps::puck_in_input(ConstPosePtr &pose)
 {
-	double dist = sqrt((pose->position().x() - input_x()) * (pose->position().x() - input_x())
-	                   + (pose->position().y() - input_y()) * (pose->position().y() - input_y())
-	                   + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
-	return dist < DETECT_TOLERANCE;
+	double dist =
+	  sqrt((pose->position().x() - input_x()) * (pose->position().x() - input_x())
+	       + (pose->position().y() - input_y()) * (pose->position().y() - input_y())
+	       + (pose->position().z() - belt_height_) * (pose->position().z() - belt_height_));
+	return dist < detect_tolerance_;
 }
 
 bool
 Mps::puck_in_output(ConstPosePtr &pose)
 {
-	double dist = sqrt((pose->position().x() - output_x()) * (pose->position().x() - output_x())
-	                   + (pose->position().y() - output_y()) * (pose->position().y() - output_y())
-	                   + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
-	return dist < DETECT_TOLERANCE;
+	double dist =
+	  sqrt((pose->position().x() - output_x()) * (pose->position().x() - output_x())
+	       + (pose->position().y() - output_y()) * (pose->position().y() - output_y())
+	       + (pose->position().z() - belt_height_) * (pose->position().z() - belt_height_));
+	return dist < detect_tolerance_;
 }
 
 bool
 Mps::puck_in_input(const gzwrap::Pose3d &pose)
 {
-	return (pose.GZWRAP_POS - input().GZWRAP_POS).GZWRAP_LENGTH() < DETECT_TOLERANCE;
+	return (pose.GZWRAP_POS - input().GZWRAP_POS).GZWRAP_LENGTH() < detect_tolerance_;
 }
 
 bool
 Mps::puck_in_output(const gzwrap::Pose3d &pose)
 {
-	return (pose.GZWRAP_POS - output().GZWRAP_POS).GZWRAP_LENGTH() < DETECT_TOLERANCE;
+	return (pose.GZWRAP_POS - output().GZWRAP_POS).GZWRAP_LENGTH() < detect_tolerance_;
 }
 
 void
@@ -422,16 +424,16 @@ gzwrap::Pose3d
 Mps::get_puck_world_pose(double long_side, double short_side, double height)
 {
 	if (height == -1.0)
-		height = BELT_HEIGHT;
+		height = belt_height_;
 
 	double mps_x   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X;
 	double mps_y   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
 
-	double x = mps_x + (BELT_OFFSET_SIDE + long_side) * cos(mps_ori)
-	           - ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * sin(mps_ori);
-	double y = mps_y + (BELT_OFFSET_SIDE + long_side) * sin(mps_ori)
-	           + ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * cos(mps_ori);
+	double x = mps_x + (belt_offset_side_ + long_side) * cos(mps_ori)
+	           - ((belt_length_ + short_side) / 2 - puck_size_) * sin(mps_ori);
+	double y = mps_y + (belt_offset_side_ + long_side) * sin(mps_ori)
+	           + ((belt_length_ + short_side) / 2 - puck_size_) * cos(mps_ori);
 
 	return gzwrap::Pose3d(x, y, height, 0, 0, 0);
 }

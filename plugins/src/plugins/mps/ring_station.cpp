@@ -63,11 +63,12 @@ RingStation::publish_indicator(bool active, int number)
 	msg.set_parent_name(name_ + "::body");
 	msg.set_name(name_ + "::body::base_" + std::to_string(number));
 #if GAZEBO_MAJOR_VERSION > 5
-	gazebo::msgs::Set(msg.mutable_pose(),
-	                  ignition::math::Pose3d(-0.35 + (number * 0.11), 0, BELT_HEIGHT + 0.3, 0, 0, 0));
+	gazebo::msgs::Set(
+	  msg.mutable_pose(),
+	  ignition::math::Pose3d(-0.35 + (number * 0.11), 0, belt_height_ + 0.3, 0, 0, 0));
 #else
 	gazebo::msgs::Set(msg.mutable_pose(),
-	                  gazebo::math::Pose(-0.35 + (number * 0.11), 0, BELT_HEIGHT + 0.3, 0, 0, 0));
+	                  gazebo::math::Pose(-0.35 + (number * 0.11), 0, belt_height_ + 0.3, 0, 0, 0));
 #endif
 	if (active) {
 		msgs::Set(msg.mutable_material()->mutable_diffuse(), gzwrap::Color(1, 0, 0));
@@ -101,7 +102,7 @@ RingStation::new_machine_info(ConstMachine &machine)
 			printf("%s: Teleporting %s to output\n", name_.c_str(), puck_in_processing_name_.c_str());
 			model_->GetWorld()
 			  ->GZWRAP_ENTITY_BY_NAME(puck_in_processing_name_)
-			  ->SetWorldPose(gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0));
+			  ->SetWorldPose(gzwrap::Pose3d(output_x(), output_y(), belt_height_, 0, 0, 0));
 			//spawn a ring ontop of the puck
 			//write to the puck plugin
 			if (!puck_cmd_pub_->HasConnections())

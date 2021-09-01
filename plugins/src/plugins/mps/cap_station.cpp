@@ -32,7 +32,7 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_p
 	spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
 	spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
 	workpiece_result_subscriber_ =
-	  node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT, &CapStation::on_puck_result, this);
+	  node_->Subscribe(topic_puck_command_result_, &CapStation::on_puck_result, this);
 	stored_cap_color_  = gazsim_msgs::Color::NONE;
 	puck_spawned_time_ = created_time_;
 }
@@ -211,19 +211,19 @@ CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 gzwrap::Pose3d
 CapStation::shelf_left_pose()
 {
-	return get_puck_world_pose(-0.1, 0, BELT_HEIGHT + 0.005);
+	return get_puck_world_pose(-0.1, 0, belt_height_ + 0.005);
 }
 
 gzwrap::Pose3d
 CapStation::shelf_middle_pose()
 {
-	return get_puck_world_pose(-0.2, 0, BELT_HEIGHT + 0.005);
+	return get_puck_world_pose(-0.2, 0, belt_height_ + 0.005);
 }
 
 gzwrap::Pose3d
 CapStation::shelf_right_pose()
 {
-	return get_puck_world_pose(-0.3, 0, BELT_HEIGHT + 0.005);
+	return get_puck_world_pose(-0.3, 0, belt_height_ + 0.005);
 }
 
 bool
