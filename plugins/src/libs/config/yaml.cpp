@@ -21,15 +21,16 @@
  *  Read the full text in the LICENSE.GPL_WRE file in the doc directory.
  */
 
-#include "yaml_node.h"
-
 #include <config/yaml.h>
 #include <core/exceptions/software.h>
 #include <core/threading/mutex.h>
+
 // include <logging/liblogger.h>
 #ifdef HAVE_FAM
 #	include <utils/system/fam_thread.h>
 #endif
+
+#include "yaml_node.h"
 
 #include <sys/stat.h>
 #include <yaml-cpp/exceptions.h>
