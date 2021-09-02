@@ -11,6 +11,7 @@ jobs:
             dnf install -y --nodocs \
               cmake \
               boost-devel \
+              freeopcua-devel \
               gazebo-devel \
               gcc-c++ \
               git \
