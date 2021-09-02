@@ -27,6 +27,7 @@
 #include <llsf_msgs/MachineCommands.pb.h>
 #include <llsf_msgs/MachineInfo.pb.h>
 #include <llsf_msgs/MachineReport.pb.h>
+#include <opc/ua/server/server.h>
 #include <utils/misc/gazebo_api_wrappers.h>
 
 #include <boost/bind.hpp>
@@ -175,6 +176,28 @@ protected:
 	std::string topic_puck_command_;
 	std::string topic_puck_command_result_;
 	std::string topic_joint_;
+
+	OpcUa::UaServer opcua_server_;
+	OpcUa::Node     action_id_in_;
+	OpcUa::Node     barcode_in_;
+	OpcUa::Node     payload1_in_;
+	OpcUa::Node     payload2_in_;
+	OpcUa::Node     error_in_;
+	OpcUa::Node     slidecount_in_;
+	OpcUa::Node     enable_in_;
+	OpcUa::Node     status_error_in_;
+	OpcUa::Node     status_ready_in_;
+	OpcUa::Node     status_busy_in_;
+	OpcUa::Node     action_id_basic_;
+	OpcUa::Node     barcode_basic_;
+	OpcUa::Node     payload1_basic_;
+	OpcUa::Node     payload2_basic_;
+	OpcUa::Node     error_basic_;
+	OpcUa::Node     slidecount_basic_;
+	OpcUa::Node     enable_basic_;
+	OpcUa::Node     status_error_basic_;
+	OpcUa::Node     status_ready_basic_;
+	OpcUa::Node     status_busy_basic_;
 };
 } // namespace gazebo
 

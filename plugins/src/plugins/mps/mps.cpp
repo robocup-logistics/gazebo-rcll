@@ -20,6 +20,7 @@
 
 #include "mps.h"
 
+#include <opc/ua/protocol/variant.h>
 #include <fnmatch.h>
 #include <fstream>
 #include <iostream>
@@ -113,10 +114,50 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	tag_joint_output = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint("revolute", model_);
 	tag_joint_output->SetName("tag_joint_output");
 	tag_joint_output->SetModel(model_);
+
+	opcua_server_.SetEndpoint("opc.tcp://localhost:4840/");
+	opcua_server_.SetServerURI("urn://ll.robocup.org/gazebo/");
+	opcua_server_.Start();
+	OpcUa::Node objects = opcua_server_.GetObjectsNode();
+	OpcUa::Node node    = objects.AddObject(2, "DeviceSet")
+	                     .AddObject(4, "CPX-E-CEC-C1-PN")
+	                     .AddObject(4, "Resources")
+	                     .AddObject(4, "Application")
+	                     .AddObject(3, "GlobalVars")
+	                     .AddObject(4, "G");
+
+	OpcUa::Node node_in   = node.AddObject(4, "In").AddObject(4, "p");
+	action_id_in_         = node_in.AddVariable(4, "ActionId", OpcUa::Variant((uint16_t)0));
+	barcode_in_           = node_in.AddVariable(4, "BarCode", OpcUa::Variant((uint16_t)0));
+	auto data_node_in     = node_in.AddObject(4, "Data");
+	payload1_in_          = data_node_in.AddVariable(0, "Payload1", OpcUa::Variant((uint16_t)0));
+	payload2_in_          = data_node_in.AddVariable(1, "Payload2", OpcUa::Variant((uint16_t)0));
+	error_in_             = node_in.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
+	slidecount_in_        = node_in.AddVariable(4, "SlideCnt", OpcUa::Variant((uint16_t)0));
+	OpcUa::Node status_in = node_in.AddObject(4, "Status");
+	enable_in_            = status_in.AddVariable(4, "Enable", OpcUa::Variant(false));
+	status_error_in_      = status_in.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
+	status_ready_in_      = status_in.AddVariable(4, "Ready", OpcUa::Variant(false));
+	status_busy_in_       = status_in.AddVariable(4, "Busy", OpcUa::Variant(false));
+
+	OpcUa::Node node_basic = node.AddObject(4, "Basic").AddObject(4, "p");
+	action_id_basic_       = node_basic.AddVariable(4, "ActionId", OpcUa::Variant((uint16_t)0));
+	barcode_basic_         = node_basic.AddVariable(4, "BarCode", OpcUa::Variant((uint16_t)0));
+	auto data_node_basic   = node_basic.AddObject(4, "Data");
+	payload1_basic_        = data_node_basic.AddVariable(0, "Payload1", OpcUa::Variant((uint16_t)0));
+	payload2_basic_        = data_node_basic.AddVariable(1, "Payload2", OpcUa::Variant((uint16_t)0));
+	error_basic_           = node_basic.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
+	slidecount_basic_      = node_basic.AddVariable(4, "SlideCnt", OpcUa::Variant((uint16_t)0));
+	OpcUa::Node status_basic = node_basic.AddObject(4, "Status");
+	enable_basic_            = status_basic.AddVariable(4, "Enable", OpcUa::Variant(false));
+	status_error_basic_      = status_basic.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
+	status_ready_basic_      = status_basic.AddVariable(4, "Ready", OpcUa::Variant(false));
+	status_busy_basic_       = status_basic.AddVariable(4, "Busy", OpcUa::Variant(false));
 }
 ///Destructor
 Mps::~Mps()
 {
+	opcua_server_.Stop();
 	printf("Destructing Mps Plugin for %s!\n", this->name_.c_str());
 }
 

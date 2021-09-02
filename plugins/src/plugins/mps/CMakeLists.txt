@@ -16,6 +16,9 @@
 # Read the full text in the LICENSE.md file.
 #
 
+find_package(FreeOpcUa REQUIRED)
+find_package(spdlog REQUIRED)
+
 add_library(
   mps SHARED
   mps.cpp
@@ -24,9 +27,17 @@ add_library(
   ring_station.cpp
   cap_station.cpp
   delivery_station.cpp
-  storage_station.cpp
-  )
+  storage_station.cpp)
 
-target_link_libraries(mps PUBLIC core configurable gazsim_msgs gazebo)
+target_link_libraries(
+  mps
+  PUBLIC core
+         configurable
+         gazsim_msgs
+         gazebo
+         spdlog::spdlog
+         opcuacore
+         opcuaserver
+         opcuaprotocol)
 target_include_directories(mps PUBLIC ${GAZEBO_INCLUDE_DIRS})
 target_compile_options(mps PUBLIC ${GAZEBO_CFLAGS})
