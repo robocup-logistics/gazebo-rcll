@@ -18,39 +18,38 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
-#include <boost/bind.hpp>
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
-#include <gazebo/transport/transport.hh>
 #include "simDevice.h"
 
-namespace gazebo
-{
-  /**
+#include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/transport.hh>
+#include <stdio.h>
+
+namespace gazebo {
+/**
    * Gazebo Plugin, which shows text messages sent from fawkes
    * @author Frederik Zwilling
    */
-  class MessageDisplay: public SimDevice
-  {
-  public:
+class MessageDisplay : public SimDevice
+{
+public:
+	//Constructor
+	MessageDisplay(physics::ModelPtr, transport::NodePtr);
+	///Destructor
+	~MessageDisplay();
 
-    //Constructor
-    MessageDisplay(physics::ModelPtr, transport::NodePtr);
-    ///Destructor
-    ~MessageDisplay();
+	virtual void init();
+	virtual void create_publishers();
+	virtual void create_subscribers();
+	virtual void update();
 
-    virtual void init();
-    virtual void create_publishers();
-    virtual void create_subscribers();
-    virtual void update();
+private:
+	//Suscriber for Messages from Fawkes
+	transport::SubscriberPtr string_sub_;
 
-  private:
-    //Suscriber for Messages from Fawkes
-    transport::SubscriberPtr string_sub_;
-    
-    //Functions for recieving Messages (registerd via suscribers)
-    void on_string_msg(ConstHeaderPtr &msg);  
-  };
-}
+	//Functions for recieving Messages (registerd via suscribers)
+	void on_string_msg(ConstHeaderPtr &msg);
+};
+} // namespace gazebo

@@ -29,24 +29,24 @@ namespace fawkes {
 class WaitConditionData;
 class Mutex;
 
-class WaitCondition {
- public:
-  WaitCondition(Mutex *mutex = 0);
-  ~WaitCondition();
+class WaitCondition
+{
+public:
+	WaitCondition(Mutex *mutex = 0);
+	~WaitCondition();
 
-  void wait();
-  bool abstimed_wait(long int sec, long int nanosec);
-  bool reltimed_wait(unsigned int sec, unsigned int nanosec);
+	void wait();
+	bool abstimed_wait(long int sec, long int nanosec);
+	bool reltimed_wait(unsigned int sec, unsigned int nanosec);
 
-  void wake_one();
-  void wake_all();
+	void wake_one();
+	void wake_all();
 
- private:
-  WaitConditionData *__cond_data;
-  Mutex             *__mutex;
-  bool               __own_mutex;
+private:
+	WaitConditionData *__cond_data;
+	Mutex *            __mutex;
+	bool               __own_mutex;
 };
-
 
 } // end namespace fawkes
 

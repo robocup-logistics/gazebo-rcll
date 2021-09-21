@@ -21,54 +21,47 @@
 #ifndef _LIGHT_CONTROL_HH_
 #define _LIGHT_CONTROL_HH_
 
-#include <string>
-#include <gazebo/msgs/msgs.hh>
-#include <gazebo/physics/physics.hh>
 #include "data_table.h"
 
-namespace gazebo
-{  
-  typedef enum Color
-  {
-    RED,
-    YELLOW,
-    GREEN
-  } Color;
+#include <gazebo/msgs/msgs.hh>
+#include <gazebo/physics/physics.hh>
+#include <string>
 
+namespace gazebo {
+typedef enum Color { RED, YELLOW, GREEN } Color;
 
-  namespace msgs
-  {
-    class Visual;
-  }
+namespace msgs {
+class Visual;
+}
 
-  /**
+/**
    * controls the Machine Lights in the visualization
    */
-  class LightControl
-  {
-  public: 
-    //Constructor
-    LightControl(physics::WorldPtr world);
-    ///Deconstructor
-    virtual ~LightControl();
-    
-    /// what to do on plugin update (set lights according to the data table)
-    void update();
+class LightControl
+{
+public:
+	//Constructor
+	LightControl(physics::WorldPtr world);
+	///Deconstructor
+	virtual ~LightControl();
 
-  private:
-    ///communication node
-    transport::NodePtr node_;
-    ///Publisher to send visual changes to gazebo
-    transport::PublisherPtr visPub_;
+	/// what to do on plugin update (set lights according to the data table)
+	void update();
 
-    msgs::Visual create_vis_msg(std::string machine_name, Color color, LightState state);
+private:
+	///communication node
+	transport::NodePtr node_;
+	///Publisher to send visual changes to gazebo
+	transport::PublisherPtr visPub_;
 
-    ///time variable to send in intervals
-    double last_sent_time_;
+	msgs::Visual create_vis_msg(std::string machine_name, Color color, LightState state);
 
-    physics::WorldPtr world_;
+	///time variable to send in intervals
+	double last_sent_time_;
 
-    LlsfDataTable *table_;
-  };
-}
+	physics::WorldPtr world_;
+
+	LlsfDataTable *table_;
+};
+} // namespace gazebo
 #endif

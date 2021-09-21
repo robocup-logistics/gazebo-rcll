@@ -18,67 +18,64 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
-
-#include <gazebo/gazebo.hh>
-
 #include "data_table.h"
+#include "field_referee.h"
 #include "light_control.h"
 #include "puck_localization.h"
 #include "rfid_sensors.h"
-#include "time_sync.h"
-#include "field_referee.h"
 #include "simulation_control.h"
+#include "time_sync.h"
 
-namespace gazebo
-{
-  /**
+#include <gazebo/gazebo.hh>
+
+namespace gazebo {
+/**
    * Main plugin for the LLSF field
    */
-  class LlsfWorldPlugin : public WorldPlugin
-  {
-  public:
-    ///Constructor
-    LlsfWorldPlugin();
-    ///Destructor
-    ~LlsfWorldPlugin();
+class LlsfWorldPlugin : public WorldPlugin
+{
+public:
+	///Constructor
+	LlsfWorldPlugin();
+	///Destructor
+	~LlsfWorldPlugin();
 
-    virtual void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf);
+	virtual void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf);
 
+private:
+	///update function
+	void                 Update();
+	event::ConnectionPtr update_connection_;
 
-  private:
-    ///update function
-    void Update();
-    event::ConnectionPtr update_connection_;
+	///Node for communication
+	transport::NodePtr node_;
 
-    ///Node for communication
-    transport::NodePtr node_;
-    
-    physics::WorldPtr world_;
+	physics::WorldPtr world_;
 
-    ///Table with simulation data
-    LlsfDataTable *table_;
+	///Table with simulation data
+	LlsfDataTable *table_;
 
-    ///Controller of machine light signals
-    LightControl *light_control_;
+	///Controller of machine light signals
+	LightControl *light_control_;
 
-    PuckLocalization *puck_localization_;
+	PuckLocalization *puck_localization_;
 
-    ///the field referee removes finished pucks
-    FieldReferee *field_referee_;
-    
-    ///checks if there is a puck under the rfid
-    RfidSensors *rfid_sensors_;
+	///the field referee removes finished pucks
+	FieldReferee *field_referee_;
 
-    ///Sync the time with fawkes and the refbox
-    TimeSync *time_sync_;
+	///checks if there is a puck under the rfid
+	RfidSensors *rfid_sensors_;
 
-    ///Stop gazebo on request
-    SimulationControl *simulation_control_;
+	///Sync the time with fawkes and the refbox
+	TimeSync *time_sync_;
 
-    double puck_update_frequency_;
-    double time_sync_frequency_;
-    double last_puck_update_;
-    double last_time_sync_;
-  };
-  GZ_REGISTER_WORLD_PLUGIN(LlsfWorldPlugin)
-}
+	///Stop gazebo on request
+	SimulationControl *simulation_control_;
+
+	double puck_update_frequency_;
+	double time_sync_frequency_;
+	double last_puck_update_;
+	double last_time_sync_;
+};
+GZ_REGISTER_WORLD_PLUGIN(LlsfWorldPlugin)
+} // namespace gazebo

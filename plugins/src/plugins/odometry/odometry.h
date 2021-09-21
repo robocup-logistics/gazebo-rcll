@@ -19,66 +19,64 @@
  */
 
 #include <boost/bind.hpp>
+#include <boost/thread/mutex.hpp>
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
 #include <gazebo/transport/transport.hh>
 #include <list>
+#include <stdio.h>
 #include <string.h>
 
-#include <boost/thread/mutex.hpp>
-
-namespace gazebo
-{
-    /**
+namespace gazebo {
+/**
     * Provides odometry simulation of object model
     * @author Stefan Profanter
     */
-    class Odometry : public ModelPlugin
-    {
-    public:
-        Odometry();
-        ~Odometry();
+class Odometry : public ModelPlugin
+{
+public:
+	Odometry();
+	~Odometry();
 
-        //Overridden ModelPlugin-Functions
-        virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
-        virtual void OnUpdate(const common::UpdateInfo &);
-        virtual void Reset();
+	//Overridden ModelPlugin-Functions
+	virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
+	virtual void OnUpdate(const common::UpdateInfo &);
+	virtual void Reset();
 
-    private:
-        /// Pointer to the gazbeo model
-        physics::ModelPtr model_;
-        /// Pointer to the update event connection
-        event::ConnectionPtr update_connection_;
-        ///Node for communication to fawkes
-        transport::NodePtr node_;
-        ///name of the gps and the communication channel
-        std::string name_;
+private:
+	/// Pointer to the gazbeo model
+	physics::ModelPtr model_;
+	/// Pointer to the update event connection
+	event::ConnectionPtr update_connection_;
+	///Node for communication to fawkes
+	transport::NodePtr node_;
+	///name of the gps and the communication channel
+	std::string name_;
 
-        ///time variable to send in intervals
-        double last_sent_time_;
+	///time variable to send in intervals
+	double last_sent_time_;
 
-        //Odometry Stuff:
+	//Odometry Stuff:
 
-		///Mutex for thread safe estimate update
-		boost::mutex readingsMutex;
+	///Mutex for thread safe estimate update
+	boost::mutex readingsMutex;
 
-        ///Estimated positions
-        float estimate_x;
-        float estimate_y;
-        float estimate_omega;
+	///Estimated positions
+	float estimate_x;
+	float estimate_y;
+	float estimate_omega;
 
-        ///Set odometry callback
-        void on_set_odometry_msg(ConstVector3dPtr &msg);
+	///Set odometry callback
+	void on_set_odometry_msg(ConstVector3dPtr &msg);
 
-        ///Suscriber for SetOdometry
-        transport::SubscriberPtr set_odometry_sub_;
+	///Suscriber for SetOdometry
+	transport::SubscriberPtr set_odometry_sub_;
 
-        ///Functions for sending information to fawkes:
-        void send_position();
+	///Functions for sending information to fawkes:
+	void send_position();
 
-        ///Publisher for Odometry position
-        transport::PublisherPtr odometry_pub_;
-    };
-}
+	///Publisher for Odometry position
+	transport::PublisherPtr odometry_pub_;
+};
+} // namespace gazebo

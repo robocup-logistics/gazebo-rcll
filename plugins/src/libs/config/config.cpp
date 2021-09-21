@@ -22,6 +22,7 @@
  */
 
 #include <config/config.h>
+
 #include <cstring>
 
 namespace gazebo_rcll {
@@ -346,41 +347,34 @@ namespace gazebo_rcll {
  * Thrown if there is no other matching exception.
  */
 
-
 /** Constructor.
  * @param msg message
  */
-ConfigurationException::ConfigurationException(const char *msg)
-  : Exception(msg)
+ConfigurationException::ConfigurationException(const char *msg) : Exception(msg)
 {
 }
-
 
 /** Constructor.
  * @param prefix Put as "prefix: " before the message, can be used to have a prefix
  * and put an error message from another API into msg.
  * @param msg message
  */
-ConfigurationException::ConfigurationException(const char *prefix, const char *msg)
-  : Exception()
+ConfigurationException::ConfigurationException(const char *prefix, const char *msg) : Exception()
 {
-  append("%s: %s", prefix, msg);
+	append("%s: %s", prefix, msg);
 }
-
 
 /** @class ConfigEntryNotFoundException config/config.h
  * Thrown if a config entry could not be found.
  */
 
-
 /** Constructor.
  * @param path path of value
  */
-ConfigEntryNotFoundException::ConfigEntryNotFoundException( const char *path)
-  : Exception("Config value for '%s' not found", path)
+ConfigEntryNotFoundException::ConfigEntryNotFoundException(const char *path)
+: Exception("Config value for '%s' not found", path)
 {
 }
-
 
 /** @class ConfigTypeMismatchException config/config.h
  * Thrown if there a type problem was detected for example if you tried
@@ -393,12 +387,11 @@ ConfigEntryNotFoundException::ConfigEntryNotFoundException( const char *path)
  * @param requested requested type
  */
 ConfigTypeMismatchException::ConfigTypeMismatchException(const char *path,
-							 const char *actual,
-							 const char *requested)
-  : Exception()
+                                                         const char *actual,
+                                                         const char *requested)
+: Exception()
 {
-  append("Config value for '%s' is not of type '%s', but of type '%s'",
-	 path, requested, actual);
+	append("Config value for '%s' is not of type '%s', but of type '%s'", path, requested, actual);
 }
 
 /** @class CouldNotOpenConfigException <config/config.h>
@@ -409,15 +402,13 @@ ConfigTypeMismatchException::ConfigTypeMismatchException(const char *path,
 /** Constructor.
  * @param format format of message to describe cause or symptom of failure
  */
-CouldNotOpenConfigException::CouldNotOpenConfigException(const char *format, ...)
-  : Exception()
+CouldNotOpenConfigException::CouldNotOpenConfigException(const char *format, ...) : Exception()
 {
-  va_list va;
-  va_start(va, format);
-  append_va(format, va);
-  va_end(va);
+	va_list va;
+	va_start(va, format);
+	append_va(format, va);
+	va_end(va);
 }
-
 
 /** @class Configuration::ValueIterator <config/config.h>
  * Iterator interface to iterate over config values. This does not implement a

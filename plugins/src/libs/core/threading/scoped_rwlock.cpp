@@ -21,8 +21,8 @@
  *  Read the full text in the LICENSE.GPL_WRE file in the doc directory.
  */
 
-#include <core/threading/scoped_rwlock.h>
 #include <core/threading/read_write_lock.h>
+#include <core/threading/scoped_rwlock.h>
 
 namespace fawkes {
 #if 0 /* just to make Emacs auto-indent happy */
@@ -85,6 +85,28 @@ namespace fawkes {
  * @author Tim Niemueller
  */
 
+/** Constructor.
+ * @param rwlock ReadWriteLock to lock/unlock appropriately.
+ * @param initially_lock true to lock the rwlock in the constructor,
+ * false to not lock
+ * @param lock_type locking type, lock either for writing or for reading
+ */
+ScopedRWLock::ScopedRWLock(RefPtr<ReadWriteLock>  rwlock,
+                           ScopedRWLock::LockType lock_type,
+                           bool                   initially_lock)
+{
+	__rawrwlock = 0;
+	__refrwlock = rwlock;
+	__lock_type = lock_type;
+	if (initially_lock) {
+		if (__lock_type == LOCK_WRITE) {
+			__refrwlock->lock_for_write();
+		} else {
+			__refrwlock->lock_for_read();
+		}
+	}
+	__locked = initially_lock;
+}
 
 /** Constructor.
  * @param rwlock ReadWriteLock to lock/unlock appropriately.
@@ -92,57 +114,33 @@ namespace fawkes {
  * false to not lock
  * @param lock_type locking type, lock either for writing or for reading
  */
-ScopedRWLock::ScopedRWLock(RefPtr<ReadWriteLock> rwlock, ScopedRWLock::LockType lock_type,
-                           bool initially_lock)
+ScopedRWLock::ScopedRWLock(ReadWriteLock *        rwlock,
+                           ScopedRWLock::LockType lock_type,
+                           bool                   initially_lock)
 {
-  __rawrwlock = 0;
-  __refrwlock = rwlock;
-  __lock_type = lock_type;
-  if ( initially_lock ) {
-    if (__lock_type == LOCK_WRITE) {
-      __refrwlock->lock_for_write();
-    } else {
-      __refrwlock->lock_for_read();
-    }
-  }
-  __locked = initially_lock;
+	__rawrwlock = rwlock;
+	__lock_type = lock_type;
+	if (initially_lock) {
+		if (__lock_type == LOCK_WRITE) {
+			__rawrwlock->lock_for_write();
+		} else {
+			__rawrwlock->lock_for_read();
+		}
+	}
+	__locked = initially_lock;
 }
-
-
-/** Constructor.
- * @param rwlock ReadWriteLock to lock/unlock appropriately.
- * @param initially_lock true to lock the rwlock in the constructor,
- * false to not lock
- * @param lock_type locking type, lock either for writing or for reading
- */
-ScopedRWLock::ScopedRWLock(ReadWriteLock *rwlock, ScopedRWLock::LockType lock_type,
-                           bool initially_lock)
-{
-  __rawrwlock = rwlock;
-  __lock_type = lock_type;
-  if ( initially_lock ) {
-    if (__lock_type == LOCK_WRITE) {
-      __rawrwlock->lock_for_write();
-    } else {
-      __rawrwlock->lock_for_read();
-    }
-  }
-  __locked = initially_lock;
-}
-
 
 /** Destructor */
 ScopedRWLock::~ScopedRWLock()
 {
-  if ( __locked ) {
-    if ( __rawrwlock) {
-      __rawrwlock->unlock();
-    } else {
-      __refrwlock->unlock();
-    }
-  }
+	if (__locked) {
+		if (__rawrwlock) {
+			__rawrwlock->unlock();
+		} else {
+			__refrwlock->unlock();
+		}
+	}
 }
-
 
 /** Lock this rwlock, again.
  * Use this if you unlocked the rwlock from the outside.
@@ -150,34 +148,32 @@ ScopedRWLock::~ScopedRWLock()
 void
 ScopedRWLock::relock()
 {
-  if ( __rawrwlock ) {
-    if (__lock_type == LOCK_WRITE) {
-      __rawrwlock->lock_for_write();
-    } else {
-      __rawrwlock->lock_for_read();
-    }
-  } else {
-    if (__lock_type == LOCK_WRITE) {
-      __refrwlock->lock_for_write();
-    } else {
-      __refrwlock->lock_for_read();
-    }
-  }
-  __locked = true;
+	if (__rawrwlock) {
+		if (__lock_type == LOCK_WRITE) {
+			__rawrwlock->lock_for_write();
+		} else {
+			__rawrwlock->lock_for_read();
+		}
+	} else {
+		if (__lock_type == LOCK_WRITE) {
+			__refrwlock->lock_for_write();
+		} else {
+			__refrwlock->lock_for_read();
+		}
+	}
+	__locked = true;
 }
-
 
 /** Unlock the rwlock. */
 void
 ScopedRWLock::unlock()
 {
-  __locked = false;
-  if ( __rawrwlock ) {
-    __rawrwlock->unlock();
-  } else {
-    __refrwlock->unlock();
-  }
+	__locked = false;
+	if (__rawrwlock) {
+		__rawrwlock->unlock();
+	} else {
+		__refrwlock->unlock();
+	}
 }
-
 
 } // end namespace fawkes

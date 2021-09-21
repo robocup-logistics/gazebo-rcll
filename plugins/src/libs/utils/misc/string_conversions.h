@@ -1,4 +1,4 @@
- 
+
 /***************************************************************************
  *  string_conversions.h - string conversions
  *
@@ -28,36 +28,37 @@
 
 namespace fawkes {
 
-
 class StringConversions
 {
- public:
-  static std::string to_upper(std::string str);
-  static std::string to_lower(std::string str);
+public:
+	static std::string to_upper(std::string str);
+	static std::string to_lower(std::string str);
 
-  static std::string to_string(unsigned int i);
-  static std::string to_string(int i);
-  static std::string to_string(long int i);
-  static std::string to_string(float f);
-  static std::string to_string(double d);
-  static std::string to_string(bool b);
-  static std::string to_string(std::string &s)
-  { return s; }
+	static std::string to_string(unsigned int i);
+	static std::string to_string(int i);
+	static std::string to_string(long int i);
+	static std::string to_string(float f);
+	static std::string to_string(double d);
+	static std::string to_string(bool b);
+	static std::string
+	to_string(std::string &s)
+	{
+		return s;
+	}
 
-  static unsigned int to_uint(std::string s);
-  static int          to_int(std::string s);
-  static float        to_float(std::string s);
-  static double       to_double(std::string s);
-  static bool         to_bool(std::string s);
+	static unsigned int to_uint(std::string s);
+	static int          to_int(std::string s);
+	static float        to_float(std::string s);
+	static double       to_double(std::string s);
+	static bool         to_bool(std::string s);
 
-  static void        trim_inplace(std::string &s);
-  static std::string trim(std::string &s);
+	static void        trim_inplace(std::string &s);
+	static std::string trim(std::string &s);
 
- private:
-  // may not be instantiated!
-  StringConversions() {};
+private:
+	// may not be instantiated!
+	StringConversions(){};
 };
-
 
 } // end namespace fawkes
 

@@ -18,17 +18,18 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
-#include <boost/bind.hpp>
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
-#include <gazebo/transport/transport.hh>
-#include <list>
-#include <string.h>
+#include <configurable/configurable.h>
 #include <llsf_msgs/ConveyorVisionResult.pb.h>
 #include <llsf_msgs/Pose3D.pb.h>
-#include <configurable/configurable.h>
+
+#include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/transport.hh>
+#include <list>
+#include <stdio.h>
+#include <string.h>
 
 #define RADIUS_DETECTION_AREA config->get_float("plugins/conveyor-vision/radius-detection-area")
 //Search area where the robot is looking for the conveyor relative to the robots center
@@ -55,76 +56,72 @@
 //height of the center of the tag
 #define TAG_SIZE tag_size_
 
-
-namespace gazebo
-{   
-  /** @class Gyro
+namespace gazebo {
+/** @class Gyro
    * Plugin for a conveyor vision sensor on a model
    * @author Randolph Maaßen
    */
-  class ConveyorVision : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
-  {
-  public:
-    ///Constructor
-    ConveyorVision();
+class ConveyorVision : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
+{
+public:
+	///Constructor
+	ConveyorVision();
 
-    ///Destructor
-    ~ConveyorVision();
+	///Destructor
+	~ConveyorVision();
 
-    //Overridden ModelPlugin-Functions
-    virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
-    virtual void OnUpdate(const common::UpdateInfo &);
-    virtual void Reset();
+	//Overridden ModelPlugin-Functions
+	virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
+	virtual void OnUpdate(const common::UpdateInfo &);
+	virtual void Reset();
 
-  private:
-    /// Pointer to the model
-    physics::ModelPtr model_;
-    /// Pointer to the update event connection
-    event::ConnectionPtr update_connection_;
-    ///Node for communication to fawkes
-    transport::NodePtr node_;
-    ///name of the gyro and the communication channel
-    std::string name_;
-    ///Subscriber for SetConveyor
-    transport::SubscriberPtr set_conveyor_sub_;
-    void on_set_conveyor_msg(ConstIntPtr &msg);
+private:
+	/// Pointer to the model
+	physics::ModelPtr model_;
+	/// Pointer to the update event connection
+	event::ConnectionPtr update_connection_;
+	///Node for communication to fawkes
+	transport::NodePtr node_;
+	///name of the gyro and the communication channel
+	std::string name_;
+	///Subscriber for SetConveyor
+	transport::SubscriberPtr set_conveyor_sub_;
+	void                     on_set_conveyor_msg(ConstIntPtr &msg);
 
-    //config values:
-    int number_pucks_;
-    //how far is the center of the belt hsifted from the machine center
-    float belt_offset_side_;
-    //how far is the center of the slide hsifted from the machine center
-    float slide_offset_side_;
-    //radius of the area where a workpiece is detected by the machine
-    float detect_tolerance_;
-    //radius of a workpiece
-    float puck_size_;
-    //height of a puck
-    float puck_height_;
-    //length of the belt to calculate pos of input/output area
-    float belt_length_;
-    //Height of the belt
-    float belt_height_;
-    //Height of the center of the tag
-    float tag_height_;
-    //Height of the center of the tag
-    float tag_size_;
-    //Offset from height
-    float offset_z_;
+	//config values:
+	int number_pucks_;
+	//how far is the center of the belt hsifted from the machine center
+	float belt_offset_side_;
+	//how far is the center of the slide hsifted from the machine center
+	float slide_offset_side_;
+	//radius of the area where a workpiece is detected by the machine
+	float detect_tolerance_;
+	//radius of a workpiece
+	float puck_size_;
+	//height of a puck
+	float puck_height_;
+	//length of the belt to calculate pos of input/output area
+	float belt_length_;
+	//Height of the belt
+	float belt_height_;
+	//Height of the center of the tag
+	float tag_height_;
+	//Height of the center of the tag
+	float tag_size_;
+	//Offset from height
+	float offset_z_;
 
-    
-    ///time variable to send in intervals
-    double last_sent_time_;
+	///time variable to send in intervals
+	double last_sent_time_;
 
-    ///time interval between to gyro msgs
-    double send_interval_;
+	///time interval between to gyro msgs
+	double send_interval_;
 
+	//Gyro Stuff:
+	///Sending conveyor results to fawkes:
+	void send_conveyor_result();
 
-    //Gyro Stuff:
-    ///Sending conveyor results to fawkes:
-    void send_conveyor_result();
-
-    ///Publisher for conveyr results
-    transport::PublisherPtr conveyor_pub_;  
-  };
-}
+	///Publisher for conveyr results
+	transport::PublisherPtr conveyor_pub_;
+};
+} // namespace gazebo

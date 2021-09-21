@@ -17,44 +17,42 @@
  *
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
+#include "../llsf/data_table.h"
+#include "simDevice.h"
+
 #include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
 #include <gazebo/transport/transport.hh>
-#include "simDevice.h"
-#include "../llsf/data_table.h"
+#include <stdio.h>
 
-
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    *  This class reads out the puck positions in the simulation data table
    *  and sends it to fawkes.
    */
-  class PuckDetection: public SimDevice
-  {
-  public:
+class PuckDetection : public SimDevice
+{
+public:
+	//Constructor
+	PuckDetection(physics::ModelPtr, transport::NodePtr);
+	///Destructor
+	~PuckDetection();
 
-    //Constructor
-    PuckDetection(physics::ModelPtr, transport::NodePtr);
-    ///Destructor
-    ~PuckDetection();  
+	virtual void init();
+	virtual void create_publishers();
+	virtual void create_subscribers();
+	virtual void update();
 
-    virtual void init();
-    virtual void create_publishers();
-    virtual void create_subscribers();
-    virtual void update();
+private:
+	///Functions for sending ionformation to fawkes:
+	void send_puck_positions();
 
-  private:
-    ///Functions for sending ionformation to fawkes:
-    void send_puck_positions();
+	///Publisher for light results
+	transport::PublisherPtr puck_position_pub_;
 
-    ///Publisher for light results
-    transport::PublisherPtr puck_position_pub_;
-
-    ///Table with the simulation data
-    LlsfDataTable *table_;
-  };
-}
+	///Table with the simulation data
+	LlsfDataTable *table_;
+};
+} // namespace gazebo

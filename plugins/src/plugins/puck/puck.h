@@ -18,20 +18,21 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
-#include <boost/bind.hpp>
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
-#include <gazebo/transport/transport.hh>
-#include <stack>
-#include <string.h>
+#include <configurable/configurable.h>
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
 #include <llsf_msgs/OrderInfo.pb.h>
-#include <configurable/configurable.h>
 
+#include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/transport.hh>
+#include <stack>
+#include <stdio.h>
+#include <string.h>
 
-typedef const boost::shared_ptr<llsf_msgs::SetOrderDeliveredByColor const> ConstSetOrderDeliveredByColorPtr;
+typedef const boost::shared_ptr<llsf_msgs::SetOrderDeliveredByColor const>
+  ConstSetOrderDeliveredByColorPtr;
 typedef const boost::shared_ptr<gazsim_msgs::WorkpieceCommand const> ConstWorkpieceCommandPtr;
 
 /// The height of one ring
@@ -40,75 +41,76 @@ typedef const boost::shared_ptr<gazsim_msgs::WorkpieceCommand const> ConstWorkpi
 #define CAP_HEIGHT config->get_float("plugins/puck/cap_height")
 /// The height of the workpiece base
 #define WORKPIECE_HEIGHT config->get_float("plugins/puck/workpiece_height")
-#define TOPIC_SET_ORDER_DELIVERY_BY_COLOR config->get_string("plugins/puck/topic_set_order_delivery_by_color").c_str()
+#define TOPIC_SET_ORDER_DELIVERY_BY_COLOR \
+	config->get_string("plugins/puck/topic_set_order_delivery_by_color").c_str()
 
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    * Plugin to control a simulated Puck
    * @author Randolph Maaßen
    */
-  class Puck : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
-  {
-  public:
-    Puck();
-   ~Puck();
+class Puck : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
+{
+public:
+	Puck();
+	~Puck();
 
-    //Overridden ModelPlugin-Functions
-    virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
-    virtual void OnUpdate(const common::UpdateInfo &);
-    virtual void Reset();
+	//Overridden ModelPlugin-Functions
+	virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
+	virtual void OnUpdate(const common::UpdateInfo &);
+	virtual void Reset();
 
-  private:
-    /// Pointer to the gazbeo model
-    physics::ModelPtr model_;
-    /// Pointer to the update event connection
-    event::ConnectionPtr update_connection_;
-    ///Node for communication
-    transport::NodePtr node_;
-    ///name of the puck and the communication channel
-    inline std::string name();
+private:
+	/// Pointer to the gazbeo model
+	physics::ModelPtr model_;
+	/// Pointer to the update event connection
+	event::ConnectionPtr update_connection_;
+	///Node for communication
+	transport::NodePtr node_;
+	///name of the puck and the communication channel
+	inline std::string name();
 
-    /// Flag whether model has bene announced, yet.
-    bool announced_;
-    
-    // Puck Stuff:
-    
-    /// Subscriber to get commands for model ring addition
-    transport::SubscriberPtr command_subscriber;
-    
-    transport::PublisherPtr new_puck_publisher;
+	/// Flag whether model has bene announced, yet.
+	bool announced_;
 
-    /// Handler for command messages
-    void on_command_msg(ConstWorkpieceCommandPtr &cmd);
-    /// Add one ring on command
-    void add_ring(gazsim_msgs::Color clr);
-    /// Add a cap on command
-    void add_cap(gazsim_msgs::Color clr);
-    void remove_cap();
+	// Puck Stuff:
 
-    /// The number of stored rings
-    size_t ring_count_;
+	/// Subscriber to get commands for model ring addition
+	transport::SubscriberPtr command_subscriber;
 
-    /// Check, if we have a cap on top
-    bool have_cap;
-    gazsim_msgs::Color cap_color_;
+	transport::PublisherPtr new_puck_publisher;
 
-    /// The color of the base
-    gazsim_msgs::Color base_color_;
+	/// Handler for command messages
+	void on_command_msg(ConstWorkpieceCommandPtr &cmd);
+	/// Add one ring on command
+	void add_ring(gazsim_msgs::Color clr);
+	/// Add a cap on command
+	void add_cap(gazsim_msgs::Color clr);
+	void remove_cap();
 
-    /// The ring colors
-    std::vector<gazsim_msgs::Color> ring_colors_;
+	/// The number of stored rings
+	size_t ring_count_;
 
-    /// Publisher to send visual changes to gazebo
-    transport::PublisherPtr visual_pub_;
-    
-    /// Publisher to send command results
-    transport::PublisherPtr workpiece_result_pub_;
-    
-    msgs::Visual create_visual_msg(std::string element_name, double element_height, gazsim_msgs::Color clr);
-    
-    void deliver(gazsim_msgs::Team team);
-    transport::PublisherPtr delivery_pub_;
-  };
-}
+	/// Check, if we have a cap on top
+	bool               have_cap;
+	gazsim_msgs::Color cap_color_;
+
+	/// The color of the base
+	gazsim_msgs::Color base_color_;
+
+	/// The ring colors
+	std::vector<gazsim_msgs::Color> ring_colors_;
+
+	/// Publisher to send visual changes to gazebo
+	transport::PublisherPtr visual_pub_;
+
+	/// Publisher to send command results
+	transport::PublisherPtr workpiece_result_pub_;
+
+	msgs::Visual
+	create_visual_msg(std::string element_name, double element_height, gazsim_msgs::Color clr);
+
+	void                    deliver(gazsim_msgs::Team team);
+	transport::PublisherPtr delivery_pub_;
+};
+} // namespace gazebo

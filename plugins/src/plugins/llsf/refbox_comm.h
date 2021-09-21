@@ -22,63 +22,60 @@
 #ifndef REFBOX_COMM_H__
 #define REFBOX_COMM_H__
 
-#include <boost/bind.hpp>
-#include <gazebo/gazebo.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
-#include <gazebo/transport/transport.hh>
-
 #include "data_table.h"
 
 #include <llsf_msgs/MachineInfo.pb.h>
 
+#include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
+#include <gazebo/gazebo.hh>
+#include <gazebo/transport/transport.hh>
+#include <stdio.h>
 
 typedef const boost::shared_ptr<llsf_msgs::MachineInfo const> ConstMachineInfoPtr;
-typedef const boost::shared_ptr<llsf_msgs::PuckInfo const> ConstPuckInfoPtr;
+typedef const boost::shared_ptr<llsf_msgs::PuckInfo const>    ConstPuckInfoPtr;
 
-namespace gazebo
-{
+namespace gazebo {
 
-  class LlsfDataTable;
-  struct Machine;
-  struct Puck;
+class LlsfDataTable;
+struct Machine;
+struct Puck;
 
-  /**
+/**
    *  The class RefboxComm is responsable for the communication with the refbox.
    *  It reads/writes the data in the table.
    *
    *  For comunication with the refbox, it uses the Protobuf-Adapter in Fawkes
    */
-  class RefboxComm
-  {
-  public:
-    //Constructor
-    RefboxComm(LlsfDataTable *table, transport::NodePtr gazebo_node);
-    ///Destructor
-    ~RefboxComm();
+class RefboxComm
+{
+public:
+	//Constructor
+	RefboxComm(LlsfDataTable *table, transport::NodePtr gazebo_node);
+	///Destructor
+	~RefboxComm();
 
-    //send protobuf msg for puck placed under rfid to fawkes and refbox
-    void send_puck_placed_under_rfid(int puck, Machine & machine);
-    //send protobuf msg for puck removed under rfid to fawkes and refbox
-    void send_remove_puck_from_machine(int puck, Machine & machine);
+	//send protobuf msg for puck placed under rfid to fawkes and refbox
+	void send_puck_placed_under_rfid(int puck, Machine &machine);
+	//send protobuf msg for puck removed under rfid to fawkes and refbox
+	void send_remove_puck_from_machine(int puck, Machine &machine);
 
+private:
+	///Pointer to the data table
+	LlsfDataTable *table_;
+	///Pointer to the communication node from gazebo
+	transport::NodePtr gazebo_node_;
 
-  private:
-    ///Pointer to the data table
-    LlsfDataTable *table_;
-    ///Pointer to the communication node from gazebo
-    transport::NodePtr gazebo_node_;
+	///Publisher for communication to the refbox (via the adapter)
+	transport::PublisherPtr place_puck_under_machine_pub_;
+	transport::PublisherPtr remove_puck_from_machine_pub_;
 
-    ///Publisher for communication to the refbox (via the adapter)
-    transport::PublisherPtr place_puck_under_machine_pub_;
-    transport::PublisherPtr remove_puck_from_machine_pub_;
+	///Suscriber for MachineInfos from the refbox
+	transport::SubscriberPtr machine_info_sub_;
+	transport::SubscriberPtr puck_info_sub_;
 
-    ///Suscriber for MachineInfos from the refbox
-    transport::SubscriberPtr machine_info_sub_;
-    transport::SubscriberPtr puck_info_sub_;
-
-    void on_machine_info_msg(ConstMachineInfoPtr &msg);
-    void on_puck_info_msg(ConstPuckInfoPtr &msg);
-  };
-}
+	void on_machine_info_msg(ConstMachineInfoPtr &msg);
+	void on_puck_info_msg(ConstPuckInfoPtr &msg);
+};
+} // namespace gazebo
 #endif

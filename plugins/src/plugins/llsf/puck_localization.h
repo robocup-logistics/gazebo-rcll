@@ -21,32 +21,32 @@
 #ifndef _PUCK_LOCALIZATION_HH_
 #define _PUCK_LOCALIZATION_HH_
 
-#include <string>
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
 #include "data_table.h"
 
-namespace gazebo
-{
- /**
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <string>
+
+namespace gazebo {
+/**
    * locates all pucks and writes position in table
    */
-  class PuckLocalization
-  {
-  public: 
-    //Constructor
-    PuckLocalization(physics::WorldPtr world);
-    ///Deconstructor
-    ~PuckLocalization();
+class PuckLocalization
+{
+public:
+	//Constructor
+	PuckLocalization(physics::WorldPtr world);
+	///Deconstructor
+	~PuckLocalization();
 
-    ///what to do on plugin update (write puck positions into data table)
-    void update();
+	///what to do on plugin update (write puck positions into data table)
+	void update();
 
-  private:
-    ///Pointer to simulation data
-    LlsfDataTable *table_;
-    
-    physics::WorldPtr world_;
-  };
-}
+private:
+	///Pointer to simulation data
+	LlsfDataTable *table_;
+
+	physics::WorldPtr world_;
+};
+} // namespace gazebo
 #endif

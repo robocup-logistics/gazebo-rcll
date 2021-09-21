@@ -19,45 +19,43 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#include "../llsf/data_table.h"
+#include "simDevice.h"
+
 #include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
 #include <gazebo/transport/transport.hh>
-#include "simDevice.h"
-#include "../llsf/data_table.h"
+#include <stdio.h>
 
-
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    * This class simulates the results of the machine light signal detection
    */
-  class MachineVision: public SimDevice
-  {
-  public:
+class MachineVision : public SimDevice
+{
+public:
+	//Constructor
+	MachineVision(physics::ModelPtr, transport::NodePtr);
+	///Destructor
+	~MachineVision();
 
-    //Constructor
-    MachineVision(physics::ModelPtr, transport::NodePtr);
-    ///Destructor
-    ~MachineVision();  
+	virtual void init();
+	virtual void create_publishers();
+	virtual void create_subscribers();
+	virtual void update();
 
-    virtual void init();
-    virtual void create_publishers();
-    virtual void create_subscribers();
-    virtual void update();
+private:
+	///Functions for sending ionformation to fawkes:
+	void send_light_results();
 
-  private:
-    ///Functions for sending ionformation to fawkes:
-    void send_light_results();
+	///Publisher for light results
+	transport::PublisherPtr light_signal_pub_;
 
-    ///Publisher for light results
-    transport::PublisherPtr light_signal_pub_;
+	///Table with the simulation data
+	LlsfDataTable *table_;
 
-    ///Table with the simulation data
-    LlsfDataTable *table_;
-
-    void send_lights();
-  };
-}
+	void send_lights();
+};
+} // namespace gazebo

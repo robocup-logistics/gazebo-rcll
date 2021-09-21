@@ -23,27 +23,27 @@
 #ifndef MPSLOADER_H
 #define MPSLOADER_H
 
-#include <gazebo/gazebo.hh>
 #include "mps.h"
 
-namespace gazebo
-{
+#include <gazebo/gazebo.hh>
+
+namespace gazebo {
 
 class MpsLoader : public ModelPlugin
 {
 public:
-  MpsLoader();
-  ~MpsLoader();
-  
-  //Overridden ModelPlugin-Functions
-  virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
-  virtual void OnUpdate(const common::UpdateInfo &);
-  virtual void Reset();
-  
+	MpsLoader();
+	~MpsLoader();
+
+	//Overridden ModelPlugin-Functions
+	virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
+	virtual void OnUpdate(const common::UpdateInfo &);
+	virtual void Reset();
+
 private:
-  Mps *mps_;
+	Mps *mps_;
 };
 
-}
+} // namespace gazebo
 
 #endif // MPSLOADER_H

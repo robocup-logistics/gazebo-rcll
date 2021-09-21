@@ -18,49 +18,46 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
-
-#include <gazebo/gazebo.hh>
 #include <gazsim_msgs/SimTime.pb.h>
 
+#include <gazebo/gazebo.hh>
 
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    * Main plugin for synchronizing the time with a robot control software
    */
-  class TimesyncPlugin : public WorldPlugin
-  {
-  public:
-    ///Constructor
-    TimesyncPlugin();
-    ///Destructor
-    ~TimesyncPlugin();
+class TimesyncPlugin : public WorldPlugin
+{
+public:
+	///Constructor
+	TimesyncPlugin();
+	///Destructor
+	~TimesyncPlugin();
 
-    virtual void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf);
+	virtual void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf);
 
+private:
+	///update function
+	void                 Update();
+	event::ConnectionPtr update_connection_;
 
-  private:
-    ///update function
-    void Update();
-    event::ConnectionPtr update_connection_;
+	///Node for communication
+	transport::NodePtr node_;
 
-    ///Node for communication
-    transport::NodePtr node_;
-    
-    physics::WorldPtr world_;
+	physics::WorldPtr world_;
 
-    double time_sync_frequency_;
-    double last_time_sync_;
+	double time_sync_frequency_;
+	double last_time_sync_;
 
-    ///Publisher for communication
-    transport::PublisherPtr time_sync_pub_;
+	///Publisher for communication
+	transport::PublisherPtr time_sync_pub_;
 
-    ///helper variables to calculate real time factor
-    double last_real_time_;
-    double last_sim_time_;
+	///helper variables to calculate real time factor
+	double last_real_time_;
+	double last_sim_time_;
 
-    /// send protobuf msg with sim-time and real-time-factor
-    void send_time_sync();
-  };
-  GZ_REGISTER_WORLD_PLUGIN(TimesyncPlugin)
-}
+	/// send protobuf msg with sim-time and real-time-factor
+	void send_time_sync();
+};
+GZ_REGISTER_WORLD_PLUGIN(TimesyncPlugin)
+} // namespace gazebo

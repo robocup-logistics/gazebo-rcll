@@ -23,55 +23,54 @@
 #ifndef TAG_H
 #define TAG_H
 
-#include <boost/bind.hpp>
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
-#include <gazebo/transport/transport.hh>
-#include <list>
-#include <string.h>
 #include <configurable/configurable.h>
 
+#include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/transport.hh>
+#include <list>
+#include <stdio.h>
+#include <string.h>
 
 #define TAG_SIZE config->get_float("plugins/tag/tag_size")
 //At what simulation time to spawn the tag (too early and the tag spawns at (0, 0, 0))
 #define TAG_SPAWN_TIME config->get_float("plugins/tag/tag_spawn_time")
 #define TOPIC_TAG_POSE config->get_string("plugins/tag/topic_tag_pose").c_str()
 
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    * Plugin to spawn the right tag pattern and publish the pose
    * @author Frederik Zwilling
    */
-  class Tag : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
-  {
-  public:
-    Tag();
-    ~Tag();
+class Tag : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
+{
+public:
+	Tag();
+	~Tag();
 
-    virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
-    virtual void OnUpdate(const common::UpdateInfo &);
-    virtual void Reset();
+	virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
+	virtual void OnUpdate(const common::UpdateInfo &);
+	virtual void Reset();
 
-  private:
-    /// Pointer to the gazbeo model
-    physics::ModelPtr model_;
-    /// Pointer to the update event connection
-    event::ConnectionPtr update_connection_;
-    ///Node for communication
-    transport::NodePtr node_;
-    ///name of the tag and the communication channel
-    std::string name_;
-    
-    ///Publisher to send spawn tag patterns
-    transport::PublisherPtr visPub_;
-    double spawned_tags_last_;
-    double created_time_;
-    
-    physics::WorldPtr world_;
-  };
-}
+private:
+	/// Pointer to the gazbeo model
+	physics::ModelPtr model_;
+	/// Pointer to the update event connection
+	event::ConnectionPtr update_connection_;
+	///Node for communication
+	transport::NodePtr node_;
+	///name of the tag and the communication channel
+	std::string name_;
+
+	///Publisher to send spawn tag patterns
+	transport::PublisherPtr visPub_;
+	double                  spawned_tags_last_;
+	double                  created_time_;
+
+	physics::WorldPtr world_;
+};
+} // namespace gazebo
 
 #endif // TAG_H

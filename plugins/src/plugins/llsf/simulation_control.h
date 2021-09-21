@@ -22,37 +22,35 @@
 #define SIMULATION_CONTROL_H__
 
 #include <boost/bind.hpp>
-#include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
-#include <stdio.h>
-#include <gazebo/transport/transport.hh>
+#include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
+#include <gazebo/transport/transport.hh>
+#include <stdio.h>
 
-
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    *  shuts down the simulation on request
    */
-  class SimulationControl
-  {
-  public:
-    //Constructor
-    SimulationControl(physics::WorldPtr _world, transport::NodePtr gazebo_node);
-    ///Destructor
-    ~SimulationControl();
+class SimulationControl
+{
+public:
+	//Constructor
+	SimulationControl(physics::WorldPtr _world, transport::NodePtr gazebo_node);
+	///Destructor
+	~SimulationControl();
 
-  private:
-    ///Pointer to the communication node from gazebo
-    transport::NodePtr gazebo_node_;
-    ///World to get the time from
-    physics::WorldPtr world_; 
+private:
+	///Pointer to the communication node from gazebo
+	transport::NodePtr gazebo_node_;
+	///World to get the time from
+	physics::WorldPtr world_;
 
-    ///Publisher for communication
-    transport::SubscriberPtr simulation_control_sub_;
+	///Publisher for communication
+	transport::SubscriberPtr simulation_control_sub_;
 
-    ///msg handler
-    void on_string_msg(ConstHeaderPtr &msg);  
-  };
-}
+	///msg handler
+	void on_string_msg(ConstHeaderPtr &msg);
+};
+} // namespace gazebo
 #endif

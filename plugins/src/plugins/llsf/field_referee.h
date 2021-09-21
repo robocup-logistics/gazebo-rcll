@@ -22,40 +22,40 @@
 #ifndef _FIELD_REFEREE_HH_
 #define _FIELD_REFEREE_HH_
 
-#include <string>
+#include "data_table.h"
+
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include "data_table.h"
+#include <string>
 
 #define WAIT_TIME_BEFORE_REMOVE 3.0
 
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    * the field referee statnds next to the field and takes
    * finished pucks out
    */
-  class FieldReferee
-  {
-  public: 
-    //Constructor
-    FieldReferee(physics::WorldPtr world);
-    ///Deconstructor
-    ~FieldReferee();
+class FieldReferee
+{
+public:
+	//Constructor
+	FieldReferee(physics::WorldPtr world);
+	///Deconstructor
+	~FieldReferee();
 
-    ///what to do on plugin update (move finished pucks outside the field)
-    void update();
+	///what to do on plugin update (move finished pucks outside the field)
+	void update();
 
-  private:
-    ///Pointer to simulation data
-    LlsfDataTable *table_;
-    
-    physics::WorldPtr world_;
+private:
+	///Pointer to simulation data
+	LlsfDataTable *table_;
 
-    int finished_pucks_;
-    
-    bool waiting_before_removing_;
-    double start_waiting_time_;
-  };
-}
+	physics::WorldPtr world_;
+
+	int finished_pucks_;
+
+	bool   waiting_before_removing_;
+	double start_waiting_time_;
+};
+} // namespace gazebo
 #endif

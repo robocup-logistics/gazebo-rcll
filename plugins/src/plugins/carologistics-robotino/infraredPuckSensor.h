@@ -19,53 +19,47 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#include "simDevice.h"
 
 #include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
-#include <gazebo/transport/transport.hh>
-#include "simDevice.h"
-#include <gazebo/sensors/SensorTypes.hh>
 #include <gazebo/sensors/RaySensor.hh>
+#include <gazebo/sensors/SensorTypes.hh>
+#include <gazebo/transport/transport.hh>
+#include <stdio.h>
 
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    *  This class simulates the infrared sensor to detect a puck 
    *  in front of the robotino by using a ray-sensor
    */
-  class InfraredPuckSensor : public SimDevice
-  {
-    public: 
-    
-    //Constructor
-    InfraredPuckSensor(physics::ModelPtr, transport::NodePtr, sensors::SensorPtr sensorPtr);
+class InfraredPuckSensor : public SimDevice
+{
+public:
+	//Constructor
+	InfraredPuckSensor(physics::ModelPtr, transport::NodePtr, sensors::SensorPtr sensorPtr);
 
-    ///Destructor
-    ~InfraredPuckSensor();
+	///Destructor
+	~InfraredPuckSensor();
 
+	virtual void init();
+	virtual void create_publishers();
+	virtual void create_subscribers();
+	virtual void update();
 
-    virtual void init();
-    virtual void create_publishers();
-    virtual void create_subscribers();
-    virtual void update();
+	///what happens if the sensor has new laser data
+	void on_new_laser_scans();
 
+private:
+	///connection of the sensor
+	event::ConnectionPtr new_laser_scans_connection_;
 
-    ///what happens if the sensor has new laser data
-    void on_new_laser_scans();
+	///Pointer to the hokuyo sensor
+	sensors::RaySensorPtr parent_sensor_;
 
-    private:
-    
-    ///connection of the sensor
-    event::ConnectionPtr new_laser_scans_connection_;
-
-    ///Pointer to the hokuyo sensor
-    sensors::RaySensorPtr parent_sensor_;
-
-    ///Publisher for communication to fawkes
-    transport::PublisherPtr infrared_puck_sensor_pub_;
-
-  };
-}
+	///Publisher for communication to fawkes
+	transport::PublisherPtr infrared_puck_sensor_pub_;
+};
+} // namespace gazebo

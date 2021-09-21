@@ -17,14 +17,14 @@
  *
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
-#include <boost/bind.hpp>
-#include <gazebo/gazebo.hh>
-#include <gazebo/common/common.hh>
-#include <stdio.h>
-#include <gazebo/transport/transport.hh>
-#include <gazebo/physics/physics.hh>
-
 #include "simulation_control.h"
+
+#include <boost/bind.hpp>
+#include <gazebo/common/common.hh>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/transport/transport.hh>
+#include <stdio.h>
 
 using namespace gazebo;
 
@@ -34,24 +34,26 @@ using namespace gazebo;
  */
 SimulationControl::SimulationControl(physics::WorldPtr world, transport::NodePtr gazebo_node)
 {
-  gazebo_node_ = gazebo_node;
-  world_ = world;
+	gazebo_node_ = gazebo_node;
+	world_       = world;
 
-  //create subscriber
-  this->simulation_control_sub_ = gazebo_node_->Subscribe(std::string("~/LLSF/Control/"), &SimulationControl::on_string_msg, this);
+	//create subscriber
+	this->simulation_control_sub_ = gazebo_node_->Subscribe(std::string("~/LLSF/Control/"),
+	                                                        &SimulationControl::on_string_msg,
+	                                                        this);
 }
 
 SimulationControl::~SimulationControl()
 {
 }
 
-void SimulationControl::on_string_msg(ConstHeaderPtr &msg)
+void
+SimulationControl::on_string_msg(ConstHeaderPtr &msg)
 {
-  // if(msg->str_id().c_str().compare("end") == 0)
-  // {
-  //   //shutdown simulation
-  //   printf("Executing stop request\n");
-  //   world_->Stop();
-  // }
+	// if(msg->str_id().c_str().compare("end") == 0)
+	// {
+	//   //shutdown simulation
+	//   printf("Executing stop request\n");
+	//   world_->Stop();
+	// }
 }
-

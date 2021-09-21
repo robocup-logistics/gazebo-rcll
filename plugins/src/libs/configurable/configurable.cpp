@@ -38,14 +38,14 @@ namespace gazebo_rcll {
  Initializes the configuration*/
 ConfigurableAspect::ConfigurableAspect()
 {
-  this->config = new YamlConfiguration(CONFDIR);
-  this->config->load("config.yaml");
+	this->config = new YamlConfiguration(CONFDIR);
+	this->config->load("config.yaml");
 }
 
 /** Virtual empty Destructor. */
 ConfigurableAspect::~ConfigurableAspect()
 {
-  delete this->config;
+	delete this->config;
 }
 
-} // end namespace fawkes
+} // namespace gazebo_rcll

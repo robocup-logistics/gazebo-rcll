@@ -25,23 +25,22 @@
 
 #include "mps.h"
 
-namespace gazebo
-{
+namespace gazebo {
 
 class DeliveryStation : public Mps
 {
 public:
-  DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
-  
-  void on_puck_msg(ConstPosePtr &msg);
-  void new_machine_info(ConstMachine &machine);
-  void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
-  void deliver();
+	DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-  bool prepared_;
-  physics::ModelPtr puck_;
+	void on_puck_msg(ConstPosePtr &msg);
+	void new_machine_info(ConstMachine &machine);
+	void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
+	void deliver();
+
+	bool              prepared_;
+	physics::ModelPtr puck_;
 };
 
-}
+} // namespace gazebo
 
 #endif // DELIVERY_STATION_H

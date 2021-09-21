@@ -19,8 +19,8 @@
  */
 
 #include "puck_localization.h"
-#include <stdio.h>
 
+#include <stdio.h>
 
 using namespace gazebo;
 
@@ -29,31 +29,29 @@ using namespace gazebo;
  */
 PuckLocalization::PuckLocalization(physics::WorldPtr world)
 {
-  table_ = LlsfDataTable::get_table();
-  world_ = world;
+	table_ = LlsfDataTable::get_table();
+	world_ = world;
 }
 
 PuckLocalization::~PuckLocalization()
 {
-
 }
 
-void PuckLocalization::update()
+void
+PuckLocalization::update()
 {
-  for(int p = 0; p < NUMBER_PUCKS; p++)
-  {
-    Puck puck = table_->get_puck(p);
+	for (int p = 0; p < NUMBER_PUCKS; p++) {
+		Puck puck = table_->get_puck(p);
 
-    //get position from world position of the Puck model
-    if(!world_->GetEntity(puck.name_link.c_str()))
-    {
-      printf("Can not find puck with index %d\n", p);
-      return;
-    }
-    double x = world_->GetEntity(puck.name_link.c_str())->GetWorldPose().pos.x;
-    double y = world_->GetEntity(puck.name_link.c_str())->GetWorldPose().pos.y;
+		//get position from world position of the Puck model
+		if (!world_->GetEntity(puck.name_link.c_str())) {
+			printf("Can not find puck with index %d\n", p);
+			return;
+		}
+		double x = world_->GetEntity(puck.name_link.c_str())->GetWorldPose().pos.x;
+		double y = world_->GetEntity(puck.name_link.c_str())->GetWorldPose().pos.y;
 
-    //write it into the data table
-    table_->set_puck_pos(p, x, y);
-  }
+		//write it into the data table
+		table_->set_puck_pos(p, x, y);
+	}
 }

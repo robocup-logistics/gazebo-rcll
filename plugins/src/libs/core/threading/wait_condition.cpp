@@ -21,15 +21,15 @@
  *  Read the full text in the LICENSE.GPL_WRE file in the doc directory.
  */
 
-#include <core/threading/wait_condition.h>
+#include <core/exception.h>
 #include <core/threading/mutex.h>
 #include <core/threading/mutex_data.h>
-#include <core/exception.h>
+#include <core/threading/wait_condition.h>
 
-#include <pthread.h>
 #include <cerrno>
+#include <pthread.h>
 #if defined(__MACH__) && defined(__APPLE__)
-#  include <sys/time.h>
+#	include <sys/time.h>
 #endif
 
 namespace fawkes {
@@ -37,11 +37,10 @@ namespace fawkes {
 /// @cond INTERNALS
 class WaitConditionData
 {
- public:
-  pthread_cond_t cond;
+public:
+	pthread_cond_t cond;
 };
 /// @endcond
-
 
 /** @class WaitCondition <core/threading/wait_condition.h>
  * Wait until a given condition holds.
@@ -96,35 +95,32 @@ class WaitConditionData
  *
  */
 
-
 /** Constructor.
  * @param mutex the mutex used for this wait condition. If none is given, an
  * internal mutex will be created and used.
  */
 WaitCondition::WaitCondition(Mutex *mutex)
 {
-  __cond_data   = new WaitConditionData();
-  pthread_cond_init( &(__cond_data->cond), NULL);
-  if (mutex) {
-    __mutex     = mutex;
-    __own_mutex = false;
-  } else {
-    __mutex     = new Mutex();
-    __own_mutex = true;
-  }
+	__cond_data = new WaitConditionData();
+	pthread_cond_init(&(__cond_data->cond), NULL);
+	if (mutex) {
+		__mutex     = mutex;
+		__own_mutex = false;
+	} else {
+		__mutex     = new Mutex();
+		__own_mutex = true;
+	}
 }
-
 
 /** Destructor. */
 WaitCondition::~WaitCondition()
 {
-  pthread_cond_destroy( &(__cond_data->cond) );
-  delete __cond_data;
-  if (__own_mutex) {
-    delete __mutex;
-  }
+	pthread_cond_destroy(&(__cond_data->cond));
+	delete __cond_data;
+	if (__own_mutex) {
+		delete __mutex;
+	}
 }
-
 
 /** Wait for the condition forever.
  * This waits forever until a wakup signal is received by another thread calling
@@ -135,19 +131,18 @@ WaitCondition::~WaitCondition()
 void
 WaitCondition::wait()
 {
-  int err;
-  if ( __own_mutex) {
-    __mutex->lock();
-    err = pthread_cond_wait( &(__cond_data->cond), &(__mutex->mutex_data->mutex) );
-    __mutex->unlock();
-  } else {
-    err = pthread_cond_wait( &(__cond_data->cond), &(__mutex->mutex_data->mutex) );
-  }
-  if ( err != 0 ) {
-    throw Exception(err, "Waiting for wait condition failed");
-  }
+	int err;
+	if (__own_mutex) {
+		__mutex->lock();
+		err = pthread_cond_wait(&(__cond_data->cond), &(__mutex->mutex_data->mutex));
+		__mutex->unlock();
+	} else {
+		err = pthread_cond_wait(&(__cond_data->cond), &(__mutex->mutex_data->mutex));
+	}
+	if (err != 0) {
+		throw Exception(err, "Waiting for wait condition failed");
+	}
 }
-
 
 /** Wait with absolute timeout.
  * This waits for the given mutex until either a wakup signal is received or
@@ -164,27 +159,26 @@ WaitCondition::wait()
 bool
 WaitCondition::abstimed_wait(long int sec, long int nanosec)
 {
-  int err = 0;
-  struct timespec ts = { sec, nanosec };
+	int             err = 0;
+	struct timespec ts  = {sec, nanosec};
 
-  if ( __own_mutex) {
-    __mutex->lock();
-    err = pthread_cond_timedwait( &(__cond_data->cond), &(__mutex->mutex_data->mutex), &ts );
-    __mutex->unlock();
-  } else {
-    err = pthread_cond_timedwait( &(__cond_data->cond), &(__mutex->mutex_data->mutex), &ts );
-  }
+	if (__own_mutex) {
+		__mutex->lock();
+		err = pthread_cond_timedwait(&(__cond_data->cond), &(__mutex->mutex_data->mutex), &ts);
+		__mutex->unlock();
+	} else {
+		err = pthread_cond_timedwait(&(__cond_data->cond), &(__mutex->mutex_data->mutex), &ts);
+	}
 
-  if ( err == ETIMEDOUT ) {
-    return false;
-  } else if ( err != 0 ) {
-    // some other error happened, a "real" error
-    throw Exception(err, "Waiting for wait condition failed");
-  } else {
-    return true;
-  }
+	if (err == ETIMEDOUT) {
+		return false;
+	} else if (err != 0) {
+		// some other error happened, a "real" error
+		throw Exception(err, "Waiting for wait condition failed");
+	} else {
+		return true;
+	}
 }
-
 
 /** Wait with relative timeout.
  * This waits for the given mutex until either a wakup signal is received or
@@ -200,53 +194,52 @@ WaitCondition::abstimed_wait(long int sec, long int nanosec)
 bool
 WaitCondition::reltimed_wait(unsigned int sec, unsigned int nanosec)
 {
-  if ( ! (sec || nanosec) ) {
-    wait();
-    return true;
-  } else {
-    struct timespec now;
+	if (!(sec || nanosec)) {
+		wait();
+		return true;
+	} else {
+		struct timespec now;
 #if defined(__MACH__) && defined(__APPLE__)
-    struct timeval nowt;
-    if ( gettimeofday(&nowt, NULL) != 0 ) {
-      throw Exception(errno, "WaitCondition::reltimed_wait: Failed to get current time");
-    }
-    now.tv_sec  = nowt.tv_sec;
-    now.tv_nsec = nowt.tv_usec * 1000;
+		struct timeval nowt;
+		if (gettimeofday(&nowt, NULL) != 0) {
+			throw Exception(errno, "WaitCondition::reltimed_wait: Failed to get current time");
+		}
+		now.tv_sec  = nowt.tv_sec;
+		now.tv_nsec = nowt.tv_usec * 1000;
 #else
-    if ( clock_gettime(CLOCK_REALTIME, &now) != 0 ) {
-      throw Exception(errno, "WaitCondition::reltimed_wait: Failed to get current time");
-    }
+		if (clock_gettime(CLOCK_REALTIME, &now) != 0) {
+			throw Exception(errno, "WaitCondition::reltimed_wait: Failed to get current time");
+		}
 #endif
 
-    long int s  = now.tv_sec  + sec;
-    long int ns = now.tv_nsec + nanosec;
-    if (ns >= 1000000000) {
-      s  += 1;
-      ns -= 1000000000;
-    }
+		long int s  = now.tv_sec + sec;
+		long int ns = now.tv_nsec + nanosec;
+		if (ns >= 1000000000) {
+			s += 1;
+			ns -= 1000000000;
+		}
 
-    struct timespec ts = { s, ns };
-    long err = 0;
+		struct timespec ts  = {s, ns};
+		long            err = 0;
 
-    if ( __own_mutex) {
-      __mutex->lock();
-      err = pthread_cond_timedwait( &(__cond_data->cond), &(__mutex->mutex_data->mutex), &ts );
-      __mutex->unlock();
-    } else {
-      err = pthread_cond_timedwait( &(__cond_data->cond), &(__mutex->mutex_data->mutex), &ts );
-    }
+		if (__own_mutex) {
+			__mutex->lock();
+			err = pthread_cond_timedwait(&(__cond_data->cond), &(__mutex->mutex_data->mutex), &ts);
+			__mutex->unlock();
+		} else {
+			err = pthread_cond_timedwait(&(__cond_data->cond), &(__mutex->mutex_data->mutex), &ts);
+		}
 
-    if ( err == ETIMEDOUT ) {
-      return false;
-    } else if ( err != 0 ) {
-      // some other error happened, a "real" error
-      throw Exception(err, "Waiting for wait condition failed");
-    } else {
-      return true;
-    }
-  }
+		if (err == ETIMEDOUT) {
+			return false;
+		} else if (err != 0) {
+			// some other error happened, a "real" error
+			throw Exception(err, "Waiting for wait condition failed");
+		} else {
+			return true;
+		}
+	}
 }
-
 
 /** Wake another thread waiting for this condition.
  * This wakes up any thread waiting for the condition, not a particular one.
@@ -260,15 +253,14 @@ WaitCondition::reltimed_wait(unsigned int sec, unsigned int nanosec)
 void
 WaitCondition::wake_one()
 {
-  if (__own_mutex) {  // it's our internal mutex, lock!
-    __mutex->lock();
-    pthread_cond_signal( &(__cond_data->cond) );
-    __mutex->unlock();
-  } else {            // it's an external mutex, the user should care
-    pthread_cond_signal( &(__cond_data->cond) );
-  }
+	if (__own_mutex) { // it's our internal mutex, lock!
+		__mutex->lock();
+		pthread_cond_signal(&(__cond_data->cond));
+		__mutex->unlock();
+	} else { // it's an external mutex, the user should care
+		pthread_cond_signal(&(__cond_data->cond));
+	}
 }
-
 
 /** Wake up all waiting threads.
  * This wakes up all threads waiting for this condition.
@@ -281,14 +273,13 @@ WaitCondition::wake_one()
 void
 WaitCondition::wake_all()
 {
-  if (__own_mutex) {  // it's our internal mutex, lock!
-    __mutex->lock();
-    pthread_cond_broadcast( &(__cond_data->cond) );
-    __mutex->unlock();
-  } else {            // it's an external mutex, the user should care
-    pthread_cond_broadcast( &(__cond_data->cond) );
-  }
+	if (__own_mutex) { // it's our internal mutex, lock!
+		__mutex->lock();
+		pthread_cond_broadcast(&(__cond_data->cond));
+		__mutex->unlock();
+	} else { // it's an external mutex, the user should care
+		pthread_cond_broadcast(&(__cond_data->cond));
+	}
 }
-
 
 } // end namespace fawkes

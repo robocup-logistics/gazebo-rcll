@@ -21,40 +21,38 @@
 #ifndef _PUCK_HOLDER_HH_
 #define _PUCK_HOLDER_HH_
 
-#include <string>
+#include "../llsf/data_table.h"
+#include "simDevice.h"
+
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include "simDevice.h"
-#include "../llsf/data_table.h"
+#include <string>
 
-
-namespace gazebo
-{
-  /**
+namespace gazebo {
+/**
    * holds a puck in the robotinos gripper while turning
    * Workaround for pucks slipping out of the gripper
    * can be turned off in the config
    */
-  class PuckHolder: public SimDevice
-  {
-  public: 
-    //Constructor
-    PuckHolder(physics::ModelPtr, transport::NodePtr);
-    ///Deconstructor
-    ~PuckHolder();
+class PuckHolder : public SimDevice
+{
+public:
+	//Constructor
+	PuckHolder(physics::ModelPtr, transport::NodePtr);
+	///Deconstructor
+	~PuckHolder();
 
-    virtual void init();
-    virtual void create_publishers();
-    virtual void create_subscribers();
-    virtual void update();
+	virtual void init();
+	virtual void create_publishers();
+	virtual void create_subscribers();
+	virtual void update();
 
+private:
+	///Pointer to simulation data
+	LlsfDataTable *table_;
 
-  private:
-    ///Pointer to simulation data
-    LlsfDataTable *table_;
-
-    bool puck_attached_;
-    physics::ModelPtr puck_model_;
-  };
-}
+	bool              puck_attached_;
+	physics::ModelPtr puck_model_;
+};
+} // namespace gazebo
 #endif
