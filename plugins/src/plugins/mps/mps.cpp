@@ -153,6 +153,14 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	status_error_basic_      = status_basic.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
 	status_ready_basic_      = status_basic.AddVariable(4, "Ready", OpcUa::Variant(false));
 	status_busy_basic_       = status_basic.AddVariable(4, "Busy", OpcUa::Variant(false));
+	
+	
+	sub = opcua_server_.CreateSubscription(100, sclt);                              
+	handle1_in = sub->SubscribeDataChange(payload1_in_);                    
+	handle2_in = sub->SubscribeDataChange(payload2_in_);                    
+	handle1_basic = sub->SubscribeDataChange(payload1_basic_);              
+	handle2_basic = sub->SubscribeDataChange(payload2_basic_);
+	printf("subscribe 4 variables");
 }
 ///Destructor
 Mps::~Mps()

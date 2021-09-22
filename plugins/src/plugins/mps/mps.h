@@ -39,6 +39,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "subclient.h"
+
 typedef const boost::shared_ptr<gazsim_msgs::NewPuck const> ConstNewPuckPtr;
 
 namespace gazebo {
@@ -198,6 +200,15 @@ protected:
 	OpcUa::Node     status_error_basic_;
 	OpcUa::Node     status_ready_basic_;
 	OpcUa::Node     status_busy_basic_;
+	
+	SubscriptionClient sclt;
+	OpcUa::Subscription::SharedPtr sub;
+	
+	// subscription handle for payloads
+	uint32_t handle1_in;
+	uint32_t handle2_in;
+	uint32_t handle1_basic;
+	uint32_t handle2_basic;
 };
 } // namespace gazebo
 
