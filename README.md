@@ -25,8 +25,3 @@ This repository includes the models, worlds and plugins to simulate the RoboCup 
 4. Restart your terminal to make sure the environment variables are set correctly.
 
 Then you can start gazebo from the terminal.
-
-## References
-The work is based on [this project](http://www.fawkesrobotics.org/projects/llsf-sim/) where you can find more information and an example how to interface the simulation.
-
-
