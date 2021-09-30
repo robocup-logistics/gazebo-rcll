@@ -21,6 +21,7 @@
 #include "mps.h"
 
 #include <opc/ua/protocol/variant.h>
+
 #include <fnmatch.h>
 #include <fstream>
 #include <iostream>
@@ -114,10 +115,26 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	tag_joint_output = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint("revolute", model_);
 	tag_joint_output->SetName("tag_joint_output");
 	tag_joint_output->SetModel(model_);
+}
+///Destructor
+Mps::~Mps()
+{
+	opcua_server_.Stop();
+	printf("Destructing Mps Plugin for %s!\n", this->name_.c_str());
+}
 
-	opcua_server_.SetEndpoint("opc.tcp://localhost:4840/");
-	opcua_server_.SetServerURI("urn://ll.robocup.org/gazebo/");
+void
+Mps::start_server()
+{
+	opcua_server_.SetEndpoint(OpcUaConfig::get_endpoint(station_));
+	opcua_server_.SetServerURI(OpcUaConfig::get_URI(station_));
 	opcua_server_.Start();
+	init_opcua_server();
+}
+
+void
+Mps::init_opcua_server()
+{
 	OpcUa::Node objects = opcua_server_.GetObjectsNode();
 	OpcUa::Node node    = objects.AddObject(2, "DeviceSet")
 	                     .AddObject(4, "CPX-E-CEC-C1-PN")
@@ -153,20 +170,13 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	status_error_basic_      = status_basic.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
 	status_ready_basic_      = status_basic.AddVariable(4, "Ready", OpcUa::Variant(false));
 	status_busy_basic_       = status_basic.AddVariable(4, "Busy", OpcUa::Variant(false));
-	
-	
-	sub = opcua_server_.CreateSubscription(100, sclt);                              
-	handle1_in = sub->SubscribeDataChange(payload1_in_);                    
-	handle2_in = sub->SubscribeDataChange(payload2_in_);                    
-	handle1_basic = sub->SubscribeDataChange(payload1_basic_);              
+
+	sub           = opcua_server_.CreateSubscription(100, sclt);
+	handle1_in    = sub->SubscribeDataChange(payload1_in_);
+	handle2_in    = sub->SubscribeDataChange(payload2_in_);
+	handle1_basic = sub->SubscribeDataChange(payload1_basic_);
 	handle2_basic = sub->SubscribeDataChange(payload2_basic_);
 	printf("subscribe 4 variables");
-}
-///Destructor
-Mps::~Mps()
-{
-	opcua_server_.Stop();
-	printf("Destructing Mps Plugin for %s!\n", this->name_.c_str());
 }
 
 /** Called by the world update start event

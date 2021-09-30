@@ -21,6 +21,9 @@
 #ifndef MPS_H
 #define MPS_H
 
+#include "opcua_server_config.h"
+#include "subclient.h"
+
 #include <configurable/configurable.h>
 #include <gazsim_msgs/NewPuck.pb.h>
 #include <gazsim_msgs/WorkpieceCommand.pb.h>
@@ -39,8 +42,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "subclient.h"
-
 typedef const boost::shared_ptr<gazsim_msgs::NewPuck const> ConstNewPuckPtr;
 
 namespace gazebo {
@@ -54,8 +55,14 @@ public:
 	Mps(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
 	virtual ~Mps();
 
+	//add objects and variants
+	void init_opcua_server();
+	//set the end point and URI
+	void start_server();
+
 	virtual void OnUpdate(const common::UpdateInfo &);
 	virtual void Reset();
+	virtual void process_command() = 0;
 
 protected:
 	static const std::map<std::string, std::string> name_id_match;
@@ -200,10 +207,12 @@ protected:
 	OpcUa::Node     status_error_basic_;
 	OpcUa::Node     status_ready_basic_;
 	OpcUa::Node     status_busy_basic_;
-	
-	SubscriptionClient sclt;
+
+	SubscriptionClient             sclt;
 	OpcUa::Subscription::SharedPtr sub;
-	
+
+	Station station_;
+
 	// subscription handle for payloads
 	uint32_t handle1_in;
 	uint32_t handle2_in;
