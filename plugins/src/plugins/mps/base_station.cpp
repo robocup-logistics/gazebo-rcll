@@ -26,6 +26,8 @@ using namespace gazebo;
 
 BaseStation::BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_parent, _sdf)
 {
+	station_ = Station::STATION_BASE;
+	start_server();
 	have_puck_ = "";
 }
 
@@ -36,6 +38,16 @@ BaseStation::on_puck_msg(ConstPosePtr &msg)
 		have_puck_ = "";
 		//set_state(State::RETRIEVED);
 	}
+}
+
+void
+BaseStation::process_command()
+{
+}
+
+void
+BaseStation::dispense_base()
+{
 }
 
 //void

@@ -31,12 +31,13 @@ class BaseStation : public Mps
 {
 public:
 	BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
+	virtual void process_command() override;
+	void         dispense_base();
 
 private:
 	void        on_puck_msg(ConstPosePtr &msg);
+	void        on_new_puck(ConstNewPuckPtr &msg);
 	std::string have_puck_;
-
-	void on_new_puck(ConstNewPuckPtr &msg);
 };
 
 } // namespace gazebo

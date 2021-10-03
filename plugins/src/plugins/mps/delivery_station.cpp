@@ -27,6 +27,8 @@ using namespace gazebo;
 DeliveryStation::DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 : Mps(_parent, _sdf), prepared_(false), puck_(NULL)
 {
+	station_ = Station::STATION_DELIVERY;
+	start_server();
 }
 
 void
@@ -40,6 +42,11 @@ DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 			deliver();
 		}
 	}
+}
+
+void
+DeliveryStation::process_command()
+{
 }
 
 //void

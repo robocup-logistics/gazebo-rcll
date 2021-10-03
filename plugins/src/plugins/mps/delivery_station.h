@@ -31,6 +31,7 @@ class DeliveryStation : public Mps
 {
 public:
 	DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
+	virtual void process_command() override;
 
 	void on_puck_msg(ConstPosePtr &msg);
 	void deliver();

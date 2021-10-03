@@ -36,10 +36,11 @@ class CapStation : public Mps
 public:
 	CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-	void on_puck_msg(ConstPosePtr &msg);
-	void on_new_puck(ConstNewPuckPtr &msg);
-	void OnUpdate(const common::UpdateInfo &info);
-	void on_puck_result(ConstWorkpieceResultPtr &result);
+	void         on_puck_msg(ConstPosePtr &msg);
+	void         on_new_puck(ConstNewPuckPtr &msg);
+	void         OnUpdate(const common::UpdateInfo &info);
+	void         on_puck_result(ConstWorkpieceResultPtr &result);
+	virtual void process_command() override;
 
 	gzwrap::Pose3d shelf_left_pose();
 	gzwrap::Pose3d shelf_middle_pose();

@@ -26,6 +26,8 @@ using namespace gazebo;
 
 StorageStation::StorageStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_parent, _sdf)
 {
+	station_ = Station::STATION_STORAGE;
+	start_server();
 	storage_ = new Storage[STORAGE_SIZE];
 
 	//EMPTY all storage slots
@@ -62,6 +64,11 @@ StorageStation::StorageStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) 
 StorageStation::~StorageStation()
 {
 	delete storage_;
+}
+
+void
+StorageStation::process_command()
+{
 }
 
 void

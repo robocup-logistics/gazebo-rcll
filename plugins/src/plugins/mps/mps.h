@@ -62,7 +62,10 @@ public:
 
 	virtual void OnUpdate(const common::UpdateInfo &);
 	virtual void Reset();
+	// with payload_in, action_id_in, ...
 	virtual void process_command() = 0;
+	// with payload_base, action_id_base, ...
+	void process_command_base();
 
 protected:
 	static const std::map<std::string, std::string> name_id_match;
@@ -208,12 +211,17 @@ protected:
 	OpcUa::Node     status_ready_basic_;
 	OpcUa::Node     status_busy_basic_;
 
-	SubscriptionClient             sclt;
-	OpcUa::Subscription::SharedPtr sub;
+	SubscriptionClient             sclt_in;
+	OpcUa::Subscription::SharedPtr sub_in;
+
+	SubscriptionClient             sclt_base;
+	OpcUa::Subscription::SharedPtr sub_base;
 
 	Station station_;
 
 	// subscription handle for payloads
+	uint32_t handel_action_id_in;
+	uint32_t handel_action_id_base;
 	uint32_t handle1_in;
 	uint32_t handle2_in;
 	uint32_t handle1_basic;

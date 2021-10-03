@@ -28,6 +28,8 @@ using namespace gazebo;
 
 CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_parent, _sdf)
 {
+	station_ = Station::STATION_CAP;
+	start_server();
 	spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
 	spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
 	spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
@@ -35,6 +37,11 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_p
 	  node_->Subscribe(topic_puck_command_result_, &CapStation::on_puck_result, this);
 	stored_cap_color_  = gazsim_msgs::Color::NONE;
 	puck_spawned_time_ = created_time_;
+}
+
+void
+CapStation::process_command()
+{
 }
 
 void

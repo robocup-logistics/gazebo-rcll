@@ -44,7 +44,7 @@ const std::map<std::string, std::string> Mps::name_id_match = {
   {"C-SSO", "tag_194"},  {"C-SSI", "tag_193"},  {"M-SSO", "tag_210"},  {"M-SSI", "tag_209"}};
 
 ///Constructor
-Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
+Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr) : sclt_in(this), sclt_base(this)
 {
 	// Store the pointer to the model
 	this->model_ = _parent;
@@ -171,12 +171,19 @@ Mps::init_opcua_server()
 	status_ready_basic_      = status_basic.AddVariable(4, "Ready", OpcUa::Variant(false));
 	status_busy_basic_       = status_basic.AddVariable(4, "Busy", OpcUa::Variant(false));
 
-	sub           = opcua_server_.CreateSubscription(100, sclt);
-	handle1_in    = sub->SubscribeDataChange(payload1_in_);
-	handle2_in    = sub->SubscribeDataChange(payload2_in_);
-	handle1_basic = sub->SubscribeDataChange(payload1_basic_);
-	handle2_basic = sub->SubscribeDataChange(payload2_basic_);
-	printf("subscribe 4 variables");
+	sclt_in.set_callback_funk(&gazebo::Mps::process_command);
+	sub_in              = opcua_server_.CreateSubscription(100, sclt_in);
+	handel_action_id_in = sub_in->SubscribeDataChange(action_id_in_);
+
+	sclt_base.set_callback_funk(&gazebo::Mps::process_command_base);
+	sub_base              = opcua_server_.CreateSubscription(100, sclt_base);
+	handel_action_id_base = sub_base->SubscribeDataChange(action_id_basic_);
+}
+
+void
+Mps::process_command_base()
+{
+	std::cout << "base cammand process function is called." << std::endl;
 }
 
 /** Called by the world update start event

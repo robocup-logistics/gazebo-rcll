@@ -26,8 +26,15 @@ using namespace gazebo;
 
 RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_parent, _sdf)
 {
+	station_ = Station::STATION_RING;
+	start_server();
 	add_base_publisher_ = node_->Advertise<llsf_msgs::MachineAddBase>(TOPIC_MACHINE_ADD_BASE);
 	number_bases_       = 0;
+}
+
+void
+RingStation::process_command()
+{
 }
 
 void
