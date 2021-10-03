@@ -1,16 +1,34 @@
 #pragma once
+#include "mps.h"
+
 #include <opc/ua/client/client.h>
 #include <opc/ua/node.h>
 #include <opc/ua/subscription.h>
 
+namespace gazebo {
+class Mps;
+}
+
 class SubscriptionClient : public OpcUa::SubscriptionHandler
 {
 public:
-	SubscriptionClient(std::shared_ptr<spdlog::logger> logger_) : logger(logger_)
+	SubscriptionClient(gazebo::Mps *station_,
+	                   void (gazebo::Mps::*callback_funk_)(void),
+	                   std::shared_ptr<spdlog::logger> logger_)
+	: station(station_), callback_funk(callback_funk_), logger(logger_)
 	{
 	}
 
-	SubscriptionClient() : SubscriptionClient(nullptr)
+	SubscriptionClient(gazebo::Mps *station_, void (gazebo::Mps::*callback_funk_)(void))
+	: SubscriptionClient(station_, callback_funk_, nullptr)
+	{
+	}
+
+	SubscriptionClient(gazebo::Mps *station_) : SubscriptionClient(station_, nullptr, nullptr)
+	{
+	}
+
+	SubscriptionClient()
 	{
 	}
 
@@ -18,8 +36,21 @@ public:
 	{
 		//delete mpsValue;
 	}
+	void
+	set_callback_funk(void (gazebo::Mps::*callback_funk_)(void))
+	{
+		callback_funk = callback_funk_;
+	}
+
+	void
+	set_station(gazebo::Mps *station_)
+	{
+		station = station_;
+	}
 
 protected:
+	gazebo::Mps *station;
+	void (gazebo::Mps::*callback_funk)(void);
 	std::shared_ptr<spdlog::logger> logger;
 
 	void
@@ -35,6 +66,7 @@ protected:
 			std::cout << "Received DataChange event for Node " << node << std::endl;
 			print_node_value(&node, val);
 		}
+		(station->*callback_funk)();
 	};
 	void
 	print_node_value(const OpcUa::Node *             n,
