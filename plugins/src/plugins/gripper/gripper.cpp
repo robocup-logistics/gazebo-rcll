@@ -258,10 +258,10 @@ Gripper::getNearestPuck()
 			}
 		}
 	}
-    if (nearest == nullptr) {
-        grippedPuck.reset();
-        return nullptr;
-    }
+	if (nearest == nullptr) {
+		grippedPuck.reset();
+		return nullptr;
+	}
 	std::cout << "Nearest puck: " << nearest->GetName() << std::endl;
 	std::cout << "Distance: " << distance << "GRAB AREA: " << RADIUS_GRAB_AREA << std::endl;
 	if (distance < RADIUS_GRAB_AREA) {
