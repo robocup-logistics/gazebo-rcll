@@ -43,14 +43,56 @@ BaseStation::on_puck_msg(ConstPosePtr &msg)
 void
 BaseStation::process_command()
 {
+	uint16_t value = uint16_t(action_id_in_.GetValue());
+	if (calculate_station_type_from_command(value) == station_) {
+		Operation oper = Operation(value - station_);
+		switch (oper) {
+		case Operation::OPERATION_GET_BASE:
+			dispense_base(llsf_msgs::BaseColor(payload1_in_.GetValue()));
+			break;
+			//payload1_in_ =  MPSSensor sensor??
+		case Command::COMMAND_MOVE_CONVEYOR:
+			move_conveyor(llsf_msgs::MachineSide(payload2_in_.GetValue()));
+			break;
+		default: std::cout << "unexpected operation with station:" << station_ << std::endl;
+		}
+		std::cout << "In command processing function is called with station:" << station_ << std::endl;
+	}
 }
 
 void
-BaseStation::dispense_base()
+BaseStation::dispense_base(llsf_msgs::BaseColor color)
 {
+	switch (color) {
+	case llsf_msgs::BaseColor::BASE_BLACK: spawn_clr = gazsim_msgs::Color::BLACK; break;
+	case llsf_msgs::BaseColor::BASE_SILVER: spawn_clr = gazsim_msgs::Color::SILVER; break;
+	case llsf_msgs::BaseColor::BASE_RED:
+	default: spawn_clr = gazsim_msgs::Color::RED; break;
+	}
+
+	// put it on Zero or do nothing?
+	gzwrap::Pose3d spawn_pose;
+	spawn_pose = gzwrap::Pose3d::Zero;
+	spawn_puck(spawn_pose, spawn_clr);
 }
 
-//void
+void
+BaseStation::move_conveyor(llsf_msgs::MachineSide side)
+{
+	gzwrap::Pose3d spawn_pose;
+	if (side == llsf_msgs::MachineSide::INPUT) {
+		spawn_pose = gzwrap::Pose3d(input_x(), input_y(), belt_height_ + (puck_height_ / 2), 0, 0, 0);
+		printf("spawning puck at input\n");
+	} else if (side == llsf_msgs::MachineSide::OUTPUT) {
+		spawn_pose = gzwrap::Pose3d(output_x(), output_y(), belt_height_ + (puck_height_ / 2), 0, 0, 0);
+		printf("spawning puck at output\n");
+	} else
+		spawn_pose = gzwrap::Pose3d::Zero;
+
+	spawn_puck(spawn_pose, spawn_clr);
+	have_puck_ = "workpiece_base";
+}
+
 //BaseStation::new_machine_info(ConstMachine &machine)
 //{
 //	if (machine.state() == "PROCESSED") {

@@ -67,7 +67,12 @@ public:
 	// with payload_base, action_id_base, ...
 	void process_command_base();
 
+	virtual void move_conveyor(){};
+
 protected:
+	// use action_id to calculate station type
+	Station calculate_station_type_from_command(uint16_t value);
+
 	static const std::map<std::string, std::string> name_id_match;
 
 	/// Pointer to the gazbeo model

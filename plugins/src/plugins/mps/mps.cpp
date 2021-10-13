@@ -186,6 +186,12 @@ Mps::process_command_base()
 	std::cout << "base cammand process function is called." << std::endl;
 }
 
+Station
+Mps::calculate_station_type_from_command(uint16_t value)
+{
+	return Station(value - (value % 100));
+}
+
 /** Called by the world update start event
  */
 void

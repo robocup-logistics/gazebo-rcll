@@ -32,12 +32,14 @@ class BaseStation : public Mps
 public:
 	BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 	virtual void process_command() override;
-	void         dispense_base();
+	virtual void move_conveyor(llsf_msgs::MachineSide side);
+	void         dispense_base(llsf_msgs::BaseColor color);
 
 private:
-	void        on_puck_msg(ConstPosePtr &msg);
-	void        on_new_puck(ConstNewPuckPtr &msg);
-	std::string have_puck_;
+	void               on_puck_msg(ConstPosePtr &msg);
+	void               on_new_puck(ConstNewPuckPtr &msg);
+	std::string        have_puck_;
+	gazsim_msgs::Color spawn_clr;
 };
 
 } // namespace gazebo
