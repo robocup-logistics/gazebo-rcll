@@ -119,9 +119,6 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr) : sclt_in(this), sclt_base(
 ///Destructor
 Mps::~Mps()
 {
-	if (command_thread.joinable()) {
-		command_thread.join();
-	}
 	opcua_server_.Stop();
 	printf("Destructing Mps Plugin for %s!\n", this->name_.c_str());
 }
@@ -193,6 +190,20 @@ Station
 Mps::calculate_station_type_from_command(uint16_t value)
 {
 	return Station(value - (value % 100));
+}
+
+void
+Mps::run_async_command(std::function<void()> command)
+{
+	bool expected = true;
+	if (!future_ready.compare_exchange_strong(expected, false)) {
+		SPDLOG_WARN("Received another command while processing previous command -> ignoring!");
+		return;
+	}
+	future = std::async(std::launch::async, [&] {
+		command();
+		future_ready = true;
+	});
 }
 
 /** Called by the world update start event

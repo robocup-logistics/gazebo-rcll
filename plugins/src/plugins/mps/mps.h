@@ -73,6 +73,9 @@ protected:
 	// use action_id to calculate station type
 	Station calculate_station_type_from_command(uint16_t value);
 
+	/// Run a command asynchronously.
+	void run_async_command(std::function<void()> command);
+
 	static const std::map<std::string, std::string> name_id_match;
 
 	/// Pointer to the gazbeo model
@@ -222,8 +225,6 @@ protected:
 	SubscriptionClient             sclt_base;
 	OpcUa::Subscription::SharedPtr sub_base;
 
-	std::thread command_thread;
-
 	Station station_;
 
 	// subscription handle for payloads
@@ -233,6 +234,10 @@ protected:
 	uint32_t handle2_in;
 	uint32_t handle1_basic;
 	uint32_t handle2_basic;
+
+private:
+	std::future<void> future;
+	std::atomic<bool> future_ready{true};
 };
 } // namespace gazebo
 

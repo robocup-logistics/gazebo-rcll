@@ -50,21 +50,15 @@ void
 BaseStation::process_command()
 {
 	uint16_t value = uint16_t(action_id_in_.GetValue());
-	if (calculate_station_type_from_command(value) == station_) {
-		if (command_thread.joinable()) {
-			SPDLOG_WARNING("Received another command while processing previous command -> ignoring!");
-			return;
-		}
-		std::function<void()> command;
-		Operation             oper = Operation(value - station_);
-		switch (oper) {
-		case Operation::OPERATION_GET_BASE:
-			command = [this] { dispense_base(BaseColor(uint16_t(payload1_in_.GetValue()))); };
-			break;
-		default: std::cout << "unexpected operation with station:" << station_ << std::endl; return;
-		}
-		command_thread = std::thread(command);
+	if (calculate_station_type_from_command(value) != station_) {
+		return;
 	}
+	Operation oper = Operation(value - station_);
+	if (oper != Operation::OPERATION_GET_BASE) {
+		SPDLOG_WARN("Unexpected operation {} on station {}", oper, station_);
+		return;
+	}
+	run_async_command([this] { dispense_base(BaseColor(uint16_t(payload1_in_.GetValue()))); });
 }
 
 void
