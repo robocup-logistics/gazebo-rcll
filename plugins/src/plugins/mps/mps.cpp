@@ -119,6 +119,9 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr) : sclt_in(this), sclt_base(
 ///Destructor
 Mps::~Mps()
 {
+	if (command_thread.joinable()) {
+		command_thread.join();
+	}
 	opcua_server_.Stop();
 	printf("Destructing Mps Plugin for %s!\n", this->name_.c_str());
 }

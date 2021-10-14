@@ -222,6 +222,8 @@ protected:
 	SubscriptionClient             sclt_base;
 	OpcUa::Subscription::SharedPtr sub_base;
 
+	std::thread command_thread;
+
 	Station station_;
 
 	// subscription handle for payloads

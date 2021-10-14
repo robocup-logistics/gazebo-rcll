@@ -27,13 +27,15 @@
 
 namespace gazebo {
 
+enum class BaseColor { RED = 1, SILVER, BLACK };
+
 class BaseStation : public Mps
 {
 public:
 	BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 	virtual void process_command() override;
 	virtual void move_conveyor(llsf_msgs::MachineSide side);
-	void         dispense_base(llsf_msgs::BaseColor color);
+	void         dispense_base(BaseColor color);
 
 private:
 	void               on_puck_msg(ConstPosePtr &msg);

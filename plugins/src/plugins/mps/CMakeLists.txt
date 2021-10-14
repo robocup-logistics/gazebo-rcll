@@ -32,6 +32,7 @@ target_link_libraries(
          configurable
          gazsim_msgs
          gazebo
+         spdlog::spdlog
          opcuacore
          opcuaserver
          opcuaprotocol)

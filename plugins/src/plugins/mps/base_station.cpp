@@ -22,6 +22,12 @@
 
 #include "base_station.h"
 
+#include <spdlog/spdlog.h>
+
+#include <chrono>
+#include <functional>
+#include <thread>
+
 using namespace gazebo;
 
 BaseStation::BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_parent, _sdf)
@@ -45,35 +51,42 @@ BaseStation::process_command()
 {
 	uint16_t value = uint16_t(action_id_in_.GetValue());
 	if (calculate_station_type_from_command(value) == station_) {
-		Operation oper = Operation(value - station_);
+		if (command_thread.joinable()) {
+			SPDLOG_WARNING("Received another command while processing previous command -> ignoring!");
+			return;
+		}
+		std::function<void()> command;
+		Operation             oper = Operation(value - station_);
 		switch (oper) {
 		case Operation::OPERATION_GET_BASE:
-			dispense_base(llsf_msgs::BaseColor(payload1_in_.GetValue()));
+			command = [this] { dispense_base(BaseColor(uint16_t(payload1_in_.GetValue()))); };
 			break;
-			//payload1_in_ =  MPSSensor sensor??
-		case Command::COMMAND_MOVE_CONVEYOR:
-			move_conveyor(llsf_msgs::MachineSide(payload2_in_.GetValue()));
-			break;
-		default: std::cout << "unexpected operation with station:" << station_ << std::endl;
+		default: std::cout << "unexpected operation with station:" << station_ << std::endl; return;
 		}
-		std::cout << "In command processing function is called with station:" << station_ << std::endl;
+		command_thread = std::thread(command);
 	}
 }
 
 void
-BaseStation::dispense_base(llsf_msgs::BaseColor color)
+BaseStation::dispense_base(BaseColor color)
 {
+	SPDLOG_INFO("Dispensing base with color {}", color);
+	status_busy_in_.SetValue(true);
 	switch (color) {
-	case llsf_msgs::BaseColor::BASE_BLACK: spawn_clr = gazsim_msgs::Color::BLACK; break;
-	case llsf_msgs::BaseColor::BASE_SILVER: spawn_clr = gazsim_msgs::Color::SILVER; break;
-	case llsf_msgs::BaseColor::BASE_RED:
-	default: spawn_clr = gazsim_msgs::Color::RED; break;
+	case BaseColor::RED: spawn_clr = gazsim_msgs::Color::RED; break;
+	case BaseColor::SILVER: spawn_clr = gazsim_msgs::Color::SILVER; break;
+	case BaseColor::BLACK: spawn_clr = gazsim_msgs::Color::BLACK; break;
 	}
-
-	// put it on Zero or do nothing?
-	gzwrap::Pose3d spawn_pose;
-	spawn_pose = gzwrap::Pose3d::Zero;
+	gzwrap::Pose3d spawn_pose((input_x() + output_x()) / 2,
+	                          (input_y() + output_y()) / 2,
+	                          belt_height_ + (puck_height_ / 2),
+	                          0,
+	                          0,
+	                          0);
+	// TODO: use proper value needed to dispense a base
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 	spawn_puck(spawn_pose, spawn_clr);
+	status_busy_in_.SetValue(false);
 }
 
 void
