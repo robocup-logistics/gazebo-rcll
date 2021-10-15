@@ -73,7 +73,7 @@ public:
 	// with payload_base, action_id_base, ...
 	void process_command_base();
 
-	virtual void move_conveyor(){};
+	void move_conveyor(const MachineSide &side);
 
 protected:
 	// use action_id to calculate station type
