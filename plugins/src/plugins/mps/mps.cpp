@@ -228,10 +228,9 @@ Mps::move_conveyor(const MachineSide &side)
 	SPDLOG_INFO("Moving workpiece {} to output", puck_in_processing_name_);
 	// TODO: use proper value needed to dispense a base
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	auto wp = world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_);
-	SPDLOG_INFO("Payload1: {}", (uint16_t)payload1_in_.GetValue());
+	auto           wp = world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_);
 	gzwrap::Pose3d target_pose;
-	switch (MachineSide((uint16_t)payload1_in_.GetValue())) {
+	switch (side) {
 	case MachineSide::INPUT: target_pose = input(); break;
 	case MachineSide::OUTPUT: target_pose = output(); break;
 	}
@@ -245,6 +244,23 @@ Mps::move_conveyor(const MachineSide &side)
 	status_ready_in_.SetValue(true);
 	action_id_in_.SetValue((uint16_t)0);
 	payload1_in_.SetValue((uint16_t)0);
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	switch (side) {
+	case MachineSide::INPUT:
+		while (puck_in_input(wp->WorldPose())) {
+			SPDLOG_INFO("wp pose: {}", wp->WorldPose());
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+		break;
+	case MachineSide::OUTPUT:
+		while (puck_in_output(wp->WorldPose())) {
+			SPDLOG_INFO("wp pose: {}", wp->WorldPose());
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+		break;
+	}
+	SPDLOG_INFO("WP not in MPS anymore (pose: {})!", wp->WorldPose());
+	status_ready_in_.SetValue(false);
 }
 
 Station
