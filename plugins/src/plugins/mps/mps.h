@@ -34,6 +34,7 @@
 #include <utils/misc/gazebo_api_wrappers.h>
 
 #include <boost/bind.hpp>
+#include <condition_variable>
 #include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/transport/transport.hh>
@@ -63,7 +64,7 @@ public:
 	virtual void OnUpdate(const common::UpdateInfo &);
 	virtual void Reset();
 	// with payload_in, action_id_in, ...
-	virtual void process_command() = 0;
+	virtual void process_command(){};
 	// with payload_base, action_id_base, ...
 	void process_command_base();
 
@@ -73,8 +74,11 @@ protected:
 	// use action_id to calculate station type
 	Station calculate_station_type_from_command(uint16_t value);
 
-	/// Run a command asynchronously.
-	void run_async_command(std::function<void()> command);
+	void                    notify_worker();
+	virtual void            worker_loop();
+	std::mutex              worker_mutex_;
+	std::condition_variable worker_condition_;
+	bool                    shutdown_;
 
 	static const std::map<std::string, std::string> name_id_match;
 
@@ -236,8 +240,7 @@ protected:
 	uint32_t handle2_basic;
 
 private:
-	std::future<void> future;
-	std::atomic<bool> future_ready{true};
+	std::thread worker;
 };
 } // namespace gazebo
 

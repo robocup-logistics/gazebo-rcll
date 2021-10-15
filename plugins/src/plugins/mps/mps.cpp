@@ -27,6 +27,7 @@
 #include <iostream>
 #include <map>
 #include <math.h>
+#include <mutex>
 #include <stdlib.h>
 
 using namespace gazebo;
@@ -115,10 +116,19 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr) : sclt_in(this), sclt_base(
 	tag_joint_output = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint("revolute", model_);
 	tag_joint_output->SetName("tag_joint_output");
 	tag_joint_output->SetModel(model_);
+
+	worker = std::thread(&Mps::worker_loop, this);
 }
 ///Destructor
 Mps::~Mps()
 {
+	std::unique_lock<std::mutex> lock{worker_mutex_};
+	shutdown_ = true;
+	lock.unlock();
+	notify_worker();
+	if (worker.joinable()) {
+		worker.join();
+	}
 	opcua_server_.Stop();
 	printf("Destructing Mps Plugin for %s!\n", this->name_.c_str());
 }
@@ -171,11 +181,11 @@ Mps::init_opcua_server()
 	status_ready_basic_      = status_basic.AddVariable(4, "Ready", OpcUa::Variant(false));
 	status_busy_basic_       = status_basic.AddVariable(4, "Busy", OpcUa::Variant(false));
 
-	sclt_in.set_callback_funk(&gazebo::Mps::process_command);
+	sclt_in.set_callback_funk(&Mps::notify_worker);
 	sub_in              = opcua_server_.CreateSubscription(100, sclt_in);
 	handel_action_id_in = sub_in->SubscribeDataChange(action_id_in_);
 
-	sclt_base.set_callback_funk(&gazebo::Mps::process_command_base);
+	sclt_base.set_callback_funk(&Mps::notify_worker);
 	sub_base              = opcua_server_.CreateSubscription(100, sclt_base);
 	handel_action_id_base = sub_base->SubscribeDataChange(action_id_basic_);
 }
@@ -193,17 +203,21 @@ Mps::calculate_station_type_from_command(uint16_t value)
 }
 
 void
-Mps::run_async_command(std::function<void()> command)
+Mps::notify_worker()
 {
-	bool expected = true;
-	if (!future_ready.compare_exchange_strong(expected, false)) {
-		SPDLOG_WARN("Received another command while processing previous command -> ignoring!");
-		return;
+	worker_condition_.notify_one();
+}
+
+void
+Mps::worker_loop()
+{
+	while (!shutdown_) {
+		std::unique_lock<std::mutex> lock{worker_mutex_};
+		worker_condition_.wait(lock);
+		lock.unlock();
+		process_command_base();
+		process_command();
 	}
-	future = std::async(std::launch::async, [&] {
-		command();
-		future_ready = true;
-	});
 }
 
 /** Called by the world update start event

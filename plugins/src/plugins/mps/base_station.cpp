@@ -58,7 +58,8 @@ BaseStation::process_command()
 		SPDLOG_WARN("Unexpected operation {} on station {}", oper, station_);
 		return;
 	}
-	run_async_command([this] { dispense_base(BaseColor(uint16_t(payload1_in_.GetValue()))); });
+	SPDLOG_INFO("Dispensing base");
+	dispense_base(BaseColor(uint16_t(payload1_in_.GetValue())));
 }
 
 void
