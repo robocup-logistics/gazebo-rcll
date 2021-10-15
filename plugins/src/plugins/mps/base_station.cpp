@@ -50,6 +50,9 @@ void
 BaseStation::process_command()
 {
 	uint16_t value = uint16_t(action_id_in_.GetValue());
+	if (value == 0) {
+		return;
+	}
 	if (calculate_station_type_from_command(value) != station_) {
 		return;
 	}
