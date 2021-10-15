@@ -60,6 +60,8 @@ BaseStation::process_command()
 	}
 	SPDLOG_INFO("Dispensing base");
 	dispense_base(BaseColor(uint16_t(payload1_in_.GetValue())));
+	action_id_in_.SetValue((uint16_t)0);
+	payload1_in_.SetValue((uint16_t)0);
 }
 
 void
