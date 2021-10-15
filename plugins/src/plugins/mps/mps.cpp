@@ -211,26 +211,31 @@ Mps::process_command_base()
 	SPDLOG_INFO("Processing op {}", op);
 	switch (op) {
 	case Operation::OPERATION_MOVE_CONVEYOR: {
+		status_busy_in_.SetValue(true);
 		if (puck_in_processing_name_.empty()) {
 			SPDLOG_WARN("No workpiece in the machine");
 			return;
 		}
 		SPDLOG_INFO("Moving workpiece {} to output", puck_in_processing_name_);
-		//run_async_command([this] {
-		status_busy_in_.SetValue(true);
 		// TODO: use proper value needed to dispense a base
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		auto wp = world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_);
+		SPDLOG_INFO("Payload1: {}", (uint16_t)payload1_in_.GetValue());
+		gzwrap::Pose3d target_pose;
+		switch (MachineSide((uint16_t)payload1_in_.GetValue())) {
+		case MachineSide::INPUT: target_pose = input(); break;
+		case MachineSide::OUTPUT: target_pose = output(); break;
+		}
 		if (wp) {
-			wp->SetWorldPose(output());
+			wp->SetWorldPose(target_pose);
 		} else {
 			SPDLOG_WARN("Could not find workpiece {}", puck_in_processing_name_);
 		}
 		puck_in_processing_name_.clear();
 		status_busy_in_.SetValue(false);
 		status_ready_in_.SetValue(true);
-		//});
 		action_id_in_.SetValue((uint16_t)0);
+		payload1_in_.SetValue((uint16_t)0);
 		break;
 	}
 	default: SPDLOG_WARN("Operation {}  is not implemented", op);

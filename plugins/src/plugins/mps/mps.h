@@ -46,6 +46,11 @@
 typedef const boost::shared_ptr<gazsim_msgs::NewPuck const> ConstNewPuckPtr;
 
 namespace gazebo {
+
+enum class MachineSide {
+	INPUT  = 1,
+	OUTPUT = 3,
+};
 /**
    * Plugin to control a simulated MPS
    * @author Frederik Zwilling
