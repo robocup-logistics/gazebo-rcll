@@ -28,10 +28,7 @@ enum Operation {
 	OPERATION_RETRIEVE       = 30,
 	OPERATION_STORE          = 40,
 	OPERATION_RELOCATE       = 50,
-	OPERATION_BAND_ON_UNTIL  = 2,
-	OPERATION_BAND_IN        = 1,
-	OPERATION_BAND_MID       = 2,
-	OPERATION_BAND_OUT       = 3,
+	OPERATION_MOVE_CONVEYOR  = 2,
 };
 
 enum Command {

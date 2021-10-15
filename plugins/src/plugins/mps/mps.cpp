@@ -193,7 +193,48 @@ Mps::init_opcua_server()
 void
 Mps::process_command_base()
 {
-	std::cout << "base cammand process function is called." << std::endl;
+	uint16_t value = uint16_t(action_id_in_.GetValue());
+	if (value == 0) {
+		return;
+	}
+	SPDLOG_INFO("Processing command {}", value);
+	if (calculate_station_type_from_command(value) != station_) {
+		SPDLOG_INFO("Different station");
+		return;
+	}
+	Operation op;
+	if (value >= station_) {
+		op = Operation(value - station_);
+	} else {
+		op = Operation(value);
+	}
+	SPDLOG_INFO("Processing op {}", op);
+	switch (op) {
+	case Operation::OPERATION_MOVE_CONVEYOR: {
+		if (puck_in_processing_name_.empty()) {
+			SPDLOG_WARN("No workpiece in the machine");
+			return;
+		}
+		SPDLOG_INFO("Moving workpiece {} to output", puck_in_processing_name_);
+		//run_async_command([this] {
+		status_busy_in_.SetValue(true);
+		// TODO: use proper value needed to dispense a base
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		auto wp = world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_);
+		if (wp) {
+			wp->SetWorldPose(output());
+		} else {
+			SPDLOG_WARN("Could not find workpiece {}", puck_in_processing_name_);
+		}
+		puck_in_processing_name_.clear();
+		status_busy_in_.SetValue(false);
+		status_ready_in_.SetValue(true);
+		//});
+		action_id_in_.SetValue((uint16_t)0);
+		break;
+	}
+	default: SPDLOG_WARN("Operation {}  is not implemented", op);
+	}
 }
 
 Station

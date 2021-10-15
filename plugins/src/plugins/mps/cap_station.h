@@ -54,7 +54,6 @@ public:
 	physics::ModelPtr puck_in_shelf_middle_;
 	physics::ModelPtr puck_in_shelf_right_;
 
-	std::string        puck_in_processing_name_;
 	gazsim_msgs::Color stored_cap_color_;
 
 	transport::SubscriberPtr workpiece_result_subscriber_;

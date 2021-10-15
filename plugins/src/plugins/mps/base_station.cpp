@@ -80,7 +80,7 @@ BaseStation::dispense_base(BaseColor color)
 	                          0);
 	// TODO: use proper value needed to dispense a base
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	spawn_puck(spawn_pose, spawn_clr);
+	puck_in_processing_name_ = spawn_puck(spawn_pose, spawn_clr);
 	status_busy_in_.SetValue(false);
 }
 
