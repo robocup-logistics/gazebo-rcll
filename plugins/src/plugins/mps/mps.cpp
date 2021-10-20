@@ -228,8 +228,8 @@ Mps::move_conveyor(const MachineSide &side)
 	SPDLOG_INFO("Moving workpiece {} to output", puck_in_processing_name_);
 	// TODO: use proper value needed to dispense a base
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	auto           wp = world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_);
-	gzwrap::Pose3d target_pose;
+	auto           wp          = world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_);
+	gzwrap::Pose3d target_pose = output();
 	switch (side) {
 	case MachineSide::INPUT: target_pose = input(); break;
 	case MachineSide::OUTPUT: target_pose = output(); break;
