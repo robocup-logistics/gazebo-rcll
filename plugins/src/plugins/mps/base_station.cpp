@@ -89,23 +89,6 @@ BaseStation::dispense_base(BaseColor color)
 	status_busy_in_.SetValue(false);
 }
 
-void
-BaseStation::move_conveyor(llsf_msgs::MachineSide side)
-{
-	gzwrap::Pose3d spawn_pose;
-	if (side == llsf_msgs::MachineSide::INPUT) {
-		spawn_pose = gzwrap::Pose3d(input_x(), input_y(), belt_height_ + (puck_height_ / 2), 0, 0, 0);
-		printf("spawning puck at input\n");
-	} else if (side == llsf_msgs::MachineSide::OUTPUT) {
-		spawn_pose = gzwrap::Pose3d(output_x(), output_y(), belt_height_ + (puck_height_ / 2), 0, 0, 0);
-		printf("spawning puck at output\n");
-	} else
-		spawn_pose = gzwrap::Pose3d::Zero;
-
-	spawn_puck(spawn_pose, spawn_clr);
-	have_puck_ = "workpiece_base";
-}
-
 //BaseStation::new_machine_info(ConstMachine &machine)
 //{
 //	if (machine.state() == "PROCESSED") {

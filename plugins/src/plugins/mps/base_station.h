@@ -34,7 +34,6 @@ class BaseStation : public Mps
 public:
 	BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 	virtual void process_command() override;
-	virtual void move_conveyor(llsf_msgs::MachineSide side);
 	void         dispense_base(BaseColor color);
 
 private:
