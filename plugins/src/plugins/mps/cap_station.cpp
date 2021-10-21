@@ -40,8 +40,107 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_p
 }
 
 void
-CapStation::process_command()
+CapStation::process_command_in()
 {
+	Mps::process_command_in();
+
+	uint16_t value = uint16_t(action_id_in_.GetValue());
+	if (value == 0) {
+		return;
+	}
+	if (calculate_station_type_from_command(value) != station_) {
+		return;
+	}
+	Operation oper = Operation(value - station_);
+	if (oper != Operation::OPERATION_CAP_ACTION) {
+		SPDLOG_WARN("Unexpected operation {} on station {}", oper, station_);
+		return;
+	}
+
+	oper = Operation(uint16_t(payload1_in_.GetValue()));
+	switch (oper) {
+	case Operation::OPERATION_CAP_MOUNT: mount_cap(); break;
+	case Operation::OPERATION_CAP_RETRIEVE: retrieve_cap(); break;
+	default: SPDLOG_WARN("Operation {}  is not implemented", oper);
+	}
+	action_id_in_.SetValue((uint16_t)0);
+	payload1_in_.SetValue((uint16_t)0);
+}
+
+void
+CapStation::mount_cap()
+{
+	SPDLOG_INFO("mounting cap");
+
+	if (puck_name_ == "") {
+		SPDLOG_INFO("No puck, {} cannot mount cap.", name_);
+		return;
+	}
+
+	//set_state(State::AVAILABLE);
+	status_busy_in_.SetValue(true);
+
+	if (stored_cap_color_ != gazsim_msgs::Color::NONE) {
+		SPDLOG_INFO("{} mounts cap on {} with color {}",
+		            name_,
+		            puck_name_,
+		            gazsim_msgs::Color_Name(stored_cap_color_));
+
+		gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
+		cmd_msg.set_puck_name(puck_name_);
+
+		cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
+		cmd_msg.add_color(stored_cap_color_);
+
+		gazebo::msgs::Visual vis_msg;
+		vis_msg.set_parent_name(name_ + "::body");
+		vis_msg.set_name(name_ + "::body::have_cap");
+		gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0.3, 0, 0));
+		visPub_->Publish(vis_msg);
+		puck_cmd_pub_->Publish(cmd_msg);
+		stored_cap_color_ = gazsim_msgs::Color::NONE;
+	} else {
+		SPDLOG_INFO("{} can't mount cap on {} without a cap loaded first", name_, puck_name_);
+	}
+
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	//set_state(State::PROCESSED);
+	status_busy_in_.SetValue(false);
+
+	world_->GZWRAP_MODEL_BY_NAME(puck_name_)->SetWorldPose(output());
+	puck_in_processing_name_ = puck_name_;
+
+	// should I?
+	puck_name_ = "";
+}
+
+void
+CapStation::retrieve_cap()
+{
+	SPDLOG_INFO("retrieving cap");
+
+	if (puck_name_ == "") {
+		SPDLOG_INFO("No puck, {} cannot retriece cap.", name_);
+		return;
+	}
+
+	//set_state(State::AVAILABLE);
+	status_busy_in_.SetValue(true);
+
+	gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
+	cmd_msg.set_puck_name(puck_name_);
+
+	SPDLOG_INFO("{} retrives cap from {}", name_, puck_name_);
+	cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
+	puck_cmd_pub_->Publish(cmd_msg);
+
+	status_busy_in_.SetValue(false);
+
+	world_->GZWRAP_MODEL_BY_NAME(puck_name_)->SetWorldPose(output());
+	puck_in_processing_name_ = puck_name_;
+
+	//Should I?
+	puck_name_ = "";
 }
 
 void
@@ -74,7 +173,7 @@ void
 CapStation::work_puck(std::string puck_name)
 {
 	printf("CAPSTATION: on_work_puck: %s\n", puck_name.c_str());
-
+	puck_name_ = puck_name;
 	// TODO reimplement
 
 	//	set_state(State::AVAILABLE);
