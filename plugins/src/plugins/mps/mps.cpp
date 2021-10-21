@@ -136,7 +136,7 @@ Mps::~Mps()
 void
 Mps::start_server()
 {
-	opcua_server_.SetEndpoint(OpcUaConfig::get_endpoint(station_));
+	opcua_server_.SetEndpoint(OpcUaConfig::get_endpoint(name_));
 	opcua_server_.SetServerURI(OpcUaConfig::get_URI(station_));
 	opcua_server_.Start();
 	init_opcua_server();

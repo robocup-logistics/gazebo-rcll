@@ -51,17 +51,34 @@ class OpcUaConfig
 {
 public:
 	static std::string
-	get_endpoint(Station station)
+	get_endpoint(std::string name)
 	{
 		std::string p = "opc.tcp://localhost:";
-		switch (station) {
-		case STATION_BASE: return p + "4840/";
-		case STATION_RING: return p + "4841/";
-		case STATION_CAP: return p + "4842/";
-		case STATION_DELIVERY: return p + "4843/";
-		case STATION_STORAGE: return p + "4844/";
-		default: throw MachineTypeException();
-		}
+		if (name == "C-BS")
+			return p + "4840/";
+		if (name == "C-CS1")
+			return p + "4841/";
+		if (name == "C-CS2")
+			return p + "4842/";
+		if (name == "C-RS1")
+			return p + "4843/";
+		if (name == "C-RS2")
+			return p + "4844/";
+		if (name == "C-DS")
+			return p + "4845/";
+		if (name == "M-BS")
+			return p + "4850/";
+		if (name == "M-CS1")
+			return p + "4851/";
+		if (name == "M-CS2")
+			return p + "4852/";
+		if (name == "M-RS1")
+			return p + "4853/";
+		if (name == "M-RS2")
+			return p + "4854/";
+		if (name == "M-DS")
+			return p + "4855/";
+		throw MachineTypeException();
 	};
 
 	static std::string
