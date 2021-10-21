@@ -47,8 +47,10 @@ BaseStation::on_puck_msg(ConstPosePtr &msg)
 }
 
 void
-BaseStation::process_command()
+BaseStation::process_command_in()
 {
+	Mps::process_command_in();
+
 	uint16_t value = uint16_t(action_id_in_.GetValue());
 	if (value == 0) {
 		return;

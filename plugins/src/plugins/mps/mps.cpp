@@ -191,7 +191,7 @@ Mps::init_opcua_server()
 }
 
 void
-Mps::process_command_base()
+Mps::process_command_in()
 {
 	uint16_t value = uint16_t(action_id_in_.GetValue());
 	if (value == 0) {
@@ -215,6 +215,11 @@ Mps::process_command_base()
 		break;
 	default: SPDLOG_WARN("Operation {}  is not implemented", op);
 	}
+}
+
+void
+Mps::process_command_base()
+{
 }
 
 void
@@ -283,7 +288,7 @@ Mps::worker_loop()
 		worker_condition_.wait(lock);
 		lock.unlock();
 		process_command_base();
-		process_command();
+		process_command_in();
 	}
 }
 

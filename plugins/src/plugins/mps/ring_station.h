@@ -35,7 +35,8 @@ class RingStation : public Mps
 {
 public:
 	RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
-	virtual void process_command() override;
+
+	void process_command_in();
 
 	void on_puck_msg(ConstPosePtr &msg);
 

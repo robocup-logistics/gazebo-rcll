@@ -45,7 +45,7 @@ DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 }
 
 void
-DeliveryStation::process_command()
+DeliveryStation::process_command_in()
 {
 }
 

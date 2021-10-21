@@ -69,7 +69,7 @@ public:
 	virtual void OnUpdate(const common::UpdateInfo &);
 	virtual void Reset();
 	// with payload_in, action_id_in, ...
-	virtual void process_command(){};
+	void process_command_in();
 	// with payload_base, action_id_base, ...
 	void process_command_base();
 

@@ -33,7 +33,7 @@ RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(
 }
 
 void
-RingStation::process_command()
+RingStation::process_command_in()
 {
 }
 

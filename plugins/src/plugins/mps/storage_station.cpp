@@ -67,7 +67,7 @@ StorageStation::~StorageStation()
 }
 
 void
-StorageStation::process_command()
+StorageStation::process_command_in()
 {
 }
 

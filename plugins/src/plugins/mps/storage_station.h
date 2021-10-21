@@ -49,7 +49,7 @@ class StorageStation : public Mps
 public:
 	StorageStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 	~StorageStation();
-	virtual void process_command() override;
+	void process_command_in();
 
 private:
 	void on_puck_msg(ConstPosePtr &msg);

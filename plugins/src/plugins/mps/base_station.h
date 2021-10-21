@@ -33,8 +33,9 @@ class BaseStation : public Mps
 {
 public:
 	BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
-	virtual void process_command() override;
-	void         dispense_base(BaseColor color);
+
+	void process_command_in();
+	void dispense_base(BaseColor color);
 
 private:
 	void               on_puck_msg(ConstPosePtr &msg);
