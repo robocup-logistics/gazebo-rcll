@@ -37,8 +37,9 @@ public:
 	void on_puck_msg(ConstPosePtr &msg);
 	void deliver();
 
-	bool              prepared_;
-	physics::ModelPtr puck_;
+private:
+	bool     prepared_;
+	uint16_t slot_;
 };
 
 } // namespace gazebo
