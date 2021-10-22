@@ -60,7 +60,7 @@ BaseStation::process_command_in()
 	}
 	Operation oper = Operation(value - station_);
 	if (oper != Operation::OPERATION_GET_BASE) {
-		SPDLOG_WARN("Unexpected operation {} on station {}", oper, station_);
+		SPDLOG_DEBUG("Unexpected operation {} on station {}", oper, station_);
 		return;
 	}
 	SPDLOG_INFO("Dispensing base");

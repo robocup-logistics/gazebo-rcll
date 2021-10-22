@@ -197,7 +197,7 @@ Mps::process_command_in()
 	if (value == 0) {
 		return;
 	}
-	SPDLOG_INFO("Processing command {}", value);
+	SPDLOG_DEBUG("Processing command {}", value);
 	if (calculate_station_type_from_command(value) != station_) {
 		SPDLOG_INFO("Different station");
 		return;
@@ -208,12 +208,12 @@ Mps::process_command_in()
 	} else {
 		op = Operation(value);
 	}
-	SPDLOG_INFO("Processing op {}", op);
+	SPDLOG_DEBUG("Processing op {}", op);
 	switch (op) {
 	case Operation::OPERATION_MOVE_CONVEYOR:
 		move_conveyor(MachineSide((uint16_t)payload1_in_.GetValue()));
 		break;
-	default: SPDLOG_WARN("Operation {}  is not implemented", op);
+	default: SPDLOG_DEBUG("Operation {}  is not implemented", op);
 	}
 }
 

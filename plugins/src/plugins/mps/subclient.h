@@ -58,13 +58,13 @@ protected:
 	           const OpcUa::Variant &val,
 	           OpcUa::AttributeId    attr) override
 	{
-		if (logger != nullptr) {
-			logger->info("Received DataChange event for Node {}", node);
-			print_node_value(&node, val, logger);
-		} else {
-			std::cout << "Received DataChange event for Node " << node << std::endl;
-			print_node_value(&node, val);
-		}
+		//if (logger != nullptr) {
+		//	logger->info("Received DataChange event for Node {}", node);
+		//	print_node_value(&node, val, logger);
+		//} else {
+		//	std::cout << "Received DataChange event for Node " << node << std::endl;
+		//	print_node_value(&node, val);
+		//}
 		(station->*callback_funk)();
 	};
 	void
