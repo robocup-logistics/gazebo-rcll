@@ -36,19 +36,16 @@ class RingStation : public Mps
 public:
 	RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-	void process_command_in();
-
-	void on_puck_msg(ConstPosePtr &msg);
-
-	std::string        puck_in_processing_name_;
-	gazsim_msgs::Color color_to_put_;
-
+	void           process_command_in() override;
 	void           add_base();
 	gzwrap::Pose3d add_base_pose();
 	u_int32_t      number_bases_;
 
 	gazebo::transport::PublisherPtr add_base_publisher_;
 	void                            publish_indicator(bool active, int number);
+
+private:
+	void mount_ring(gazsim_msgs::Color);
 };
 
 } // namespace gazebo

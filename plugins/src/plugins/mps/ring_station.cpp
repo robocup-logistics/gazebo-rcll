@@ -35,32 +35,47 @@ RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(
 void
 RingStation::process_command_in()
 {
+	Mps::process_command_in();
+	uint16_t value = uint16_t(action_id_in_.GetValue());
+	if (value == 0) {
+		return;
+	}
+	if (calculate_station_type_from_command(value) != station_) {
+		return;
+	}
+	Operation oper = Operation(value - station_);
+	if (oper != Operation::OPERATION_MOUNT_RING) {
+		return;
+	}
+
+	if (puck_in_processing_name_.empty()
+	    || !puck_in_middle(
+	      world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE())) {
+		SPDLOG_WARN("Received MOUNT RING operation, but no workpiece in machine (processing: {})",
+		            puck_in_processing_name_);
+		return;
+	}
+	auto feeder = uint16_t(payload1_in_.GetValue());
+	if (feeder != 1 && feeder != 2) {
+		SPDLOG_WARN("Unexpected feeder {}, expected 1 or 2", feeder);
+		return;
+	}
+	// TODO mount the right color;
+	mount_ring(gazsim_msgs::Color::BLUE);
 }
 
 void
-RingStation::on_puck_msg(ConstPosePtr &msg)
+RingStation::mount_ring(gazsim_msgs::Color color)
 {
-	if (pose_hit(
-	      gzwrap::Pose3d(msg->position().x(), msg->position().y(), msg->position().z(), 0, 0, 0),
-	      add_base_pose(),
-	      0.1)
-	    && !is_puck_hold(msg->name())) {
-		add_base();
-		world_->GZWRAP_ENTITY_BY_NAME(msg->name())->SetWorldPose(get_puck_world_pose(-0.2, -0.5));
-	}
-	//check if the puck is in the input area
-	if (current_state_ == "PREPARED") {
-		if (puck_in_input(msg) && !is_puck_hold(msg->name())) {
-			puck_in_processing_name_ = msg->name();
-			printf("%s got %s\n", name_.c_str(), puck_in_processing_name_.c_str());
-			//set_state(State::AVAILABLE);
-		}
-	}
-	if (current_state_ == "READY-AT-OUTPUT" && msg->name() == puck_in_processing_name_
-	    && !puck_in_output(msg)) {
-		//set_state(State::RETRIEVED);
-		puck_in_processing_name_ = "";
-	}
+	status_busy_in_.SetValue(true);
+	gazsim_msgs::WorkpieceCommand cmd;
+	cmd.set_command(gazsim_msgs::Command::ADD_RING);
+	cmd.add_color(color);
+	cmd.set_puck_name(puck_in_processing_name_);
+	puck_cmd_pub_->Publish(cmd);
+	// TODO set proper time
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	status_busy_in_.SetValue(false);
 }
 
 void
@@ -84,76 +99,6 @@ RingStation::publish_indicator(bool active, int number)
 	}
 	visPub_->Publish(msg);
 }
-
-//void
-//RingStation::new_machine_info(ConstMachine &machine)
-//{
-//	if (machine.state() == "PREPARED") {
-//		switch (machine.instruction_rs().ring_color()) {
-//		case llsf_msgs::RingColor::RING_BLUE: color_to_put_ = gazsim_msgs::Color::BLUE; break;
-//		case llsf_msgs::RingColor::RING_GREEN: color_to_put_ = gazsim_msgs::Color::GREEN; break;
-//		case llsf_msgs::RingColor::RING_ORANGE: color_to_put_ = gazsim_msgs::Color::ORANGE; break;
-//		case llsf_msgs::RingColor::RING_YELLOW: color_to_put_ = gazsim_msgs::Color::YELLOW; break;
-//		}
-//
-//		printf("%s is prepared to put %s on a workpiece\n",
-//		       name_.c_str(),
-//		       gazsim_msgs::Color_Name(color_to_put_).c_str());
-//	} else if (machine.state() == "PROCESSED") {
-//		printf("%s: Putting a %s ring onto %s\n",
-//		       name_.c_str(),
-//		       gazsim_msgs::Color_Name(color_to_put_).c_str(),
-//		       puck_in_processing_name_.c_str());
-//		if (puck_in_processing_name_ != "") {
-//			//teleport puck to output
-//			printf("%s: Teleporting %s to output\n", name_.c_str(), puck_in_processing_name_.c_str());
-//			model_->GetWorld()
-//			  ->GZWRAP_ENTITY_BY_NAME(puck_in_processing_name_)
-//			  ->SetWorldPose(gzwrap::Pose3d(output_x(), output_y(), belt_height_, 0, 0, 0));
-//			//spawn a ring ontop of the puck
-//			//write to the puck plugin
-//			if (!puck_cmd_pub_->HasConnections())
-//				printf("cannot connect to puck %s on topic %s\n",
-//				       puck_in_processing_name_.c_str(),
-//				       topic_puck_command_.c_str());
-//			else {
-//				//TODO: dont'spawn a fixed color, get color from better source
-//				/// TODO: PUT THIS IN STATE PROCESSING?
-//				printf("%s is in %s state: Creating Product! \n", name_.c_str(), machine.state().c_str());
-//				gazsim_msgs::WorkpieceCommand cmd;
-//				cmd.set_command(gazsim_msgs::Command::ADD_RING);
-//				cmd.add_color(color_to_put_);
-//				cmd.set_puck_name(puck_in_processing_name_);
-//				puck_cmd_pub_->Publish(cmd);
-//			}
-//			set_state(State::DELIVERED);
-//		} else
-//			printf("%s: Puck not found at input\n", name_.c_str());
-//	} else if (machine.state() == "BROKEN") {
-//		puck_in_processing_name_ = "";
-//	}
-//
-//	// show number of bases
-//	number_bases_ = machine.loaded_with();
-//	for (u_int32_t i = 0; i < (u_int32_t)MAX_NUM_BASES; i++) {
-//		publish_indicator(i < machine.loaded_with(), i);
-//	}
-//}
-//
-//void
-//RingStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-//{
-//	//printf("MPS:GOT INSTRUCT MESSAGE\n");
-//
-//	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_RS) {
-//		return;
-//	}
-//
-//	std::string machine_name = "NOT-SET";
-//	machine_name             = msg->machine();
-//
-//	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
-//}
 
 void
 RingStation::add_base()
