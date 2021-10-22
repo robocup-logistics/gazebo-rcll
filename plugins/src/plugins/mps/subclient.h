@@ -1,5 +1,4 @@
 #pragma once
-#include "mps.h"
 
 #include <opc/ua/client/client.h>
 #include <opc/ua/node.h>
