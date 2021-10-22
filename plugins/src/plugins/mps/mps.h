@@ -49,6 +49,7 @@ namespace gazebo {
 
 enum class MachineSide {
 	INPUT  = 1,
+	MIDDLE = 2,
 	OUTPUT = 3,
 };
 /**
@@ -137,6 +138,7 @@ protected:
 	virtual float output_x();
 	virtual float output_y();
 
+	virtual gzwrap::Pose3d middle();
 	virtual gzwrap::Pose3d input();
 	virtual gzwrap::Pose3d output();
 
@@ -152,8 +154,10 @@ protected:
 
 	bool puck_in_input(ConstPosePtr &pose);
 	bool puck_in_output(ConstPosePtr &pose);
+	bool puck_in_middle(ConstPosePtr &pose);
 	bool puck_in_input(const gzwrap::Pose3d &pose);
 	bool puck_in_output(const gzwrap::Pose3d &pose);
+	bool puck_in_middle(const gzwrap::Pose3d &pose);
 
 	physics::WorldPtr world_;
 

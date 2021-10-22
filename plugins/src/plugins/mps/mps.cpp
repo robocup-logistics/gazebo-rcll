@@ -230,42 +230,56 @@ Mps::move_conveyor(const MachineSide &side)
 		SPDLOG_WARN("No workpiece in the machine");
 		return;
 	}
-	SPDLOG_INFO("Moving workpiece {} to output", puck_in_processing_name_);
 	// TODO: use proper value needed to dispense a base
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	auto           wp          = world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_);
 	gzwrap::Pose3d target_pose = output();
 	switch (side) {
-	case MachineSide::INPUT: target_pose = input(); break;
-	case MachineSide::OUTPUT: target_pose = output(); break;
+	case MachineSide::INPUT:
+		SPDLOG_INFO("Moving workpiece {} to input", puck_in_processing_name_);
+		target_pose = input();
+		break;
+	case MachineSide::MIDDLE:
+		SPDLOG_INFO("Moving workpiece {} to middle", puck_in_processing_name_);
+		target_pose = middle();
+		break;
+	case MachineSide::OUTPUT:
+		SPDLOG_INFO("Moving workpiece {} to output", puck_in_processing_name_);
+		target_pose = output();
+		break;
 	}
 	if (wp) {
 		wp->SetWorldPose(target_pose);
 	} else {
 		SPDLOG_WARN("Could not find workpiece {}", puck_in_processing_name_);
 	}
-	puck_in_processing_name_.clear();
 	status_busy_in_.SetValue(false);
-	status_ready_in_.SetValue(true);
 	action_id_in_.SetValue((uint16_t)0);
 	payload1_in_.SetValue((uint16_t)0);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	switch (side) {
 	case MachineSide::INPUT:
+		status_ready_in_.SetValue(true);
 		while (puck_in_input(wp->WorldPose())) {
 			SPDLOG_INFO("wp pose: {}", wp->WorldPose());
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
+		SPDLOG_INFO("WP not in MPS anymore (pose: {})!", wp->WorldPose());
+		puck_in_processing_name_.clear();
+		status_ready_in_.SetValue(false);
 		break;
+	case MachineSide::MIDDLE: break;
 	case MachineSide::OUTPUT:
+		status_ready_in_.SetValue(true);
 		while (puck_in_output(wp->WorldPose())) {
 			SPDLOG_INFO("wp pose: {}", wp->WorldPose());
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
+		SPDLOG_INFO("WP not in MPS anymore (pose: {})!", wp->WorldPose());
+		puck_in_processing_name_.clear();
+		status_ready_in_.SetValue(false);
 		break;
 	}
-	SPDLOG_INFO("WP not in MPS anymore (pose: {})!", wp->WorldPose());
-	status_ready_in_.SetValue(false);
 }
 
 Station
@@ -329,6 +343,9 @@ Mps::Reset()
 void
 Mps::on_puck_msg(ConstPosePtr &msg)
 {
+	if (puck_in_processing_name_.empty() && puck_in_input(msg)) {
+		puck_in_processing_name_ = msg->name();
+	}
 }
 
 //void
@@ -471,6 +488,13 @@ Mps::output()
 	return gzwrap::Pose3d(output_x(), output_y(), belt_height_, 0, 0, 0);
 }
 
+gzwrap::Pose3d
+Mps::middle()
+{
+	return gzwrap::Pose3d(
+	  (input_x() + output_x()) / 2, (input_y() + output_y()) / 2, belt_height_, 0, 0, 0);
+}
+
 bool
 Mps::pose_hit(const gzwrap::Pose3d &to_test, const gzwrap::Pose3d &reference, double tolerance)
 {
@@ -500,6 +524,12 @@ Mps::puck_in_output(ConstPosePtr &pose)
 }
 
 bool
+Mps::puck_in_middle(ConstPosePtr &pose)
+{
+	return puck_in_middle(gazebo::msgs::ConvertIgn(*pose));
+}
+
+bool
 Mps::puck_in_input(const gzwrap::Pose3d &pose)
 {
 	return (pose.GZWRAP_POS - input().GZWRAP_POS).GZWRAP_LENGTH() < detect_tolerance_;
@@ -509,6 +539,12 @@ bool
 Mps::puck_in_output(const gzwrap::Pose3d &pose)
 {
 	return (pose.GZWRAP_POS - output().GZWRAP_POS).GZWRAP_LENGTH() < detect_tolerance_;
+}
+
+bool
+Mps::puck_in_middle(const gzwrap::Pose3d &pose)
+{
+	return (pose.GZWRAP_POS - middle().GZWRAP_POS).GZWRAP_LENGTH() < detect_tolerance_;
 }
 
 void
