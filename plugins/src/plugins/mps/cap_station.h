@@ -40,7 +40,7 @@ public:
 	void on_new_puck(ConstNewPuckPtr &msg);
 	void OnUpdate(const common::UpdateInfo &info);
 	void on_puck_result(ConstWorkpieceResultPtr &result);
-	void process_command_in();
+	void process_command_in() override;
 	void mount_cap();
 	void retrieve_cap();
 
