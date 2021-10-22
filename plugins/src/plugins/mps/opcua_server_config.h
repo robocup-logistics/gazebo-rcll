@@ -66,6 +66,8 @@ public:
 			return p + "4844/";
 		if (name == "C-DS")
 			return p + "4845/";
+		if (name == "C-SS")
+			return p + "4846/";
 		if (name == "M-BS")
 			return p + "4850/";
 		if (name == "M-CS1")
@@ -78,6 +80,8 @@ public:
 			return p + "4854/";
 		if (name == "M-DS")
 			return p + "4855/";
+		if (name == "M-SS")
+			return p + "4856";
 		throw MachineTypeException();
 	};
 
