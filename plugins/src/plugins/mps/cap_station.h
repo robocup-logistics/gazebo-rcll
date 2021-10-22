@@ -36,7 +36,6 @@ class CapStation : public Mps
 public:
 	CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-	void on_puck_msg(ConstPosePtr &msg);
 	void on_new_puck(ConstNewPuckPtr &msg);
 	void OnUpdate(const common::UpdateInfo &info);
 	void on_puck_result(ConstWorkpieceResultPtr &result);
@@ -60,10 +59,7 @@ public:
 
 	transport::SubscriberPtr workpiece_result_subscriber_;
 
-	double      puck_spawned_time_;
-	std::string puck_name_;
-
-	void work_puck(std::string puck_name);
+	double puck_spawned_time_;
 };
 
 } // namespace gazebo
