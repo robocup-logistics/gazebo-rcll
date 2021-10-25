@@ -81,56 +81,6 @@ BaseStation::dispense_base(BaseColor color)
 	spawning = spawn_puck(spawn_pose, spawn_clr);
 }
 
-//BaseStation::new_machine_info(ConstMachine &machine)
-//{
-//	if (machine.state() == "PROCESSED") {
-//		if (!machine.has_instruction_bs()) {
-//			printf("machine %s without instructions", name_.c_str());
-//			return;
-//		}
-//		gzwrap::Pose3d spawn_pose;
-//		if (machine.instruction_bs().side() == llsf_msgs::MachineSide::INPUT) {
-//			spawn_pose = gzwrap::Pose3d(input_x(), input_y(), belt_height_ + (puck_height_ / 2), 0, 0, 0);
-//			printf("spawning puck at input\n");
-//		} else if (machine.instruction_bs().side() == llsf_msgs::MachineSide::OUTPUT) {
-//			spawn_pose =
-//			  gzwrap::Pose3d(output_x(), output_y(), belt_height_ + (puck_height_ / 2), 0, 0, 0);
-//			printf("spawning puck at output\n");
-//		} else
-//			spawn_pose = gzwrap::Pose3d::Zero;
-//
-//		gazsim_msgs::Color spawn_clr;
-//		switch (machine.instruction_bs().color()) {
-//		case llsf_msgs::BaseColor::BASE_BLACK: spawn_clr = gazsim_msgs::Color::BLACK; break;
-//		case llsf_msgs::BaseColor::BASE_SILVER: spawn_clr = gazsim_msgs::Color::SILVER; break;
-//		case llsf_msgs::BaseColor::BASE_RED:
-//		default: spawn_clr = gazsim_msgs::Color::RED; break;
-//		}
-//
-//		spawn_puck(spawn_pose, spawn_clr);
-//		have_puck_ = "workpiece_base";
-//		set_state(State::PROCESSED);
-//		set_state(State::DELIVERED);
-//	}
-//}
-
-//void
-//BaseStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-//{
-//	//printf("MPS:GOT INSTRUCT MESSAGE id; %d set: %u \n",msg->id(),msg->set());
-//
-//	//refbox_reply(msg);
-//
-//	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_BS) {
-//		return;
-//	}
-//
-//	std::string machine_name = "NOT-SET";
-//	machine_name             = msg->machine();
-//
-//	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
-//}
-
 void
 BaseStation::on_new_puck(ConstNewPuckPtr &msg)
 {

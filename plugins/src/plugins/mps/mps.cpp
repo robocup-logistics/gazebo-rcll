@@ -357,52 +357,6 @@ Mps::on_puck_msg(ConstPosePtr &msg)
 	}
 }
 
-//void
-//Mps::on_machine_msg(ConstMachineInfoPtr &msg)
-//{
-//	for (const llsf_msgs::Machine &machine : msg->machines()) {
-//		if (machine.name() == this->name_ && machine.state() != current_state_) {
-//			printf("new_info for %s, state: %s \n", machine.name().c_str(), machine.state().c_str());
-//			new_machine_info(machine);
-//			current_state_ = machine.state();
-//		}
-//	}
-//}
-
-//void
-//Mps::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-//{
-//}
-//
-//void
-//Mps::new_machine_info(ConstMachine &machine)
-//{
-//}
-
-//void
-//Mps::refbox_reply(ConstInstructMachinePtr &msg)
-//{
-//	printf("Reply msg_ID: %d\n", msg->id());
-//
-//	llsf_msgs::MachineReply reply;
-//	reply.set_id(msg->id());
-//	reply.set_machine(msg->machine());
-//	reply.set_set(llsf_msgs::MACHINE_REPLY_FINISHED);
-//	machine_reply_pub_->Publish(reply);
-//}
-//
-//void
-//Mps::set_state(State state)
-//{
-//	printf("Setting state for machine %s to %s \n",
-//	       name_.c_str(),
-//	       llsf_msgs::MachineState_Name(state).c_str());
-//	llsf_msgs::SetMachineState set_state;
-//	set_state.set_machine_name(name_);
-//	set_state.set_state(state);
-//	set_machne_state_pub_->Publish(set_state);
-//}
-
 /**
  * Find the tag with the id matching to the tag_name (e.g. C-BSI), grap it to mount it at the side of the mps (where the link link_name is placed)
  */

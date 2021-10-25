@@ -184,40 +184,6 @@ CapStation::on_new_puck(ConstNewPuckPtr &msg)
 	}
 }
 
-//void
-//CapStation::new_machine_info(ConstMachine &machine)
-//{
-//	if (machine.state() == "PREPARED") {
-//		task_ = machine.instruction_cs().operation();
-//		printf("%s got a new task: %s\n", name_.c_str(), llsf_msgs::CSOp_Name(task_).c_str());
-//	} else if (machine.state() == "PROCESSED"
-//	           && puck_in_output(
-//	             world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE())) {
-//		set_state(State::DELIVERED);
-//	} else if (machine.state() == "IDLE" && current_state_ == "DOWN") {
-//		for (gazebo::physics::ModelPtr model : world_->GZWRAP_MODELS()) {
-//			if (pose_hit(model->GZWRAP_WORLD_POSE(), input())) {
-//				work_puck(model->GetName());
-//			}
-//		}
-//	}
-//}
-
-//void
-//CapStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-//{
-//	//printf("MPS:GOT INSTRUCT MESSAGE\n");
-//
-//	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_CS) {
-//		return;
-//	}
-//
-//	std::string machine_name = "NOT-SET";
-//	machine_name             = msg->machine();
-//
-//	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
-//}
-
 void
 CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 {
