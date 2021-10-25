@@ -43,9 +43,16 @@ public:
 
 	gazebo::transport::PublisherPtr add_base_publisher_;
 	void                            publish_indicator(bool active, int number);
+	/// Handler for puck positions
+	void on_puck_msg(ConstPosePtr &msg) override;
+
+protected:
+	bool puck_on_slide(const gzwrap::Pose3d &pose);
+	bool puck_on_slide(ConstPosePtr &pose);
 
 private:
-	void mount_ring(gazsim_msgs::Color);
+	void                  mount_ring(gazsim_msgs::Color);
+	std::set<std::string> wps_on_slide_;
 };
 
 } // namespace gazebo

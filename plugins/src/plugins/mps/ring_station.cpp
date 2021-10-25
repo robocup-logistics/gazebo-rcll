@@ -102,6 +102,30 @@ RingStation::publish_indicator(bool active, int number)
 	visPub_->Publish(msg);
 }
 
+bool
+RingStation::puck_on_slide(const gzwrap::Pose3d &pose)
+{
+	return (pose.GZWRAP_POS - add_base_pose().GZWRAP_POS).GZWRAP_LENGTH() < detect_tolerance_;
+}
+
+bool
+RingStation::puck_on_slide(ConstPosePtr &pose)
+{
+	return puck_on_slide(gazebo::msgs::ConvertIgn(*pose));
+}
+
+void
+RingStation::on_puck_msg(ConstPosePtr &msg)
+{
+	Mps::on_puck_msg(msg);
+	if (puck_on_slide(msg)
+	    && std::find(begin(wps_on_slide_), end(wps_on_slide_), msg->name()) == wps_on_slide_.end()) {
+		SPDLOG_INFO("Adding base to ring station {}", name_);
+		wps_on_slide_.insert(msg->name());
+		slidecount_in_.SetValue(uint16_t(wps_on_slide_.size()));
+	}
+}
+
 void
 RingStation::add_base()
 {
