@@ -48,13 +48,6 @@ RingStation::process_command_in()
 		return;
 	}
 
-	if (puck_in_processing_name_.empty()
-	    || !puck_in_middle(
-	      world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE())) {
-		SPDLOG_WARN("Received MOUNT RING operation, but no workpiece in machine (processing: {})",
-		            puck_in_processing_name_);
-		return;
-	}
 	auto feeder = uint16_t(payload1_in_.GetValue());
 	if (feeder != 1 && feeder != 2) {
 		SPDLOG_WARN("Unexpected feeder {}, expected 1 or 2", feeder);
@@ -67,11 +60,20 @@ RingStation::process_command_in()
 void
 RingStation::mount_ring(gazsim_msgs::Color color)
 {
+	if (!wp_in_middle_) {
+		SPDLOG_WARN("Cannot mount ring, no workpiece in the middle!");
+		return;
+	}
+	if (!puck_in_middle(wp_in_middle_->WorldPose())) {
+		SPDLOG_WARN("Cannot mount ring, workpiece {} should be in the middle but is not",
+		            wp_in_middle_->GetName());
+		return;
+	}
 	status_busy_in_.SetValue(true);
 	gazsim_msgs::WorkpieceCommand cmd;
 	cmd.set_command(gazsim_msgs::Command::ADD_RING);
 	cmd.add_color(color);
-	cmd.set_puck_name(puck_in_processing_name_);
+	cmd.set_puck_name(wp_in_middle_->GetName());
 	puck_cmd_pub_->Publish(cmd);
 	// TODO set proper time
 	std::this_thread::sleep_for(std::chrono::seconds(1));

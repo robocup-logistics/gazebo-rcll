@@ -210,7 +210,9 @@ protected:
 	std::string topic_puck_command_result_;
 	std::string topic_joint_;
 
-	std::string puck_in_processing_name_;
+	physics::ModelPtr wp_in_input_;
+	physics::ModelPtr wp_in_middle_;
+	physics::ModelPtr wp_in_output_;
 
 	OpcUa::UaServer opcua_server_;
 	OpcUa::Node     action_id_in_;

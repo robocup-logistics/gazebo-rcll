@@ -35,7 +35,7 @@ void
 DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 {
 	Mps::on_puck_msg(msg);
-	if (!puck_in_processing_name_.empty() && prepared_) {
+	if (wp_in_input_ && prepared_) {
 		// We received the puck and have been prepared, thus deliver.
 		deliver();
 	}
@@ -82,25 +82,21 @@ DeliveryStation::deliver()
 		// Machine is not prepared yet or there is no workpiece yet.
 		return;
 	}
+	// TODO set proper time
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 	// TODO use the right gate
-	auto wp = world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_);
-	if (!wp) {
-		return;
-	}
-	wp->SetWorldPose(get_puck_world_pose(0.3, -0.2));
-	SPDLOG_DEBUG("Sending delivery information for puck {}", puck_in_processing_name_);
+	wp_in_input_->SetWorldPose(get_puck_world_pose(0.3, -0.2));
+	SPDLOG_DEBUG("Sending delivery information for puck {}", wp_in_input_->GetName());
 	gazsim_msgs::WorkpieceCommand cmd_msg;
 	cmd_msg.set_command(gazsim_msgs::Command::DELIVER);
-	cmd_msg.set_puck_name(puck_in_processing_name_);
+	cmd_msg.set_puck_name(wp_in_input_->GetName());
 	if (name_[0] == 'C') {
 		cmd_msg.set_team_color(gazsim_msgs::Team::CYAN);
 	} else if (name_[0] == 'M') {
 		cmd_msg.set_team_color(gazsim_msgs::Team::MAGENTA);
 	}
 	puck_cmd_pub_->Publish(cmd_msg);
-	// TODO set proper time
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-	status_busy_in_.SetValue(false);
 	prepared_ = false;
-	puck_in_processing_name_.clear();
+	wp_in_input_.reset();
+	status_busy_in_.SetValue(false);
 }

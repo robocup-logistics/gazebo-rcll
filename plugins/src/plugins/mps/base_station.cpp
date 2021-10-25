@@ -34,16 +34,6 @@ BaseStation::BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(
 {
 	station_ = Station::STATION_BASE;
 	start_server();
-	have_puck_ = "";
-}
-
-void
-BaseStation::on_puck_msg(ConstPosePtr &msg)
-{
-	if (msg->name() == have_puck_ && !puck_in_input(msg) && !puck_in_output(msg)) {
-		have_puck_ = "";
-		//set_state(State::RETRIEVED);
-	}
 }
 
 void
@@ -87,8 +77,8 @@ BaseStation::dispense_base(BaseColor color)
 	                          0);
 	// TODO: use proper value needed to dispense a base
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	puck_in_processing_name_ = spawn_puck(spawn_pose, spawn_clr);
-	status_busy_in_.SetValue(false);
+	// We wait for the workpiece to actually appear (on_new_puck).
+	spawning = spawn_puck(spawn_pose, spawn_clr);
 }
 
 //BaseStation::new_machine_info(ConstMachine &machine)
@@ -144,12 +134,15 @@ BaseStation::dispense_base(BaseColor color)
 void
 BaseStation::on_new_puck(ConstNewPuckPtr &msg)
 {
+	if (spawning.empty()) {
+		return;
+	}
 	Mps::on_new_puck(msg);
 
-	physics::ModelPtr new_puck = world_->GZWRAP_MODEL_BY_NAME(msg->puck_name());
-	if (puck_in_input(new_puck->GZWRAP_WORLD_POSE())
-	    || puck_in_output(new_puck->GZWRAP_WORLD_POSE())) {
-		printf("BASESTATION: new puck: %s\n", msg->puck_name().c_str());
-		have_puck_ = new_puck->GetName();
+	physics::ModelPtr new_wp = world_->GZWRAP_MODEL_BY_NAME(msg->puck_name());
+	if (new_wp && spawning == new_wp->GetName() && puck_in_middle(new_wp->GZWRAP_WORLD_POSE())) {
+		wp_in_middle_ = new_wp;
+		spawning.clear();
 	}
+	status_busy_in_.SetValue(false);
 }

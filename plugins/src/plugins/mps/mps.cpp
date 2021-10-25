@@ -226,57 +226,71 @@ void
 Mps::move_conveyor(const MachineSide &side)
 {
 	status_busy_in_.SetValue(true);
-	if (puck_in_processing_name_.empty()) {
-		SPDLOG_WARN("No workpiece in the machine");
-		return;
-	}
 	// TODO: use proper value needed to dispense a base
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	auto           wp          = world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_);
-	gzwrap::Pose3d target_pose = output();
+	gzwrap::Pose3d    target_pose = output();
+	physics::ModelPtr wp;
 	switch (side) {
 	case MachineSide::INPUT:
-		SPDLOG_INFO("Moving workpiece {} to input", puck_in_processing_name_);
+		wp = wp_in_middle_;
+		if (!wp) {
+			SPDLOG_WARN("No workpiece in machine's middle!");
+			return;
+		}
+		SPDLOG_INFO("Moving workpiece {} to input", wp->GetName());
 		target_pose = input();
 		break;
 	case MachineSide::MIDDLE:
-		SPDLOG_INFO("Moving workpiece {} to middle", puck_in_processing_name_);
+		wp = wp_in_input_;
+		if (!wp) {
+			SPDLOG_WARN("No workpiece in machine's input!");
+			return;
+		}
+		SPDLOG_INFO("Moving workpiece {} to middle", wp->GetName());
 		target_pose = middle();
 		break;
 	case MachineSide::OUTPUT:
-		SPDLOG_INFO("Moving workpiece {} to output", puck_in_processing_name_);
+		wp = wp_in_middle_;
+		if (!wp) {
+			SPDLOG_WARN("No workpiece in machine's middle!");
+			return;
+		}
+		SPDLOG_INFO("Moving workpiece {} to output", wp->GetName());
 		target_pose = output();
 		break;
 	}
-	if (wp) {
-		wp->SetWorldPose(target_pose);
-	} else {
-		SPDLOG_WARN("Could not find workpiece {}", puck_in_processing_name_);
-	}
+	wp->SetWorldPose(target_pose);
 	status_busy_in_.SetValue(false);
 	action_id_in_.SetValue((uint16_t)0);
 	payload1_in_.SetValue((uint16_t)0);
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	switch (side) {
 	case MachineSide::INPUT:
+		wp_in_middle_.reset();
+		wp_in_input_ = wp;
 		status_ready_in_.SetValue(true);
 		while (puck_in_input(wp->WorldPose())) {
-			SPDLOG_INFO("wp pose: {}", wp->WorldPose());
+			SPDLOG_INFO("wp pose: {}", wp_in_input_->WorldPose());
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
-		SPDLOG_INFO("WP not in MPS anymore (pose: {})!", wp->WorldPose());
-		puck_in_processing_name_.clear();
+		SPDLOG_INFO("WP not in MPS anymore (pose: {})!", wp_in_input_->WorldPose());
+		wp_in_input_.reset();
 		status_ready_in_.SetValue(false);
 		break;
-	case MachineSide::MIDDLE: break;
+	case MachineSide::MIDDLE:
+		wp_in_input_.reset();
+		wp_in_middle_ = wp;
+		break;
 	case MachineSide::OUTPUT:
+		wp_in_middle_.reset();
+		wp_in_output_ = wp;
 		status_ready_in_.SetValue(true);
 		while (puck_in_output(wp->WorldPose())) {
 			SPDLOG_INFO("wp pose: {}", wp->WorldPose());
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 		SPDLOG_INFO("WP not in MPS anymore (pose: {})!", wp->WorldPose());
-		puck_in_processing_name_.clear();
+		wp_in_output_.reset();
 		status_ready_in_.SetValue(false);
 		break;
 	}
@@ -343,8 +357,11 @@ Mps::Reset()
 void
 Mps::on_puck_msg(ConstPosePtr &msg)
 {
-	if (puck_in_processing_name_.empty() && puck_in_input(msg)) {
-		puck_in_processing_name_ = msg->name();
+	if (!wp_in_input_ && puck_in_input(msg)) {
+		wp_in_input_ = world_->ModelByName(msg->name());
+		if (!wp_in_input_) {
+			SPDLOG_WARN("Workpiece {} is input, but could not find model!", msg->name());
+		}
 	}
 }
 

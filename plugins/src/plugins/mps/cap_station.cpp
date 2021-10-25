@@ -56,13 +56,6 @@ CapStation::process_command_in()
 		//SPDLOG_WARN("Unexpected operation {} on station {}", oper, station_);
 		return;
 	}
-	if (puck_in_processing_name_.empty()
-	    || !puck_in_middle(
-	      world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE())) {
-		SPDLOG_WARN("Received CAP operation, but no workpiece in machine (processing: {})",
-		            puck_in_processing_name_);
-		return;
-	}
 	auto op = Operation(uint16_t(payload1_in_.GetValue()));
 	switch (op) {
 	case Operation::OPERATION_CAP_RETRIEVE: retrieve_cap(); break;
@@ -76,16 +69,25 @@ CapStation::process_command_in()
 void
 CapStation::mount_cap()
 {
+	if (!wp_in_middle_) {
+		SPDLOG_WARN("Cannot mount cap, no workpiece in the middle!");
+		return;
+	}
+	if (!puck_in_middle(wp_in_middle_->WorldPose())) {
+		SPDLOG_WARN("Cannot mount cap, workpiece {} should be in the middle but is not",
+		            wp_in_middle_->GetName());
+		return;
+	}
 	SPDLOG_INFO("Mounting cap");
 	status_busy_in_.SetValue(true);
 	if (stored_cap_color_ != gazsim_msgs::Color::NONE) {
 		SPDLOG_INFO("{} mounts cap on {} with color {}",
 		            name_,
-		            puck_in_processing_name_,
+		            wp_in_middle_->GetName(),
 		            gazsim_msgs::Color_Name(stored_cap_color_));
 
 		gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
-		cmd_msg.set_puck_name(puck_in_processing_name_);
+		cmd_msg.set_puck_name(wp_in_middle_->GetName());
 
 		cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
 		cmd_msg.add_color(stored_cap_color_);
@@ -98,9 +100,7 @@ CapStation::mount_cap()
 		puck_cmd_pub_->Publish(cmd_msg);
 		stored_cap_color_ = gazsim_msgs::Color::NONE;
 	} else {
-		SPDLOG_WARN("{} can't mount cap on {} without a cap loaded first",
-		            name_,
-		            puck_in_processing_name_);
+		SPDLOG_WARN("{} can't mount cap without a cap loaded first", name_);
 	}
 
 	// TODO set proper time
@@ -111,11 +111,15 @@ CapStation::mount_cap()
 void
 CapStation::retrieve_cap()
 {
+	if (!wp_in_middle_) {
+		SPDLOG_WARN("Cannot retrieve cap, no workpiece in the middle!");
+		return;
+	}
 	SPDLOG_INFO("Retrieving cap");
 	status_busy_in_.SetValue(true);
 	gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
-	cmd_msg.set_puck_name(puck_in_processing_name_);
-	SPDLOG_INFO("{} retrieves cap from {}", name_, puck_in_processing_name_);
+	cmd_msg.set_puck_name(wp_in_middle_->GetName());
+	SPDLOG_INFO("{} retrieves cap from {}", name_, wp_in_middle_->GetName());
 	cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
 	puck_cmd_pub_->Publish(cmd_msg);
 	// TODO set proper time
@@ -219,7 +223,7 @@ CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 {
 	printf("CAPSTATION: on_puck_result: %s\n", result->puck_name().c_str());
 
-	if (result->puck_name() == puck_in_processing_name_) {
+	if (wp_in_middle_ && result->puck_name() == wp_in_middle_->GetName()) {
 		printf("%s got cap from %s with color %s\n",
 		       name_.c_str(),
 		       result->puck_name().c_str(),

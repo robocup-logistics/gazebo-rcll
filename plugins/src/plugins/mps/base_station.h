@@ -38,9 +38,8 @@ public:
 	void dispense_base(BaseColor color);
 
 private:
-	void               on_puck_msg(ConstPosePtr &msg);
 	void               on_new_puck(ConstNewPuckPtr &msg);
-	std::string        have_puck_;
+	std::string        spawning;
 	gazsim_msgs::Color spawn_clr;
 };
 
