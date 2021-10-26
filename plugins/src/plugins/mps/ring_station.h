@@ -23,10 +23,6 @@
 #ifndef RING_STATION_H
 #define RING_STATION_H
 
-#define TOPIC_MACHINE_ADD_BASE \
-	config->get_string("plugins/mps/ring-station/topic_machine_add_base").c_str()
-#define MAX_NUM_BASES config->get_int("plugins/mps/ring-station/max_num_bases")
-
 #include "mps.h"
 
 namespace gazebo {
@@ -37,12 +33,9 @@ public:
 	RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
 	void           process_command_in() override;
-	void           add_base();
 	gzwrap::Pose3d add_base_pose();
-	u_int32_t      number_bases_;
 
-	gazebo::transport::PublisherPtr add_base_publisher_;
-	void                            publish_indicator(bool active, int number);
+	void publish_indicator(bool active, int number);
 	/// Handler for puck positions
 	void on_puck_msg(ConstPosePtr &msg) override;
 

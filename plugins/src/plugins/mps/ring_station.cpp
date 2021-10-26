@@ -30,8 +30,6 @@ RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(
 {
 	station_ = Station::STATION_RING;
 	start_server();
-	add_base_publisher_ = node_->Advertise<llsf_msgs::MachineAddBase>(TOPIC_MACHINE_ADD_BASE);
-	number_bases_       = 0;
 }
 
 void
@@ -150,17 +148,6 @@ RingStation::on_puck_msg(ConstPosePtr &msg)
 		                        -0.1 * (1 + ((wps_on_slide_.size() - 1) % 3)),
 		                        mps_height_ + 1.05 * puck_height_ * (int)(wps_on_slide_.size() / 3)));
 	}
-}
-
-void
-RingStation::add_base()
-{
-	// TODO reimplement
-	printf("Adding Base to %s\n", name_.c_str());
-	//llsf_msgs::MachineAddBase add_base_msg;
-	//add_base_msg.set_machine_name(name_);
-	//add_base_publisher_->Publish(add_base_msg);
-	//publish_indicator(true, number_bases_++);
 }
 
 gzwrap::Pose3d
