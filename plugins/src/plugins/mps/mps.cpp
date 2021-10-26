@@ -236,7 +236,6 @@ void
 Mps::move_conveyor(const MachineSide &side)
 {
 	status_busy_in_.SetValue(true);
-	// TODO: use proper value needed to dispense a base
 	std::this_thread::sleep_for(move_duration);
 	gzwrap::Pose3d    target_pose = output();
 	physics::ModelPtr wp;
@@ -268,6 +267,14 @@ Mps::move_conveyor(const MachineSide &side)
 		SPDLOG_LOGGER_INFO(logger, "Moving workpiece {} from middle to output", wp->GetName());
 		target_pose = output();
 		break;
+	default:
+		SPDLOG_LOGGER_WARN(logger,
+		                   "Unexpected side {}, expected one of {}, {}, {}",
+		                   side,
+		                   MachineSide::INPUT,
+		                   MachineSide::MIDDLE,
+		                   MachineSide::OUTPUT);
+		return;
 	}
 	wp->SetWorldPose(target_pose);
 	action_id_in_.SetValue((uint16_t)0);
