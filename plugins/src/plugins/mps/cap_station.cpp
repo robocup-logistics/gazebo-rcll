@@ -62,8 +62,6 @@ CapStation::process_command_in()
 	case Operation::OPERATION_CAP_MOUNT: mount_cap(); break;
 	default: SPDLOG_WARN("Unexpected Op while processing workpiece: {}", op); break;
 	}
-	action_id_in_.SetValue((uint16_t)0);
-	payload1_in_.SetValue((uint16_t)0);
 }
 
 void
@@ -102,7 +100,8 @@ CapStation::mount_cap()
 	} else {
 		SPDLOG_WARN("{} can't mount cap without a cap loaded first", name_);
 	}
-
+	action_id_in_.SetValue((uint16_t)0);
+	payload1_in_.SetValue((uint16_t)0);
 	// TODO set proper time
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	status_busy_in_.SetValue(false);
@@ -122,6 +121,8 @@ CapStation::retrieve_cap()
 	SPDLOG_INFO("{} retrieves cap from {}", name_, wp_in_middle_->GetName());
 	cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
 	puck_cmd_pub_->Publish(cmd_msg);
+	action_id_in_.SetValue((uint16_t)0);
+	payload1_in_.SetValue((uint16_t)0);
 	// TODO set proper time
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	status_busy_in_.SetValue(false);
