@@ -144,6 +144,11 @@ RingStation::on_puck_msg(ConstPosePtr &msg)
 		SPDLOG_LOGGER_INFO(logger, "Adding base to ring station {}", name_);
 		wps_on_slide_.insert(msg->name());
 		slidecount_in_.SetValue(uint16_t(wps_on_slide_.size()));
+		world_->ModelByName(msg->name())
+		  ->SetWorldPose(
+		    get_puck_world_pose(-0.35,
+		                        -0.1 * (1 + ((wps_on_slide_.size() - 1) % 3)),
+		                        mps_height_ + 1.05 * puck_height_ * (int)(wps_on_slide_.size() / 3)));
 	}
 }
 
