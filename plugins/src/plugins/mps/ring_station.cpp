@@ -161,5 +161,5 @@ RingStation::add_base()
 gzwrap::Pose3d
 RingStation::add_base_pose()
 {
-	return get_puck_world_pose(-0.25, 0);
+	return get_puck_world_pose(-0.25, 0, mps_height_);
 }

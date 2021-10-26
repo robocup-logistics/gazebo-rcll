@@ -69,6 +69,7 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	puck_height_             = config->get_float("plugins/mps/puck_height");
 	belt_length_             = config->get_float("plugins/mps/belt_length");
 	belt_height_             = config->get_float("plugins/mps/belt_height");
+	mps_height_              = config->get_float("plugins/mps/mps_height");
 	tag_height_              = config->get_float("plugins/mps/tag_height");
 	tag_size_                = config->get_float("plugins/mps/tag_size");
 	tag_spawn_time_          = config->get_float("plugins/mps/tag_spawn_time");

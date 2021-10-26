@@ -196,6 +196,8 @@ protected:
 	float belt_length_;
 	//Height of the belt
 	float belt_height_;
+	//Height of the MPS
+	float mps_height_;
 	//Height of the center of the tag
 	float tag_height_;
 	//Height of the center of the tag
