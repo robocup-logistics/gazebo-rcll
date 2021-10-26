@@ -22,6 +22,8 @@
 
 #include "delivery_station.h"
 
+#include "durations.h"
+
 using namespace gazebo;
 
 DeliveryStation::DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
@@ -82,8 +84,7 @@ DeliveryStation::deliver()
 		// Machine is not prepared yet or there is no workpiece yet.
 		return;
 	}
-	// TODO set proper time
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(deliver_duration);
 	// TODO use the right gate
 	wp_in_input_->SetWorldPose(get_puck_world_pose(0.3, -0.2));
 	SPDLOG_LOGGER_DEBUG(logger, "Sending delivery information for puck {}", wp_in_input_->GetName());

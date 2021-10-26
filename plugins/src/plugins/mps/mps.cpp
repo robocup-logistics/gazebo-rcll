@@ -20,6 +20,8 @@
 
 #include "mps.h"
 
+#include "durations.h"
+
 #include <opc/ua/protocol/variant.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
@@ -233,7 +235,7 @@ Mps::move_conveyor(const MachineSide &side)
 {
 	status_busy_in_.SetValue(true);
 	// TODO: use proper value needed to dispense a base
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(move_duration);
 	gzwrap::Pose3d    target_pose = output();
 	physics::ModelPtr wp;
 	switch (side) {

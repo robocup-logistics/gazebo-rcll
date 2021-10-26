@@ -22,6 +22,8 @@
 
 #include "cap_station.h"
 
+#include "durations.h"
+
 #include <utils/misc/gazebo_api_wrappers.h>
 
 using namespace gazebo;
@@ -104,8 +106,7 @@ CapStation::mount_cap()
 	}
 	action_id_in_.SetValue((uint16_t)0);
 	payload1_in_.SetValue((uint16_t)0);
-	// TODO set proper time
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(cap_op_duration);
 	status_busy_in_.SetValue(false);
 }
 
@@ -125,8 +126,7 @@ CapStation::retrieve_cap()
 	puck_cmd_pub_->Publish(cmd_msg);
 	action_id_in_.SetValue((uint16_t)0);
 	payload1_in_.SetValue((uint16_t)0);
-	// TODO set proper time
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(cap_op_duration);
 	status_busy_in_.SetValue(false);
 }
 

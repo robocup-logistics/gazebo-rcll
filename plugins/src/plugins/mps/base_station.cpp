@@ -22,6 +22,8 @@
 
 #include "base_station.h"
 
+#include "durations.h"
+
 #include <spdlog/spdlog.h>
 
 #include <chrono>
@@ -75,8 +77,7 @@ BaseStation::dispense_base(BaseColor color)
 	                          0,
 	                          0,
 	                          0);
-	// TODO: use proper value needed to dispense a base
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(dispense_duration);
 	// We wait for the workpiece to actually appear (on_new_puck).
 	spawning = spawn_puck(spawn_pose, spawn_clr);
 }

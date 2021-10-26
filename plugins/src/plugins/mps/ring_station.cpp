@@ -22,6 +22,8 @@
 
 #include "ring_station.h"
 
+#include "durations.h"
+
 using namespace gazebo;
 
 RingStation::RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_parent, _sdf)
@@ -77,8 +79,7 @@ RingStation::mount_ring(gazsim_msgs::Color color)
 	cmd.add_color(color);
 	cmd.set_puck_name(wp_in_middle_->GetName());
 	puck_cmd_pub_->Publish(cmd);
-	// TODO set proper time
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(ring_op_duration);
 	status_busy_in_.SetValue(false);
 }
 
