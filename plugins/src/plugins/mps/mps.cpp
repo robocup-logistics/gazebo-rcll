@@ -210,12 +210,13 @@ Mps::process_command_in()
 		SPDLOG_LOGGER_INFO(logger, "Different station");
 		return;
 	}
-	Operation op;
-	if (value >= station_) {
-		op = Operation(value - station_);
-	} else {
-		op = Operation(value);
+	if (value < station_) {
+		if (value != 0) {
+			SPDLOG_LOGGER_WARN(logger, "Unexpected action id {}", value);
+		}
+		return;
 	}
+	Operation op = Operation(value - station_);
 	SPDLOG_LOGGER_DEBUG(logger, "Processing op {}", op);
 	switch (op) {
 	case Operation::OPERATION_MOVE_CONVEYOR:
