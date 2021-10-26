@@ -50,13 +50,31 @@ RingStation::process_command_in()
 		return;
 	}
 
-	auto feeder = uint16_t(payload1_in_.GetValue());
+	auto feeder   = uint16_t(payload1_in_.GetValue());
+	auto payload2 = uint16_t(payload2_in_.GetValue());
+	action_id_in_.SetValue(uint16_t(0));
+	payload1_in_.SetValue(uint16_t(0));
+	payload2_in_.SetValue(uint16_t(0));
+	gazsim_msgs::Color color;
+	if (payload2 == 1) {
+		color = gazsim_msgs::Color::BLUE;
+	} else if (payload2 == 2) {
+		color = gazsim_msgs::Color::GREEN;
+	} else if (payload2 == 3) {
+		color = gazsim_msgs::Color::ORANGE;
+	} else if (payload2 == 4) {
+		color = gazsim_msgs::Color::YELLOW;
+	} else {
+		SPDLOG_LOGGER_WARN(logger,
+		                   "Unexpected ring color {}, expected a value in the range [1,4]",
+		                   color);
+	}
+
 	if (feeder != 1 && feeder != 2) {
 		SPDLOG_LOGGER_WARN(logger, "Unexpected feeder {}, expected 1 or 2", feeder);
 		return;
 	}
-	// TODO mount the right color;
-	mount_ring(gazsim_msgs::Color::BLUE);
+	mount_ring(color);
 }
 
 void
