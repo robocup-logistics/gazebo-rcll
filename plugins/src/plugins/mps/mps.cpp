@@ -260,10 +260,8 @@ Mps::move_conveyor(const MachineSide &side)
 		break;
 	}
 	wp->SetWorldPose(target_pose);
-	status_busy_in_.SetValue(false);
 	action_id_in_.SetValue((uint16_t)0);
 	payload1_in_.SetValue((uint16_t)0);
-	std::this_thread::sleep_for(std::chrono::seconds(1));
 	switch (side) {
 	case MachineSide::INPUT:
 		wp_in_middle_.reset();
@@ -280,6 +278,7 @@ Mps::move_conveyor(const MachineSide &side)
 		status_ready_in_.SetValue(true);
 		break;
 	}
+	status_busy_in_.SetValue(false);
 }
 
 Station
