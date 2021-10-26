@@ -50,7 +50,7 @@ RingStation::process_command_in()
 
 	auto feeder = uint16_t(payload1_in_.GetValue());
 	if (feeder != 1 && feeder != 2) {
-		SPDLOG_WARN("Unexpected feeder {}, expected 1 or 2", feeder);
+		SPDLOG_LOGGER_WARN(logger, "Unexpected feeder {}, expected 1 or 2", feeder);
 		return;
 	}
 	// TODO mount the right color;
@@ -61,12 +61,13 @@ void
 RingStation::mount_ring(gazsim_msgs::Color color)
 {
 	if (!wp_in_middle_) {
-		SPDLOG_WARN("Cannot mount ring, no workpiece in the middle!");
+		SPDLOG_LOGGER_WARN(logger, "Cannot mount ring, no workpiece in the middle!");
 		return;
 	}
 	if (!puck_in_middle(wp_in_middle_->WorldPose())) {
-		SPDLOG_WARN("Cannot mount ring, workpiece {} should be in the middle but is not",
-		            wp_in_middle_->GetName());
+		SPDLOG_LOGGER_WARN(logger,
+		                   "Cannot mount ring, workpiece {} should be in the middle but is not",
+		                   wp_in_middle_->GetName());
 		return;
 	}
 	status_busy_in_.SetValue(true);
@@ -120,7 +121,7 @@ RingStation::on_puck_msg(ConstPosePtr &msg)
 	Mps::on_puck_msg(msg);
 	if (puck_on_slide(msg)
 	    && std::find(begin(wps_on_slide_), end(wps_on_slide_), msg->name()) == wps_on_slide_.end()) {
-		SPDLOG_INFO("Adding base to ring station {}", name_);
+		SPDLOG_LOGGER_INFO(logger, "Adding base to ring station {}", name_);
 		wps_on_slide_.insert(msg->name());
 		slidecount_in_.SetValue(uint16_t(wps_on_slide_.size()));
 	}

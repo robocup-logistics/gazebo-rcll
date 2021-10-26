@@ -95,7 +95,7 @@ protected:
 	///Node for communication
 	transport::NodePtr node_;
 	///name of the mps and the communication channel
-	std::string name_;
+	const std::string name_;
 
 	// Mps Stuff:
 
@@ -251,6 +251,8 @@ protected:
 	uint32_t handle2_in;
 	uint32_t handle1_basic;
 	uint32_t handle2_basic;
+
+	std::shared_ptr<spdlog::logger> logger;
 
 private:
 	std::thread worker;

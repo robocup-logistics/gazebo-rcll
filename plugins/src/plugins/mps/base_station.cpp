@@ -50,10 +50,10 @@ BaseStation::process_command_in()
 	}
 	Operation oper = Operation(value - station_);
 	if (oper != Operation::OPERATION_GET_BASE) {
-		SPDLOG_DEBUG("Unexpected operation {} on station {}", oper, station_);
+		SPDLOG_LOGGER_DEBUG(logger, "Unexpected operation {} on station {}", oper, station_);
 		return;
 	}
-	SPDLOG_INFO("Dispensing base");
+	SPDLOG_LOGGER_INFO(logger, "Dispensing base");
 	dispense_base(BaseColor(uint16_t(payload1_in_.GetValue())));
 	action_id_in_.SetValue((uint16_t)0);
 	payload1_in_.SetValue((uint16_t)0);
@@ -62,7 +62,7 @@ BaseStation::process_command_in()
 void
 BaseStation::dispense_base(BaseColor color)
 {
-	SPDLOG_INFO("Dispensing base with color {}", color);
+	SPDLOG_LOGGER_INFO(logger, "Dispensing base with color {}", color);
 	status_busy_in_.SetValue(true);
 	switch (color) {
 	case BaseColor::RED: spawn_clr = gazsim_msgs::Color::RED; break;

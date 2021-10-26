@@ -53,14 +53,14 @@ CapStation::process_command_in()
 	}
 	Operation oper = Operation(value - station_);
 	if (oper != Operation::OPERATION_CAP_ACTION) {
-		//SPDLOG_WARN("Unexpected operation {} on station {}", oper, station_);
+		//SPDLOG_LOGGER_WARN(logger, "Unexpected operation {} on station {}", oper, station_);
 		return;
 	}
 	auto op = Operation(uint16_t(payload1_in_.GetValue()));
 	switch (op) {
 	case Operation::OPERATION_CAP_RETRIEVE: retrieve_cap(); break;
 	case Operation::OPERATION_CAP_MOUNT: mount_cap(); break;
-	default: SPDLOG_WARN("Unexpected Op while processing workpiece: {}", op); break;
+	default: SPDLOG_LOGGER_WARN(logger, "Unexpected Op while processing workpiece: {}", op); break;
 	}
 }
 
@@ -68,21 +68,23 @@ void
 CapStation::mount_cap()
 {
 	if (!wp_in_middle_) {
-		SPDLOG_WARN("Cannot mount cap, no workpiece in the middle!");
+		SPDLOG_LOGGER_WARN(logger, "Cannot mount cap, no workpiece in the middle!");
 		return;
 	}
 	if (!puck_in_middle(wp_in_middle_->WorldPose())) {
-		SPDLOG_WARN("Cannot mount cap, workpiece {} should be in the middle but is not",
-		            wp_in_middle_->GetName());
+		SPDLOG_LOGGER_WARN(logger,
+		                   "Cannot mount cap, workpiece {} should be in the middle but is not",
+		                   wp_in_middle_->GetName());
 		return;
 	}
-	SPDLOG_INFO("Mounting cap");
+	SPDLOG_LOGGER_INFO(logger, "Mounting cap");
 	status_busy_in_.SetValue(true);
 	if (stored_cap_color_ != gazsim_msgs::Color::NONE) {
-		SPDLOG_INFO("{} mounts cap on {} with color {}",
-		            name_,
-		            wp_in_middle_->GetName(),
-		            gazsim_msgs::Color_Name(stored_cap_color_));
+		SPDLOG_LOGGER_INFO(logger,
+		                   "{} mounts cap on {} with color {}",
+		                   name_,
+		                   wp_in_middle_->GetName(),
+		                   gazsim_msgs::Color_Name(stored_cap_color_));
 
 		gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
 		cmd_msg.set_puck_name(wp_in_middle_->GetName());
@@ -98,7 +100,7 @@ CapStation::mount_cap()
 		puck_cmd_pub_->Publish(cmd_msg);
 		stored_cap_color_ = gazsim_msgs::Color::NONE;
 	} else {
-		SPDLOG_WARN("{} can't mount cap without a cap loaded first", name_);
+		SPDLOG_LOGGER_WARN(logger, "{} can't mount cap without a cap loaded first", name_);
 	}
 	action_id_in_.SetValue((uint16_t)0);
 	payload1_in_.SetValue((uint16_t)0);
@@ -111,14 +113,14 @@ void
 CapStation::retrieve_cap()
 {
 	if (!wp_in_middle_) {
-		SPDLOG_WARN("Cannot retrieve cap, no workpiece in the middle!");
+		SPDLOG_LOGGER_WARN(logger, "Cannot retrieve cap, no workpiece in the middle!");
 		return;
 	}
-	SPDLOG_INFO("Retrieving cap");
+	SPDLOG_LOGGER_INFO(logger, "Retrieving cap");
 	status_busy_in_.SetValue(true);
 	gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
 	cmd_msg.set_puck_name(wp_in_middle_->GetName());
-	SPDLOG_INFO("{} retrieves cap from {}", name_, wp_in_middle_->GetName());
+	SPDLOG_LOGGER_INFO(logger, "{} retrieves cap from {}", name_, wp_in_middle_->GetName());
 	cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
 	puck_cmd_pub_->Publish(cmd_msg);
 	action_id_in_.SetValue((uint16_t)0);

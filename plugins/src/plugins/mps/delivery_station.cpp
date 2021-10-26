@@ -54,16 +54,16 @@ DeliveryStation::process_command_in()
 	}
 	Operation oper = Operation(value - station_);
 	if (oper != Operation::OPERATION_DELIVER) {
-		//SPDLOG_WARN("Unexpected operation {} on station {}", oper, station_);
+		//SPDLOG_LOGGER_WARN(logger, "Unexpected operation {} on station {}", oper, station_);
 		return;
 	}
 	slot_ = uint16_t(payload1_in_.GetValue());
 	if (slot_ != 1 && slot_ != 2 && slot_ != 3) {
-		SPDLOG_WARN("Unexpected slot__ {}", slot_);
+		SPDLOG_LOGGER_WARN(logger, "Unexpected slot__ {}", slot_);
 		return;
 	}
 	prepared_ = true;
-	SPDLOG_INFO("{} prepared to deliver on slot {}", name_, slot_);
+	SPDLOG_LOGGER_INFO(logger, "{} prepared to deliver on slot {}", name_, slot_);
 	status_busy_in_.SetValue(true);
 	action_id_in_.SetValue((uint16_t)0);
 	payload1_in_.SetValue((uint16_t)0);
@@ -86,7 +86,7 @@ DeliveryStation::deliver()
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	// TODO use the right gate
 	wp_in_input_->SetWorldPose(get_puck_world_pose(0.3, -0.2));
-	SPDLOG_DEBUG("Sending delivery information for puck {}", wp_in_input_->GetName());
+	SPDLOG_LOGGER_DEBUG(logger, "Sending delivery information for puck {}", wp_in_input_->GetName());
 	gazsim_msgs::WorkpieceCommand cmd_msg;
 	cmd_msg.set_command(gazsim_msgs::Command::DELIVER);
 	cmd_msg.set_puck_name(wp_in_input_->GetName());

@@ -21,6 +21,7 @@
 #include "mps.h"
 
 #include <opc/ua/protocol/variant.h>
+#include <spdlog/spdlog.h>
 
 #include <fnmatch.h>
 #include <fstream>
@@ -45,13 +46,13 @@ const std::map<std::string, std::string> Mps::name_id_match = {
   {"C-SSO", "tag_194"},  {"C-SSI", "tag_193"},  {"M-SSO", "tag_210"},  {"M-SSI", "tag_209"}};
 
 ///Constructor
-Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr) : sclt_in(this), sclt_base(this)
+Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
+: model_(_parent), name_(model_->GetName()), sclt_in(this), sclt_base(this)
 {
-	// Store the pointer to the model
-	this->model_ = _parent;
-
-	//get the model-name
-	this->name_ = model_->GetName();
+	logger = std::make_shared<spdlog::logger>(name_,
+	                                          std::begin(spdlog::default_logger()->sinks()),
+	                                          std::end(spdlog::default_logger()->sinks()));
+	logger->set_pattern("[%c] [%l] [%n]: %v (%s:%# [%!])");
 	printf("Loading Mps Plugin of model %s\n", name_.c_str());
 
 	number_pucks_            = config->get_int("plugins/mps/number_pucks");
@@ -197,9 +198,9 @@ Mps::process_command_in()
 	if (value == 0) {
 		return;
 	}
-	SPDLOG_DEBUG("Processing command {}", value);
+	SPDLOG_LOGGER_DEBUG(logger, "Processing command {}", value);
 	if (calculate_station_type_from_command(value) != station_) {
-		SPDLOG_INFO("Different station");
+		SPDLOG_LOGGER_INFO(logger, "Different station");
 		return;
 	}
 	Operation op;
@@ -208,12 +209,12 @@ Mps::process_command_in()
 	} else {
 		op = Operation(value);
 	}
-	SPDLOG_DEBUG("Processing op {}", op);
+	SPDLOG_LOGGER_DEBUG(logger, "Processing op {}", op);
 	switch (op) {
 	case Operation::OPERATION_MOVE_CONVEYOR:
 		move_conveyor(MachineSide((uint16_t)payload1_in_.GetValue()));
 		break;
-	default: SPDLOG_DEBUG("Operation {}  is not implemented", op);
+	default: SPDLOG_LOGGER_DEBUG(logger, "Operation {}  is not implemented", op);
 	}
 }
 
@@ -234,28 +235,28 @@ Mps::move_conveyor(const MachineSide &side)
 	case MachineSide::INPUT:
 		wp = wp_in_middle_;
 		if (!wp) {
-			SPDLOG_WARN("No workpiece in machine's middle!");
+			SPDLOG_LOGGER_WARN(logger, "No workpiece in machine's middle ({})", middle());
 			return;
 		}
-		SPDLOG_INFO("Moving workpiece {} from middle to input", wp->GetName());
+		SPDLOG_LOGGER_INFO(logger, "Moving workpiece {} from middle to input", wp->GetName());
 		target_pose = input();
 		break;
 	case MachineSide::MIDDLE:
 		wp = wp_in_input_;
 		if (!wp) {
-			SPDLOG_WARN("No workpiece in machine's input!");
+			SPDLOG_LOGGER_WARN(logger, "No workpiece in machine's input ({})", input());
 			return;
 		}
-		SPDLOG_INFO("Moving workpiece {} from input to middle", wp->GetName());
+		SPDLOG_LOGGER_INFO(logger, "Moving workpiece {} from input to middle", wp->GetName());
 		target_pose = middle();
 		break;
 	case MachineSide::OUTPUT:
 		wp = wp_in_middle_;
 		if (!wp) {
-			SPDLOG_WARN("No workpiece in machine's middle!");
+			SPDLOG_LOGGER_WARN(logger, "No workpiece in machine's middle ({})", middle());
 			return;
 		}
-		SPDLOG_INFO("Moving workpiece {} from middle to output", wp->GetName());
+		SPDLOG_LOGGER_INFO(logger, "Moving workpiece {} from middle to output", wp->GetName());
 		target_pose = output();
 		break;
 	}
@@ -345,16 +346,16 @@ Mps::on_puck_msg(ConstPosePtr &msg)
 	if (!wp_in_input_ && puck_in_input(msg)) {
 		wp_in_input_ = world_->ModelByName(msg->name());
 		if (!wp_in_input_) {
-			SPDLOG_WARN("Workpiece {} is input, but could not find model!", msg->name());
+			SPDLOG_LOGGER_WARN(logger, "Workpiece {} is input, but could not find model!", msg->name());
 		} else {
-			SPDLOG_INFO("Found workpiece {} in input", wp_in_input_->GetName());
+			SPDLOG_LOGGER_INFO(logger, "Found workpiece {} in input", wp_in_input_->GetName());
 		}
 	} else if (wp_in_input_ && msg->name() == wp_in_input_->GetName() && !puck_in_input(msg)) {
-		SPDLOG_INFO("Workpiece {} no longer in input", wp_in_input_->GetName());
+		SPDLOG_LOGGER_INFO(logger, "Workpiece {} no longer in input", wp_in_input_->GetName());
 		wp_in_input_.reset();
 		status_ready_in_.SetValue(false);
 	} else if (wp_in_output_ && msg->name() == wp_in_output_->GetName() && !puck_in_output(msg)) {
-		SPDLOG_INFO("Workpiece {} no longer in output", wp_in_output_->GetName());
+		SPDLOG_LOGGER_INFO(logger, "Workpiece {} no longer in output", wp_in_output_->GetName());
 		wp_in_output_.reset();
 		status_ready_in_.SetValue(false);
 	}
