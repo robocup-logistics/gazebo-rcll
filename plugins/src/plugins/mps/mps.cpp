@@ -237,7 +237,7 @@ Mps::move_conveyor(const MachineSide &side)
 			SPDLOG_WARN("No workpiece in machine's middle!");
 			return;
 		}
-		SPDLOG_INFO("Moving workpiece {} to input", wp->GetName());
+		SPDLOG_INFO("Moving workpiece {} from middle to input", wp->GetName());
 		target_pose = input();
 		break;
 	case MachineSide::MIDDLE:
@@ -246,7 +246,7 @@ Mps::move_conveyor(const MachineSide &side)
 			SPDLOG_WARN("No workpiece in machine's input!");
 			return;
 		}
-		SPDLOG_INFO("Moving workpiece {} to middle", wp->GetName());
+		SPDLOG_INFO("Moving workpiece {} from input to middle", wp->GetName());
 		target_pose = middle();
 		break;
 	case MachineSide::OUTPUT:
@@ -255,7 +255,7 @@ Mps::move_conveyor(const MachineSide &side)
 			SPDLOG_WARN("No workpiece in machine's middle!");
 			return;
 		}
-		SPDLOG_INFO("Moving workpiece {} to output", wp->GetName());
+		SPDLOG_INFO("Moving workpiece {} from middle to output", wp->GetName());
 		target_pose = output();
 		break;
 	}
@@ -346,11 +346,15 @@ Mps::on_puck_msg(ConstPosePtr &msg)
 		wp_in_input_ = world_->ModelByName(msg->name());
 		if (!wp_in_input_) {
 			SPDLOG_WARN("Workpiece {} is input, but could not find model!", msg->name());
+		} else {
+			SPDLOG_INFO("Found workpiece {} in input", wp_in_input_->GetName());
 		}
 	} else if (wp_in_input_ && msg->name() == wp_in_input_->GetName() && !puck_in_input(msg)) {
+		SPDLOG_INFO("Workpiece {} no longer in input", wp_in_input_->GetName());
 		wp_in_input_.reset();
 		status_ready_in_.SetValue(false);
 	} else if (wp_in_output_ && msg->name() == wp_in_output_->GetName() && !puck_in_output(msg)) {
+		SPDLOG_INFO("Workpiece {} no longer in output", wp_in_output_->GetName());
 		wp_in_output_.reset();
 		status_ready_in_.SetValue(false);
 	}
