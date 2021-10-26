@@ -21,6 +21,7 @@
 #include "mps.h"
 
 #include <opc/ua/protocol/variant.h>
+#include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/spdlog.h>
 
 #include <fnmatch.h>
@@ -49,11 +50,15 @@ const std::map<std::string, std::string> Mps::name_id_match = {
 Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 : model_(_parent), name_(model_->GetName()), sclt_in(this), sclt_base(this)
 {
-	logger = std::make_shared<spdlog::logger>(name_,
-	                                          std::begin(spdlog::default_logger()->sinks()),
-	                                          std::end(spdlog::default_logger()->sinks()));
-	logger->set_pattern("[%c] [%l] [%n]: %v (%s:%# [%!])");
-	printf("Loading Mps Plugin of model %s\n", name_.c_str());
+	auto sinks = spdlog::default_logger()->sinks();
+	sinks.push_back(
+	  std::make_shared<spdlog::sinks::basic_file_sink_mt>(fmt::format("gazebo-{}.log", name_), true));
+
+	logger = std::make_shared<spdlog::logger>(name_, sinks.begin(), sinks.end());
+	logger->set_pattern("[%c] [%^%l%$] [%n]: %v (%s:%# [%!])");
+	logger->set_level(spdlog::level::debug);
+	logger->flush_on(spdlog::level::info);
+	SPDLOG_LOGGER_INFO(logger, "Loading Mps Plugin of model {}", name_);
 
 	number_pucks_            = config->get_int("plugins/mps/number_pucks");
 	belt_offset_side_        = config->get_float("plugins/mps/belt_offset_side");

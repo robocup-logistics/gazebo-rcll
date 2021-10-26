@@ -70,6 +70,7 @@ RingStation::mount_ring(gazsim_msgs::Color color)
 		                   wp_in_middle_->GetName());
 		return;
 	}
+	SPDLOG_LOGGER_INFO(logger, "Mounting ring");
 	status_busy_in_.SetValue(true);
 	gazsim_msgs::WorkpieceCommand cmd;
 	cmd.set_command(gazsim_msgs::Command::ADD_RING);
