@@ -21,6 +21,8 @@ cmake_minimum_required(VERSION 3.14)
 project(gazebo-rcll)
 include(GNUInstallDirs)
 
+include(third_party/third_party.cmake)
+
 set(USERDIR
     ".config/rcll/gazebo"
     CACHE

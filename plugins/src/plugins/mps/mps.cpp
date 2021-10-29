@@ -20,11 +20,18 @@
 
 #include "mps.h"
 
+#include "durations.h"
+
+#include <opc/ua/protocol/variant.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
+
 #include <fnmatch.h>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <math.h>
+#include <mutex>
 #include <stdlib.h>
 
 using namespace gazebo;
@@ -43,13 +50,17 @@ const std::map<std::string, std::string> Mps::name_id_match = {
 
 ///Constructor
 Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
+: model_(_parent), name_(model_->GetName()), sclt_in(this), sclt_base(this)
 {
-	// Store the pointer to the model
-	this->model_ = _parent;
+	auto sinks = spdlog::default_logger()->sinks();
+	sinks.push_back(
+	  std::make_shared<spdlog::sinks::basic_file_sink_mt>(fmt::format("gazebo-{}.log", name_), true));
 
-	//get the model-name
-	this->name_ = model_->GetName();
-	printf("Loading Mps Plugin of model %s\n", name_.c_str());
+	logger = std::make_shared<spdlog::logger>(name_, sinks.begin(), sinks.end());
+	logger->set_pattern("[%c] [%^%l%$] [%n]: %v (%s:%# [%!])");
+	logger->set_level(spdlog::level::debug);
+	logger->flush_on(spdlog::level::info);
+	SPDLOG_LOGGER_INFO(logger, "Loading Mps Plugin of model {}", name_);
 
 	number_pucks_            = config->get_int("plugins/mps/number_pucks");
 	belt_offset_side_        = config->get_float("plugins/mps/belt_offset_side");
@@ -58,6 +69,7 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	puck_height_             = config->get_float("plugins/mps/puck_height");
 	belt_length_             = config->get_float("plugins/mps/belt_length");
 	belt_height_             = config->get_float("plugins/mps/belt_height");
+	mps_height_              = config->get_float("plugins/mps/mps_height");
 	tag_height_              = config->get_float("plugins/mps/tag_height");
 	tag_size_                = config->get_float("plugins/mps/tag_size");
 	tag_spawn_time_          = config->get_float("plugins/mps/tag_spawn_time");
@@ -84,26 +96,26 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	spawned_tags_last_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 
 	//subscribe to machine info
-	this->machine_info_subscriber_ =
-	  this->node_->Subscribe(TOPIC_MACHINE_INFO, &Mps::on_machine_msg, this);
+	//this->machine_info_subscriber_ =
+	//  this->node_->Subscribe(topic_machine_info_, &Mps::on_machine_msg, this);
 
 	//subscribe to machine info
-	this->instruct_machine_subscriber_ =
-	  this->node_->Subscribe(TOPIC_INSTRUCT_MACHINE, &Mps::on_instruct_machine_msg, this);
+	//this->instruct_machine_subscriber_ =
+	//  this->node_->Subscribe(topic_instruct_machine_, &Mps::on_instruct_machine_msg, this);
 
 	this->new_puck_subscriber_ = node_->Subscribe("~/new_puck", &Mps::on_new_puck, this);
 
 	//Create publisher to spawn tags
 	visPub_ = this->node_->Advertise<msgs::Visual>("~/visual", /*number of lights*/ 3 * 12);
-	set_machne_state_pub_ =
-	  this->node_->Advertise<llsf_msgs::SetMachineState>(TOPIC_SET_MACHINE_STATE);
+	//set_machne_state_pub_ =
+	//  this->node_->Advertise<llsf_msgs::SetMachineState>(topic_set_machine_state_);
 
-	machine_reply_pub_ = this->node_->Advertise<llsf_msgs::MachineReply>(TOPIC_MACHINE_REPLY);
-	world_             = model_->GetWorld();
+	//machine_reply_pub_ = this->node_->Advertise<llsf_msgs::MachineReply>(topic_machine_reply_);
+	world_ = model_->GetWorld();
 
 	factoryPub         = node_->Advertise<msgs::Factory>("~/factory");
-	puck_cmd_pub_      = node_->Advertise<gazsim_msgs::WorkpieceCommand>(TOPIC_PUCK_COMMAND);
-	joint_message_sub_ = node_->Subscribe(TOPIC_JOINT, &Mps::on_joint_msg, this);
+	puck_cmd_pub_      = node_->Advertise<gazsim_msgs::WorkpieceCommand>(topic_puck_command_);
+	joint_message_sub_ = node_->Subscribe(topic_joint_, &Mps::on_joint_msg, this);
 
 	//create joints to hold tags
 	tag_joint_input = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint("revolute", model_);
@@ -113,11 +125,201 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	tag_joint_output = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint("revolute", model_);
 	tag_joint_output->SetName("tag_joint_output");
 	tag_joint_output->SetModel(model_);
+
+	worker = std::thread(&Mps::worker_loop, this);
 }
 ///Destructor
 Mps::~Mps()
 {
+	std::unique_lock<std::mutex> lock{worker_mutex_};
+	shutdown_ = true;
+	lock.unlock();
+	notify_worker();
+	if (worker.joinable()) {
+		worker.join();
+	}
+	opcua_server_.Stop();
 	printf("Destructing Mps Plugin for %s!\n", this->name_.c_str());
+}
+
+void
+Mps::start_server()
+{
+	opcua_server_.SetEndpoint(OpcUaConfig::get_endpoint(name_));
+	opcua_server_.SetServerURI(OpcUaConfig::get_URI(station_));
+	opcua_server_.Start();
+	init_opcua_server();
+}
+
+void
+Mps::init_opcua_server()
+{
+	OpcUa::Node objects = opcua_server_.GetObjectsNode();
+	OpcUa::Node node    = objects.AddObject(2, "DeviceSet")
+	                     .AddObject(4, "CPX-E-CEC-C1-PN")
+	                     .AddObject(4, "Resources")
+	                     .AddObject(4, "Application")
+	                     .AddObject(3, "GlobalVars")
+	                     .AddObject(4, "G");
+
+	OpcUa::Node node_in   = node.AddObject(4, "In").AddObject(4, "p");
+	action_id_in_         = node_in.AddVariable(4, "ActionId", OpcUa::Variant((uint16_t)0));
+	barcode_in_           = node_in.AddVariable(4, "BarCode", OpcUa::Variant((uint16_t)0));
+	auto data_node_in     = node_in.AddObject(4, "Data");
+	payload1_in_          = data_node_in.AddVariable(0, "Payload1", OpcUa::Variant((uint16_t)0));
+	payload2_in_          = data_node_in.AddVariable(1, "Payload2", OpcUa::Variant((uint16_t)0));
+	error_in_             = node_in.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
+	slidecount_in_        = node_in.AddVariable(4, "SlideCnt", OpcUa::Variant((uint16_t)0));
+	OpcUa::Node status_in = node_in.AddObject(4, "Status");
+	enable_in_            = status_in.AddVariable(4, "Enable", OpcUa::Variant(false));
+	status_error_in_      = status_in.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
+	status_ready_in_      = status_in.AddVariable(4, "Ready", OpcUa::Variant(false));
+	status_busy_in_       = status_in.AddVariable(4, "Busy", OpcUa::Variant(false));
+
+	OpcUa::Node node_basic = node.AddObject(4, "Basic").AddObject(4, "p");
+	action_id_basic_       = node_basic.AddVariable(4, "ActionId", OpcUa::Variant((uint16_t)0));
+	barcode_basic_         = node_basic.AddVariable(4, "BarCode", OpcUa::Variant((uint16_t)0));
+	auto data_node_basic   = node_basic.AddObject(4, "Data");
+	payload1_basic_        = data_node_basic.AddVariable(0, "Payload1", OpcUa::Variant((uint16_t)0));
+	payload2_basic_        = data_node_basic.AddVariable(1, "Payload2", OpcUa::Variant((uint16_t)0));
+	error_basic_           = node_basic.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
+	slidecount_basic_      = node_basic.AddVariable(4, "SlideCnt", OpcUa::Variant((uint16_t)0));
+	OpcUa::Node status_basic = node_basic.AddObject(4, "Status");
+	enable_basic_            = status_basic.AddVariable(4, "Enable", OpcUa::Variant(false));
+	status_error_basic_      = status_basic.AddVariable(4, "Error", OpcUa::Variant((uint8_t)0));
+	status_ready_basic_      = status_basic.AddVariable(4, "Ready", OpcUa::Variant(false));
+	status_busy_basic_       = status_basic.AddVariable(4, "Busy", OpcUa::Variant(false));
+
+	sclt_in.set_callback_funk(&Mps::notify_worker);
+	sub_in              = opcua_server_.CreateSubscription(100, sclt_in);
+	handel_action_id_in = sub_in->SubscribeDataChange(action_id_in_);
+
+	sclt_base.set_callback_funk(&Mps::notify_worker);
+	sub_base              = opcua_server_.CreateSubscription(100, sclt_base);
+	handel_action_id_base = sub_base->SubscribeDataChange(action_id_basic_);
+}
+
+void
+Mps::process_command_in()
+{
+	uint16_t value = uint16_t(action_id_in_.GetValue());
+	if (value == 0) {
+		return;
+	}
+	SPDLOG_LOGGER_DEBUG(logger, "Processing command {}", value);
+	if (calculate_station_type_from_command(value) != station_) {
+		SPDLOG_LOGGER_INFO(logger, "Different station");
+		return;
+	}
+	if (value < station_) {
+		if (value != 0) {
+			SPDLOG_LOGGER_WARN(logger, "Unexpected action id {}", value);
+		}
+		return;
+	}
+	Operation op = Operation(value - station_);
+	SPDLOG_LOGGER_DEBUG(logger, "Processing op {}", op);
+	switch (op) {
+	case Operation::OPERATION_MOVE_CONVEYOR:
+		move_conveyor(MachineSide((uint16_t)payload1_in_.GetValue()));
+		break;
+	default: SPDLOG_LOGGER_DEBUG(logger, "Operation {}  is not implemented", op);
+	}
+}
+
+void
+Mps::process_command_base()
+{
+}
+
+void
+Mps::move_conveyor(const MachineSide &side)
+{
+	status_busy_in_.SetValue(true);
+	std::this_thread::sleep_for(move_duration);
+	gzwrap::Pose3d    target_pose = output();
+	physics::ModelPtr wp;
+	switch (side) {
+	case MachineSide::INPUT:
+		wp = wp_in_middle_;
+		if (!wp) {
+			SPDLOG_LOGGER_WARN(logger, "No workpiece in machine's middle ({})", middle());
+			return;
+		}
+		SPDLOG_LOGGER_INFO(logger, "Moving workpiece {} from middle to input", wp->GetName());
+		target_pose = input();
+		break;
+	case MachineSide::MIDDLE:
+		wp = wp_in_input_;
+		if (!wp) {
+			SPDLOG_LOGGER_WARN(logger, "No workpiece in machine's input ({})", input());
+			return;
+		}
+		SPDLOG_LOGGER_INFO(logger, "Moving workpiece {} from input to middle", wp->GetName());
+		target_pose = middle();
+		break;
+	case MachineSide::OUTPUT:
+		wp = wp_in_middle_;
+		if (!wp) {
+			SPDLOG_LOGGER_WARN(logger, "No workpiece in machine's middle ({})", middle());
+			return;
+		}
+		SPDLOG_LOGGER_INFO(logger, "Moving workpiece {} from middle to output", wp->GetName());
+		target_pose = output();
+		break;
+	default:
+		SPDLOG_LOGGER_WARN(logger,
+		                   "Unexpected side {}, expected one of {}, {}, {}",
+		                   side,
+		                   MachineSide::INPUT,
+		                   MachineSide::MIDDLE,
+		                   MachineSide::OUTPUT);
+		return;
+	}
+	wp->SetWorldPose(target_pose);
+	action_id_in_.SetValue((uint16_t)0);
+	payload1_in_.SetValue((uint16_t)0);
+	switch (side) {
+	case MachineSide::INPUT:
+		wp_in_middle_.reset();
+		wp_in_input_ = wp;
+		status_ready_in_.SetValue(true);
+		break;
+	case MachineSide::MIDDLE:
+		wp_in_input_.reset();
+		wp_in_middle_ = wp;
+		break;
+	case MachineSide::OUTPUT:
+		wp_in_middle_.reset();
+		wp_in_output_ = wp;
+		status_ready_in_.SetValue(true);
+		break;
+	}
+	status_busy_in_.SetValue(false);
+}
+
+Station
+Mps::calculate_station_type_from_command(uint16_t value)
+{
+	return Station(value - (value % 100));
+}
+
+void
+Mps::notify_worker()
+{
+	worker_condition_.notify_one();
+}
+
+void
+Mps::worker_loop()
+{
+	while (!shutdown_) {
+		std::unique_lock<std::mutex> lock{worker_mutex_};
+		worker_condition_.wait(lock);
+		lock.unlock();
+		process_command_base();
+		process_command_in();
+	}
 }
 
 /** Called by the world update start event
@@ -157,52 +359,22 @@ Mps::Reset()
 void
 Mps::on_puck_msg(ConstPosePtr &msg)
 {
-}
-
-void
-Mps::on_machine_msg(ConstMachineInfoPtr &msg)
-{
-	for (const llsf_msgs::Machine &machine : msg->machines()) {
-		if (machine.name() == this->name_ && machine.state() != current_state_) {
-			printf("new_info for %s, state: %s \n", machine.name().c_str(), machine.state().c_str());
-			new_machine_info(machine);
-			current_state_ = machine.state();
+	if (!wp_in_input_ && puck_in_input(msg)) {
+		wp_in_input_ = world_->ModelByName(msg->name());
+		if (!wp_in_input_) {
+			SPDLOG_LOGGER_WARN(logger, "Workpiece {} is input, but could not find model!", msg->name());
+		} else {
+			SPDLOG_LOGGER_INFO(logger, "Found workpiece {} in input", wp_in_input_->GetName());
 		}
+	} else if (wp_in_input_ && msg->name() == wp_in_input_->GetName() && !puck_in_input(msg)) {
+		SPDLOG_LOGGER_INFO(logger, "Workpiece {} no longer in input", wp_in_input_->GetName());
+		wp_in_input_.reset();
+		status_ready_in_.SetValue(false);
+	} else if (wp_in_output_ && msg->name() == wp_in_output_->GetName() && !puck_in_output(msg)) {
+		SPDLOG_LOGGER_INFO(logger, "Workpiece {} no longer in output", wp_in_output_->GetName());
+		wp_in_output_.reset();
+		status_ready_in_.SetValue(false);
 	}
-}
-
-void
-Mps::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-{
-}
-
-void
-Mps::new_machine_info(ConstMachine &machine)
-{
-}
-
-void
-Mps::refbox_reply(ConstInstructMachinePtr &msg)
-{
-	printf("Reply msg_ID: %d\n", msg->id());
-
-	llsf_msgs::MachineReply reply;
-	reply.set_id(msg->id());
-	reply.set_machine(msg->machine());
-	reply.set_set(llsf_msgs::MACHINE_REPLY_FINISHED);
-	machine_reply_pub_->Publish(reply);
-}
-
-void
-Mps::set_state(State state)
-{
-	printf("Setting state for machine %s to %s \n",
-	       name_.c_str(),
-	       llsf_msgs::MachineState_Name(state).c_str());
-	llsf_msgs::SetMachineState set_state;
-	set_state.set_machine_name(name_);
-	set_state.set_state(state);
-	set_machne_state_pub_->Publish(set_state);
 }
 
 /**
@@ -260,7 +432,7 @@ Mps::output_x()
 {
 	double mps_x   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
-	return mps_x + BELT_OFFSET_SIDE * cos(mps_ori) + (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+	return mps_x + belt_offset_side_ * cos(mps_ori) + (belt_length_ / 2 - puck_size_) * sin(mps_ori);
 }
 
 float
@@ -268,7 +440,7 @@ Mps::output_y()
 {
 	double mps_y   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
-	return mps_y + BELT_OFFSET_SIDE * sin(mps_ori) - (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+	return mps_y + belt_offset_side_ * sin(mps_ori) - (belt_length_ / 2 - puck_size_) * cos(mps_ori);
 }
 
 float
@@ -276,7 +448,7 @@ Mps::input_x()
 {
 	double mps_x   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
-	return mps_x + BELT_OFFSET_SIDE * cos(mps_ori) - (BELT_LENGTH / 2 - PUCK_SIZE) * sin(mps_ori);
+	return mps_x + belt_offset_side_ * cos(mps_ori) - (belt_length_ / 2 - puck_size_) * sin(mps_ori);
 }
 
 float
@@ -284,57 +456,78 @@ Mps::input_y()
 {
 	double mps_y   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
-	return mps_y + BELT_OFFSET_SIDE * sin(mps_ori) + (BELT_LENGTH / 2 - PUCK_SIZE) * cos(mps_ori);
+	return mps_y + belt_offset_side_ * sin(mps_ori) + (belt_length_ / 2 - puck_size_) * cos(mps_ori);
 }
 
 gzwrap::Pose3d
 Mps::input()
 {
-	return gzwrap::Pose3d(input_x(), input_y(), BELT_HEIGHT, 0, 0, 0);
+	return gzwrap::Pose3d(input_x(), input_y(), belt_height_, 0, 0, 0);
 }
 
 gzwrap::Pose3d
 Mps::output()
 {
-	return gzwrap::Pose3d(output_x(), output_y(), BELT_HEIGHT, 0, 0, 0);
+	return gzwrap::Pose3d(output_x(), output_y(), belt_height_, 0, 0, 0);
+}
+
+gzwrap::Pose3d
+Mps::middle()
+{
+	return gzwrap::Pose3d(
+	  (input_x() + output_x()) / 2, (input_y() + output_y()) / 2, belt_height_, 0, 0, 0);
 }
 
 bool
 Mps::pose_hit(const gzwrap::Pose3d &to_test, const gzwrap::Pose3d &reference, double tolerance)
 {
 	if (tolerance == -1.0)
-		tolerance = DETECT_TOLERANCE;
+		tolerance = detect_tolerance_;
 	return (to_test.GZWRAP_POS - reference.GZWRAP_POS).GZWRAP_LENGTH() < tolerance;
 }
 
 bool
 Mps::puck_in_input(ConstPosePtr &pose)
 {
-	double dist = sqrt((pose->position().x() - input_x()) * (pose->position().x() - input_x())
-	                   + (pose->position().y() - input_y()) * (pose->position().y() - input_y())
-	                   + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
-	return dist < DETECT_TOLERANCE;
+	double dist =
+	  sqrt((pose->position().x() - input_x()) * (pose->position().x() - input_x())
+	       + (pose->position().y() - input_y()) * (pose->position().y() - input_y())
+	       + (pose->position().z() - belt_height_) * (pose->position().z() - belt_height_));
+	return dist < detect_tolerance_;
 }
 
 bool
 Mps::puck_in_output(ConstPosePtr &pose)
 {
-	double dist = sqrt((pose->position().x() - output_x()) * (pose->position().x() - output_x())
-	                   + (pose->position().y() - output_y()) * (pose->position().y() - output_y())
-	                   + (pose->position().z() - BELT_HEIGHT) * (pose->position().z() - BELT_HEIGHT));
-	return dist < DETECT_TOLERANCE;
+	double dist =
+	  sqrt((pose->position().x() - output_x()) * (pose->position().x() - output_x())
+	       + (pose->position().y() - output_y()) * (pose->position().y() - output_y())
+	       + (pose->position().z() - belt_height_) * (pose->position().z() - belt_height_));
+	return dist < detect_tolerance_;
+}
+
+bool
+Mps::puck_in_middle(ConstPosePtr &pose)
+{
+	return puck_in_middle(gazebo::msgs::ConvertIgn(*pose));
 }
 
 bool
 Mps::puck_in_input(const gzwrap::Pose3d &pose)
 {
-	return (pose.GZWRAP_POS - input().GZWRAP_POS).GZWRAP_LENGTH() < DETECT_TOLERANCE;
+	return (pose.GZWRAP_POS - input().GZWRAP_POS).GZWRAP_LENGTH() < detect_tolerance_;
 }
 
 bool
 Mps::puck_in_output(const gzwrap::Pose3d &pose)
 {
-	return (pose.GZWRAP_POS - output().GZWRAP_POS).GZWRAP_LENGTH() < DETECT_TOLERANCE;
+	return (pose.GZWRAP_POS - output().GZWRAP_POS).GZWRAP_LENGTH() < detect_tolerance_;
+}
+
+bool
+Mps::puck_in_middle(const gzwrap::Pose3d &pose)
+{
+	return (pose.GZWRAP_POS - middle().GZWRAP_POS).GZWRAP_LENGTH() < detect_tolerance_;
 }
 
 void
@@ -422,16 +615,16 @@ gzwrap::Pose3d
 Mps::get_puck_world_pose(double long_side, double short_side, double height)
 {
 	if (height == -1.0)
-		height = BELT_HEIGHT;
+		height = belt_height_;
 
 	double mps_x   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X;
 	double mps_y   = this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y;
 	double mps_ori = this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_EULER_Z;
 
-	double x = mps_x + (BELT_OFFSET_SIDE + long_side) * cos(mps_ori)
-	           - ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * sin(mps_ori);
-	double y = mps_y + (BELT_OFFSET_SIDE + long_side) * sin(mps_ori)
-	           + ((BELT_LENGTH + short_side) / 2 - PUCK_SIZE) * cos(mps_ori);
+	double x = mps_x + (belt_offset_side_ + long_side) * cos(mps_ori)
+	           - ((belt_length_ + short_side) / 2 - puck_size_) * sin(mps_ori);
+	double y = mps_y + (belt_offset_side_ + long_side) * sin(mps_ori)
+	           + ((belt_length_ + short_side) / 2 - puck_size_) * cos(mps_ori);
 
 	return gzwrap::Pose3d(x, y, height, 0, 0, 0);
 }

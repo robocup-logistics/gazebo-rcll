@@ -27,18 +27,20 @@
 
 namespace gazebo {
 
+enum class BaseColor { RED = 1, SILVER, BLACK };
+
 class BaseStation : public Mps
 {
 public:
 	BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-private:
-	void        on_puck_msg(ConstPosePtr &msg);
-	void        new_machine_info(ConstMachine &machine);
-	void        on_instruct_machine_msg(ConstInstructMachinePtr &msg);
-	std::string have_puck_;
+	void process_command_in() override;
+	void dispense_base(BaseColor color);
 
-	void on_new_puck(ConstNewPuckPtr &msg);
+private:
+	void               on_new_puck(ConstNewPuckPtr &msg);
+	std::string        spawning;
+	gazsim_msgs::Color spawn_clr;
 };
 
 } // namespace gazebo

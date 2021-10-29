@@ -23,10 +23,6 @@
 #ifndef RING_STATION_H
 #define RING_STATION_H
 
-#define TOPIC_MACHINE_ADD_BASE \
-	config->get_string("plugins/mps/ring-station/topic_machine_add_base").c_str()
-#define MAX_NUM_BASES config->get_int("plugins/mps/ring-station/max_num_bases")
-
 #include "mps.h"
 
 namespace gazebo {
@@ -36,20 +32,20 @@ class RingStation : public Mps
 public:
 	RingStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
-	void on_puck_msg(ConstPosePtr &msg);
-
-	void new_machine_info(ConstMachine &machine);
-	void on_instruct_machine_msg(ConstInstructMachinePtr &msg);
-
-	std::string        puck_in_processing_name_;
-	gazsim_msgs::Color color_to_put_;
-
-	void           add_base();
+	void           process_command_in() override;
 	gzwrap::Pose3d add_base_pose();
-	u_int32_t      number_bases_;
 
-	gazebo::transport::PublisherPtr add_base_publisher_;
-	void                            publish_indicator(bool active, int number);
+	void publish_indicator(bool active, int number);
+	/// Handler for puck positions
+	void on_puck_msg(ConstPosePtr &msg) override;
+
+protected:
+	bool puck_on_slide(const gzwrap::Pose3d &pose);
+	bool puck_on_slide(ConstPosePtr &pose);
+
+private:
+	void                  mount_ring(gazsim_msgs::Color);
+	std::set<std::string> wps_on_slide_;
 };
 
 } // namespace gazebo

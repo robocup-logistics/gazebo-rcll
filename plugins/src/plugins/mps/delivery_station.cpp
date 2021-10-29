@@ -22,42 +22,53 @@
 
 #include "delivery_station.h"
 
+#include "durations.h"
+
 using namespace gazebo;
 
 DeliveryStation::DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
-: Mps(_parent, _sdf), prepared_(false), puck_(NULL)
+: Mps(_parent, _sdf), prepared_(false)
 {
+	station_ = Station::STATION_DELIVERY;
+	start_server();
 }
 
 void
 DeliveryStation::on_puck_msg(ConstPosePtr &msg)
 {
-	if (puck_in_input(msg) && !is_puck_hold(msg->name())) {
-		puck_ = world_->GZWRAP_MODEL_BY_NAME(msg->name());
-		printf("%s got puck %s\n", name_.c_str(), puck_->GetName().c_str());
-		if (prepared_) {
-			// We received the puck and have been prepared, thus deliver.
-			deliver();
-		}
+	Mps::on_puck_msg(msg);
+	if (wp_in_input_ && prepared_) {
+		// We received the puck and have been prepared, thus deliver.
+		deliver();
 	}
 }
 
 void
-DeliveryStation::new_machine_info(ConstMachine &machine)
+DeliveryStation::process_command_in()
 {
-	if (machine.state() == "IDLE") {
-		prepared_ = false;
-		set_state(State::IDLE);
-	} else if (machine.state() == "PREPARED") {
-		prepared_ = true;
-		if (puck_) {
-			// We have a puck and the machine is prepared, thus we can deliver.
-			deliver();
-		} else if (machine.state() == "BROKEN") {
-			puck_     = NULL;
-			prepared_ = false;
-		}
+	Mps::process_command_in();
+	uint16_t value = uint16_t(action_id_in_.GetValue());
+	if (value == 0) {
+		return;
 	}
+	if (calculate_station_type_from_command(value) != station_) {
+		return;
+	}
+	Operation oper = Operation(value - station_);
+	if (oper != Operation::OPERATION_DELIVER) {
+		//SPDLOG_LOGGER_WARN(logger, "Unexpected operation {} on station {}", oper, station_);
+		return;
+	}
+	slot_ = uint16_t(payload1_in_.GetValue());
+	if (slot_ != 1 && slot_ != 2 && slot_ != 3) {
+		SPDLOG_LOGGER_WARN(logger, "Unexpected slot__ {}", slot_);
+		return;
+	}
+	prepared_ = true;
+	SPDLOG_LOGGER_INFO(logger, "{} prepared to deliver on slot {}", name_, slot_);
+	status_busy_in_.SetValue(true);
+	action_id_in_.SetValue((uint16_t)0);
+	payload1_in_.SetValue((uint16_t)0);
 }
 
 /** Send delivery information to the refbox and move the puck.
@@ -69,17 +80,17 @@ DeliveryStation::new_machine_info(ConstMachine &machine)
 void
 DeliveryStation::deliver()
 {
-	set_state(State::AVAILABLE);
-	if (!prepared_ || !puck_) {
+	if (!prepared_) {
 		// Machine is not prepared yet or there is no workpiece yet.
 		return;
 	}
+	std::this_thread::sleep_for(deliver_duration);
 	// TODO use the right gate
-	puck_->SetWorldPose(get_puck_world_pose(0.3, -0.2));
-	printf("%s: Sending delivery information for puck %s\n", name_.c_str(), puck_->GetName().c_str());
+	wp_in_input_->SetWorldPose(get_puck_world_pose(0.3, -0.2));
+	SPDLOG_LOGGER_DEBUG(logger, "Sending delivery information for puck {}", wp_in_input_->GetName());
 	gazsim_msgs::WorkpieceCommand cmd_msg;
 	cmd_msg.set_command(gazsim_msgs::Command::DELIVER);
-	cmd_msg.set_puck_name(puck_->GetName());
+	cmd_msg.set_puck_name(wp_in_input_->GetName());
 	if (name_[0] == 'C') {
 		cmd_msg.set_team_color(gazsim_msgs::Team::CYAN);
 	} else if (name_[0] == 'M') {
@@ -87,20 +98,6 @@ DeliveryStation::deliver()
 	}
 	puck_cmd_pub_->Publish(cmd_msg);
 	prepared_ = false;
-	puck_     = NULL;
-}
-
-void
-DeliveryStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-{
-	// printf("MPS:GOT INSTRUCT MESSAGE\n");
-
-	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_DS) {
-		return;
-	}
-
-	std::string machine_name = "NOT-SET";
-	machine_name             = msg->machine();
-
-	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
+	wp_in_input_.reset();
+	status_busy_in_.SetValue(false);
 }

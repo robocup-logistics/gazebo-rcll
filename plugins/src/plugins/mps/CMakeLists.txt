@@ -26,6 +26,15 @@ add_library(
   delivery_station.cpp
   storage_station.cpp)
 
-target_link_libraries(mps PUBLIC core configurable llsf_msgs gazsim_msgs gazebo)
+target_link_libraries(
+  mps
+  PUBLIC core
+         configurable
+         gazsim_msgs
+         gazebo
+         spdlog::spdlog
+         opcuacore
+         opcuaserver
+         opcuaprotocol)
 target_include_directories(mps PUBLIC ${GAZEBO_INCLUDE_DIRS})
 target_compile_options(mps PUBLIC ${GAZEBO_CFLAGS})

@@ -53,6 +53,8 @@ plugins:
     belt_length: 0.35
     #Height of the belt
     belt_height: 0.92
+    #Height of the MPS.
+    mps_height: 0.8
     #Height of the center of the tag
     tag_height: 0.54
     #Height of the center of the tag

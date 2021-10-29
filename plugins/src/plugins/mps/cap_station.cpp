@@ -22,19 +22,112 @@
 
 #include "cap_station.h"
 
+#include "durations.h"
+
 #include <utils/misc/gazebo_api_wrappers.h>
 
 using namespace gazebo;
 
 CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_parent, _sdf)
 {
+	station_ = Station::STATION_CAP;
+	start_server();
 	spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
 	spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
 	spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
 	workpiece_result_subscriber_ =
-	  node_->Subscribe(TOPIC_PUCK_COMMAND_RESULT, &CapStation::on_puck_result, this);
+	  node_->Subscribe(topic_puck_command_result_, &CapStation::on_puck_result, this);
 	stored_cap_color_  = gazsim_msgs::Color::NONE;
 	puck_spawned_time_ = created_time_;
+}
+
+void
+CapStation::process_command_in()
+{
+	Mps::process_command_in();
+
+	uint16_t value = uint16_t(action_id_in_.GetValue());
+	if (value == 0) {
+		return;
+	}
+	if (calculate_station_type_from_command(value) != station_) {
+		return;
+	}
+	Operation oper = Operation(value - station_);
+	if (oper != Operation::OPERATION_CAP_ACTION) {
+		//SPDLOG_LOGGER_WARN(logger, "Unexpected operation {} on station {}", oper, station_);
+		return;
+	}
+	auto op = Operation(uint16_t(payload1_in_.GetValue()));
+	switch (op) {
+	case Operation::OPERATION_CAP_RETRIEVE: retrieve_cap(); break;
+	case Operation::OPERATION_CAP_MOUNT: mount_cap(); break;
+	default: SPDLOG_LOGGER_WARN(logger, "Unexpected Op while processing workpiece: {}", op); break;
+	}
+}
+
+void
+CapStation::mount_cap()
+{
+	if (!wp_in_middle_) {
+		SPDLOG_LOGGER_WARN(logger, "Cannot mount cap, no workpiece in the middle!");
+		return;
+	}
+	if (!puck_in_middle(wp_in_middle_->WorldPose())) {
+		SPDLOG_LOGGER_WARN(logger,
+		                   "Cannot mount cap, workpiece {} should be in the middle but is not",
+		                   wp_in_middle_->GetName());
+		return;
+	}
+	SPDLOG_LOGGER_INFO(logger, "Mounting cap");
+	status_busy_in_.SetValue(true);
+	if (stored_cap_color_ != gazsim_msgs::Color::NONE) {
+		SPDLOG_LOGGER_INFO(logger,
+		                   "{} mounts cap on {} with color {}",
+		                   name_,
+		                   wp_in_middle_->GetName(),
+		                   gazsim_msgs::Color_Name(stored_cap_color_));
+
+		gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
+		cmd_msg.set_puck_name(wp_in_middle_->GetName());
+
+		cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
+		cmd_msg.add_color(stored_cap_color_);
+
+		gazebo::msgs::Visual vis_msg;
+		vis_msg.set_parent_name(name_ + "::body");
+		vis_msg.set_name(name_ + "::body::have_cap");
+		gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0.3, 0, 0));
+		visPub_->Publish(vis_msg);
+		puck_cmd_pub_->Publish(cmd_msg);
+		stored_cap_color_ = gazsim_msgs::Color::NONE;
+	} else {
+		SPDLOG_LOGGER_WARN(logger, "{} can't mount cap without a cap loaded first", name_);
+	}
+	action_id_in_.SetValue((uint16_t)0);
+	payload1_in_.SetValue((uint16_t)0);
+	std::this_thread::sleep_for(cap_op_duration);
+	status_busy_in_.SetValue(false);
+}
+
+void
+CapStation::retrieve_cap()
+{
+	if (!wp_in_middle_) {
+		SPDLOG_LOGGER_WARN(logger, "Cannot retrieve cap, no workpiece in the middle!");
+		return;
+	}
+	SPDLOG_LOGGER_INFO(logger, "Retrieving cap");
+	status_busy_in_.SetValue(true);
+	gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
+	cmd_msg.set_puck_name(wp_in_middle_->GetName());
+	SPDLOG_LOGGER_INFO(logger, "{} retrieves cap from {}", name_, wp_in_middle_->GetName());
+	cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
+	puck_cmd_pub_->Publish(cmd_msg);
+	action_id_in_.SetValue((uint16_t)0);
+	payload1_in_.SetValue((uint16_t)0);
+	std::this_thread::sleep_for(cap_op_duration);
+	status_busy_in_.SetValue(false);
 }
 
 void
@@ -60,65 +153,6 @@ CapStation::OnUpdate(const common::UpdateInfo &info)
 		spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
 		spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
 		puck_spawned_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
-	}
-}
-
-void
-CapStation::work_puck(std::string puck_name)
-{
-	printf("CAPSTATION: on_work_puck: %s\n", puck_name.c_str());
-
-	set_state(State::AVAILABLE);
-	gazsim_msgs::WorkpieceCommand cmd_msg = gazsim_msgs::WorkpieceCommand();
-	cmd_msg.set_puck_name(puck_name);
-	switch (task_) {
-	case llsf_msgs::CSOp::RETRIEVE_CAP:
-		printf("%s retrives cap from %s\n ", name_.c_str(), puck_name.c_str());
-		cmd_msg.set_command(gazsim_msgs::Command::REMOVE_CAP);
-		puck_cmd_pub_->Publish(cmd_msg);
-		break;
-	case llsf_msgs::CSOp::MOUNT_CAP:
-		if (stored_cap_color_ != gazsim_msgs::Color::NONE) {
-			printf("%s mounts cap on %s with color %s\n",
-			       name_.c_str(),
-			       puck_name.c_str(),
-			       gazsim_msgs::Color_Name(stored_cap_color_).c_str());
-			cmd_msg.set_command(gazsim_msgs::Command::ADD_CAP);
-			cmd_msg.add_color(stored_cap_color_);
-
-			gazebo::msgs::Visual vis_msg;
-			vis_msg.set_parent_name(name_ + "::body");
-			vis_msg.set_name(name_ + "::body::have_cap");
-			gazebo::msgs::Set(vis_msg.mutable_material()->mutable_diffuse(), gzwrap::Color(0.3, 0, 0));
-			visPub_->Publish(vis_msg);
-			puck_cmd_pub_->Publish(cmd_msg);
-			stored_cap_color_ = gazsim_msgs::Color::NONE;
-		} else {
-			printf("%s can't mount cap on %s without a cap loaded first\n",
-			       name_.c_str(),
-			       puck_name.c_str());
-		}
-		break;
-	}
-	//set_state(State::PROCESSED);
-	world_->GZWRAP_MODEL_BY_NAME(puck_name)->SetWorldPose(output());
-	puck_in_processing_name_ = puck_name;
-}
-
-void
-CapStation::on_puck_msg(ConstPosePtr &msg)
-{
-	if (current_state_ == "READY-AT-OUTPUT") {
-		if (puck_in_processing_name_ != ""
-		    && !puck_in_output(
-		      world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE())) {
-			set_state(State::RETRIEVED);
-			puck_in_processing_name_ = "";
-		}
-	} else if (current_state_ == "PREPARED") {
-		if (puck_in_input(msg) && !is_puck_hold(msg->name())) {
-			work_puck(msg->name());
-		}
 	}
 }
 
@@ -154,45 +188,11 @@ CapStation::on_new_puck(ConstNewPuckPtr &msg)
 }
 
 void
-CapStation::new_machine_info(ConstMachine &machine)
-{
-	if (machine.state() == "PREPARED") {
-		task_ = machine.instruction_cs().operation();
-		printf("%s got a new task: %s\n", name_.c_str(), llsf_msgs::CSOp_Name(task_).c_str());
-	} else if (machine.state() == "PROCESSED"
-	           && puck_in_output(
-	             world_->GZWRAP_MODEL_BY_NAME(puck_in_processing_name_)->GZWRAP_WORLD_POSE())) {
-		set_state(State::DELIVERED);
-	} else if (machine.state() == "IDLE" && current_state_ == "DOWN") {
-		for (gazebo::physics::ModelPtr model : world_->GZWRAP_MODELS()) {
-			if (pose_hit(model->GZWRAP_WORLD_POSE(), input())) {
-				work_puck(model->GetName());
-			}
-		}
-	}
-}
-
-void
-CapStation::on_instruct_machine_msg(ConstInstructMachinePtr &msg)
-{
-	//printf("MPS:GOT INSTRUCT MESSAGE\n");
-
-	if (msg->set() != llsf_msgs::INSTRUCT_MACHINE_CS) {
-		return;
-	}
-
-	std::string machine_name = "NOT-SET";
-	machine_name             = msg->machine();
-
-	std::printf("INSTRUCTION MSG FOR: %s\n", machine_name.c_str());
-}
-
-void
 CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 {
 	printf("CAPSTATION: on_puck_result: %s\n", result->puck_name().c_str());
 
-	if (result->puck_name() == puck_in_processing_name_) {
+	if (wp_in_middle_ && result->puck_name() == wp_in_middle_->GetName()) {
 		printf("%s got cap from %s with color %s\n",
 		       name_.c_str(),
 		       result->puck_name().c_str(),
@@ -211,19 +211,19 @@ CapStation::on_puck_result(ConstWorkpieceResultPtr &result)
 gzwrap::Pose3d
 CapStation::shelf_left_pose()
 {
-	return get_puck_world_pose(-0.1, 0, BELT_HEIGHT + 0.005);
+	return get_puck_world_pose(-0.1, 0, belt_height_ + 0.005);
 }
 
 gzwrap::Pose3d
 CapStation::shelf_middle_pose()
 {
-	return get_puck_world_pose(-0.2, 0, BELT_HEIGHT + 0.005);
+	return get_puck_world_pose(-0.2, 0, belt_height_ + 0.005);
 }
 
 gzwrap::Pose3d
 CapStation::shelf_right_pose()
 {
-	return get_puck_world_pose(-0.3, 0, BELT_HEIGHT + 0.005);
+	return get_puck_world_pose(-0.3, 0, belt_height_ + 0.005);
 }
 
 bool

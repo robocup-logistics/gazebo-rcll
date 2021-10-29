@@ -19,7 +19,7 @@
 find_package(Boost REQUIRED COMPONENTS system)
 
 add_library(conveyor_vision SHARED conveyor_vision.cpp)
-target_link_libraries(conveyor_vision PUBLIC gazebo llsf_msgs configurable core
+target_link_libraries(conveyor_vision PUBLIC gazebo mps llsf_msgs configurable core
                                              Boost::system)
 target_include_directories(conveyor_vision PUBLIC ${GAZEBO_INCLUDE_DIRS})
 target_compile_options(conveyor_vision PUBLIC ${GAZEBO_CFLAGS})

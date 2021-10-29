@@ -26,22 +26,20 @@
 #include "mps.h"
 
 #include <gazebo/gazebo.hh>
+#include <memory>
 
 namespace gazebo {
 
 class MpsLoader : public ModelPlugin
 {
 public:
-	MpsLoader();
-	~MpsLoader();
-
 	//Overridden ModelPlugin-Functions
 	virtual void Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/);
 	virtual void OnUpdate(const common::UpdateInfo &);
 	virtual void Reset();
 
 private:
-	Mps *mps_;
+	std::unique_ptr<Mps> mps_;
 };
 
 } // namespace gazebo

@@ -11,6 +11,7 @@ jobs:
             dnf install -y --nodocs \
               cmake \
               boost-devel \
+              freeopcua-devel \
               gazebo-devel \
               gcc-c++ \
               git \
@@ -39,6 +40,7 @@ jobs:
               git \
               libboost-all-dev \
               libgazebo9-dev \
+              libmbedtls-dev \
               libprotobuf-dev \
               libprotoc-dev \
               libssl-dev \
@@ -51,4 +53,5 @@ workflows:
   build:
     jobs:
       - build_fedora
-      - build_ubuntu
+      # Disable for now, freeopcua is not available on Ubuntu.
+      #- build_ubuntu
