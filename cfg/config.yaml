@@ -133,3 +133,5 @@ plugins:
 
   depthcam:
     topic-pcl: "~/depthcam-pcl/"
+
+  enable-public-object-pose-publisher: true

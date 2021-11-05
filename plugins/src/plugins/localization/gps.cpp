@@ -68,6 +68,20 @@ Gps::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 
 	//create publisher
 	this->gps_pub_ = this->node_->Advertise<msgs::Pose>("~/gazsim/gps/");
+
+	//check if WorldNode should be published
+	publish_world_node_ = config->get_bool("plugins/enable-public-object-pose-publisher");
+
+	if (publish_world_node_) {
+		//Create the communication WorldNode for communication with fawkes
+		this->world_node_ = transport::NodePtr(new transport::Node());
+
+		//the namespace is set to WorldSpace!
+		this->world_node_->Init(model_->GetWorld()->GZWRAP_NAME());
+
+		//create WorldNodePublisher
+		this->gps_world_pub_ = this->world_node_->Advertise<msgs::Pose>("~/gazsim/gps/");
+	}
 }
 
 /** Called by the world update start event
@@ -96,19 +110,22 @@ Gps::Reset()
 void
 Gps::send_position()
 {
-	if (gps_pub_->HasConnections()) {
-		//build message
-		msgs::Pose posMsg;
-		posMsg.set_name(this->name_);
-		posMsg.mutable_position()->set_x(this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X);
-		posMsg.mutable_position()->set_y(this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y);
-		posMsg.mutable_position()->set_z(this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Z);
-		posMsg.mutable_orientation()->set_x(this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_X);
-		posMsg.mutable_orientation()->set_y(this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_Y);
-		posMsg.mutable_orientation()->set_z(this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_Z);
-		posMsg.mutable_orientation()->set_w(this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_W);
+	//build message
+	msgs::Pose posMsg;
+	posMsg.set_name(this->name_);
+	posMsg.mutable_position()->set_x(this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_X);
+	posMsg.mutable_position()->set_y(this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Y);
+	posMsg.mutable_position()->set_z(this->model_->GZWRAP_WORLD_POSE().GZWRAP_POS_Z);
+	posMsg.mutable_orientation()->set_x(this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_X);
+	posMsg.mutable_orientation()->set_y(this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_Y);
+	posMsg.mutable_orientation()->set_z(this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_Z);
+	posMsg.mutable_orientation()->set_w(this->model_->GZWRAP_WORLD_POSE().GZWRAP_ROT_W);
 
-		//send
+	//send
+	if (gps_pub_->HasConnections()) {
 		gps_pub_->Publish(posMsg);
+	}
+	if (publish_world_node_ && gps_world_pub_->HasConnections()) {
+		gps_world_pub_->Publish(posMsg);
 	}
 }
