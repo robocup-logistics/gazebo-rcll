@@ -28,7 +28,58 @@
         </geometry>
         <cast_shadows>false</cast_shadows>
       </visual>
-      <collision name="body-collision">
+      
+      <collision name="body1-collision">
+        <pose>0 0 0.735 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.07</length>
+            <radius>0.225</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.2</mu>
+              <mu2>0.2</mu2>
+              <slip1>0.8</slip1>
+              <slip2>0.8</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <min_depth>0.05</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision> 
+      
+      <collision name="body2-collision">
+        <pose>0 0 0.35 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.68</length>
+            <radius>0.06</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.2</mu>
+              <mu2>0.2</mu2>
+              <slip1>0.8</slip1>
+              <slip2>0.8</slip2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <min_depth>0.05</min_depth>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+      
+      <collision name="body3-collision">
         <pose>0 0 0.035 0 0 0</pose>
         <geometry>
           <cylinder>
