@@ -18,6 +18,8 @@
  *  Read the full text in the LICENSE.GPL file in the doc directory.
  */
 
+#include <configurable/configurable.h>
+
 #include <boost/bind.hpp>
 #include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
@@ -32,7 +34,7 @@ namespace gazebo {
    * Provides ground Truth position
    * @author Frederik Zwilling
    */
-class Gps : public ModelPlugin
+class Gps : public ModelPlugin, public gazebo_rcll::ConfigurableAspect
 {
 public:
 	Gps();
@@ -50,8 +52,13 @@ private:
 	event::ConnectionPtr update_connection_;
 	///Node for communication to fawkes
 	transport::NodePtr node_;
+	///WorldNode for communication to fawkes
+	transport::NodePtr world_node_;
 	///name of the gps and the communication channel
 	std::string name_;
+
+	///config value used to ckeck if WorldNode should be published
+	bool publish_world_node_;
 
 	///time variable to send in intervals
 	double last_sent_time_;
@@ -62,5 +69,8 @@ private:
 
 	///Publisher for GyroAngle
 	transport::PublisherPtr gps_pub_;
+
+	///Publisher for PuckPositions
+	transport::PublisherPtr gps_world_pub_;
 };
 } // namespace gazebo
