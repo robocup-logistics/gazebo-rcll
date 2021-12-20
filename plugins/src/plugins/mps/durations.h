@@ -23,7 +23,7 @@
 
 namespace gazebo {
 constexpr const std::chrono::milliseconds move_duration{2500};
-constexpr const std::chrono::milliseconds dispense_duration{1500};
+constexpr const std::chrono::milliseconds dispense_duration{2500};
 constexpr const std::chrono::milliseconds cap_op_duration{3500};
 constexpr const std::chrono::milliseconds deliver_duration{3500};
 constexpr const std::chrono::milliseconds ring_op_duration{3500};
