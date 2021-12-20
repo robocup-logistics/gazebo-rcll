@@ -24,23 +24,15 @@
 
 #include "durations.h"
 
+#include <spdlog/spdlog.h>
+
 using namespace gazebo;
 
 DeliveryStation::DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
-: Mps(_parent, _sdf), prepared_(false)
+: Mps(_parent, _sdf)
 {
 	station_ = Station::STATION_DELIVERY;
 	start_server();
-}
-
-void
-DeliveryStation::on_puck_msg(ConstPosePtr &msg)
-{
-	Mps::on_puck_msg(msg);
-	if (wp_in_input_ && prepared_) {
-		// We received the puck and have been prepared, thus deliver.
-		deliver();
-	}
 }
 
 void
@@ -55,20 +47,12 @@ DeliveryStation::process_command_in()
 		return;
 	}
 	Operation oper = Operation(value - station_);
-	if (oper != Operation::OPERATION_DELIVER) {
+	if (oper == Operation::OPERATION_DELIVER) {
+		deliver();
+	} else {
 		//SPDLOG_LOGGER_WARN(logger, "Unexpected operation {} on station {}", oper, station_);
 		return;
 	}
-	slot_ = uint16_t(payload1_in_.GetValue());
-	if (slot_ != 1 && slot_ != 2 && slot_ != 3) {
-		SPDLOG_LOGGER_WARN(logger, "Unexpected slot__ {}", slot_);
-		return;
-	}
-	prepared_ = true;
-	SPDLOG_LOGGER_INFO(logger, "{} prepared to deliver on slot {}", name_, slot_);
-	status_busy_in_.SetValue(true);
-	action_id_in_.SetValue((uint16_t)0);
-	payload1_in_.SetValue((uint16_t)0);
 }
 
 /** Send delivery information to the refbox and move the puck.
@@ -80,10 +64,19 @@ DeliveryStation::process_command_in()
 void
 DeliveryStation::deliver()
 {
-	if (!prepared_) {
-		// Machine is not prepared yet or there is no workpiece yet.
+	uint16_t slot_ = uint16_t(payload1_in_.GetValue());
+	if (slot_ != 1 && slot_ != 2 && slot_ != 3) {
+		SPDLOG_LOGGER_WARN(logger, "Unexpected slot__ {}", slot_);
 		return;
 	}
+	SPDLOG_LOGGER_INFO(logger, "{} prepared to deliver on slot {}", name_, slot_);
+	if (!wp_in_input_) {
+		SPDLOG_LOGGER_INFO(logger, "No workpiece in machine's input");
+		return;
+	}
+	status_busy_in_.SetValue(true);
+	action_id_in_.SetValue((uint16_t)0);
+	payload1_in_.SetValue((uint16_t)0);
 	std::this_thread::sleep_for(deliver_duration);
 	// TODO use the right gate
 	wp_in_input_->SetWorldPose(get_puck_world_pose(0.3, -0.2));
@@ -97,7 +90,6 @@ DeliveryStation::deliver()
 		cmd_msg.set_team_color(gazsim_msgs::Team::MAGENTA);
 	}
 	puck_cmd_pub_->Publish(cmd_msg);
-	prepared_ = false;
 	wp_in_input_.reset();
 	status_busy_in_.SetValue(false);
 }

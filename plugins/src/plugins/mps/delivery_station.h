@@ -33,13 +33,7 @@ public:
 	DeliveryStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
 
 	void process_command_in();
-
-	void on_puck_msg(ConstPosePtr &msg);
 	void deliver();
-
-private:
-	bool     prepared_;
-	uint16_t slot_;
 };
 
 } // namespace gazebo
