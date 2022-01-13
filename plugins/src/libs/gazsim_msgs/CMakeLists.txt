@@ -23,6 +23,7 @@ protobuf_generate_cpp(
   Float.proto
   NewPuck.proto
   SimTime.proto
+  GripperCommand.proto
   WorkpieceCommand.proto
   LightSignalDetection.proto)
 add_library(gazsim_msgs SHARED ${PROTO_SRCS} ${PROTO_HDRS})
