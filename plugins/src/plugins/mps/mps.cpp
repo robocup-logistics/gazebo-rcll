@@ -37,7 +37,7 @@
 using namespace gazebo;
 
 // Register this plugin to make it available in the simulator
-//GZ_REGISTER_MODEL_PLUGIN(Mps)
+// GZ_REGISTER_MODEL_PLUGIN(Mps)
 
 const std::map<std::string, std::string> Mps::name_id_match = {
   {"C-CS1I", "tag_01"},  {"C-CS1O", "tag_02"},  {"C-CS2I", "tag_17"},  {"C-CS2O", "tag_18"},
@@ -113,6 +113,8 @@ Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 	//machine_reply_pub_ = this->node_->Advertise<llsf_msgs::MachineReply>(topic_machine_reply_);
 	world_ = model_->GetWorld();
 
+	light_cmd_pub_ =
+	  node_->Advertise<llsf_msgs::InstructMachine>(std::string(TOPIC_INSTRUCT_MACHINE));
 	factoryPub         = node_->Advertise<msgs::Factory>("~/factory");
 	puck_cmd_pub_      = node_->Advertise<gazsim_msgs::WorkpieceCommand>(topic_puck_command_);
 	joint_message_sub_ = node_->Subscribe(topic_joint_, &Mps::on_joint_msg, this);
@@ -230,6 +232,43 @@ Mps::process_command_in()
 void
 Mps::process_command_base()
 {
+	uint16_t action_id = uint16_t(action_id_basic_.GetValue());
+	uint16_t payload1  = uint16_t(payload1_basic_.GetValue());
+
+	if (action_id >= 20 and action_id <= 23)
+		set_light(action_id, payload1);
+}
+
+void
+Mps::set_light(uint16_t color, uint16_t state)
+{
+	llsf_msgs::InstructMachine new_msg;
+
+	std::string machine = name_;
+	new_msg.set_machine(machine.c_str());
+
+	// no meaning
+	uint32_t id = 1;
+	new_msg.set_id(id);
+
+	llsf_msgs::InstructMachineSet set = llsf_msgs::INSTRUCT_MACHINE_SET_SIGNAL_LIGHT;
+	new_msg.set_set(set);
+
+	llsf_msgs::LightState ryg_light_states[3] = {llsf_msgs::OFF, llsf_msgs::OFF, llsf_msgs::OFF};
+	llsf_msgs::LightState all_states[3]       = {llsf_msgs::OFF, llsf_msgs::ON, llsf_msgs::BLINK};
+	//color:  reset:20, red:21, yellow:22, green:23
+	//state:  off:0, on:1, blink:2
+	if (color != 20)
+		ryg_light_states[color - 21] = all_states[state];
+
+	llsf_msgs::SetSignalLight *light_state = new llsf_msgs::SetSignalLight();
+	light_state->set_red(ryg_light_states[0]);
+	light_state->set_yellow(ryg_light_states[1]);
+	light_state->set_green(ryg_light_states[2]);
+
+	new_msg.set_allocated_light_state(light_state);
+
+	light_cmd_pub_->Publish(new_msg);
 }
 
 void

@@ -45,6 +45,13 @@
 
 typedef const boost::shared_ptr<gazsim_msgs::NewPuck const> ConstNewPuckPtr;
 
+//typedefs for sending the messages over the gazebo node
+typedef const boost::shared_ptr<llsf_msgs::InstructMachine const> ConstInstructMachinePtr;
+
+//config values
+#define TOPIC_INSTRUCT_MACHINE \
+	config->get_string("plugins/light-control/topic-instruct-machine").c_str()
+
 namespace gazebo {
 
 enum class MachineSide {
@@ -73,8 +80,8 @@ public:
 	virtual void process_command_in();
 	// with payload_base, action_id_base, ...
 	virtual void process_command_base();
-
-	void move_conveyor(const MachineSide &side);
+	void         set_light(uint16_t color, uint16_t state);
+	void         move_conveyor(const MachineSide &side);
 
 protected:
 	// use action_id to calculate station type
@@ -165,6 +172,9 @@ protected:
 
 	// Create a publisher on the ~/factory topic
 	transport::PublisherPtr factoryPub;
+
+	// Create a publisher for light signal command
+	transport::PublisherPtr light_cmd_pub_;
 
 	/// Publisher for puck command
 	transport::PublisherPtr puck_cmd_pub_;
