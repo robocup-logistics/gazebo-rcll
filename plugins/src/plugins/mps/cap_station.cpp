@@ -32,9 +32,7 @@ CapStation::CapStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_p
 {
 	station_ = Station::STATION_CAP;
 	start_server();
-	spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
-	spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
-	spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
+	spawn_three_pucks();
 	workpiece_result_subscriber_ =
 	  node_->Subscribe(topic_puck_command_result_, &CapStation::on_puck_result, this);
 	stored_cap_color_  = gazsim_msgs::Color::NONE;
@@ -131,8 +129,49 @@ CapStation::retrieve_cap()
 }
 
 void
+CapStation::spawn_three_pucks()
+{
+	spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
+	spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
+	spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
+	init_cap_state[0] = false;
+	init_cap_state[1] = false;
+	init_cap_state[2] = false;
+}
+void
+CapStation::init_caps()
+{
+	gazsim_msgs::Color _color = gazsim_msgs::Color::NONE;
+
+	if (name_.find("CS1") != std::string::npos) {
+		_color = gazsim_msgs::Color::GREY;
+	} else if (name_.find("CS2") != std::string::npos) {
+		_color = gazsim_msgs::Color::BLACK;
+	}
+
+	if (_color != gazsim_msgs::Color::NONE) {
+		physics::ModelPtr puck_list[3]  = {puck_in_shelf_left_,
+                                      puck_in_shelf_middle_,
+                                      puck_in_shelf_right_};
+		gzwrap::Pose3d puck_pos_list[3] = {shelf_left_pose(), shelf_middle_pose(), shelf_right_pose()};
+		for (int i = 0; i < 3; i++) {
+			if (!init_cap_state[i] && puck_list[i]) {
+				gazsim_msgs::WorkpieceCommand cmd;
+				cmd.set_command(gazsim_msgs::Command::ADD_CAP);
+				cmd.add_color(_color);
+				cmd.set_puck_name(puck_list[i]->GetName());
+				puck_cmd_pub_->Publish(cmd);
+				init_cap_state[i] = true;
+				break;
+			}
+		}
+	}
+}
+
+void
 CapStation::OnUpdate(const common::UpdateInfo &info)
 {
+	//updata_time = (updata_time + 1) % 3;
 	Mps::OnUpdate(info);
 	if (model_->GetWorld()->GZWRAP_SIM_TIME().Double() - puck_spawned_time_ < SPAWN_PUCK_TIME) {
 		return;
@@ -149,11 +188,10 @@ CapStation::OnUpdate(const common::UpdateInfo &info)
 		puck_in_shelf_right_ = nullptr;
 	if (!puck_in_shelf_right_ && !puck_in_shelf_middle_ && !puck_in_shelf_left_) {
 		//shelf is empty -> refill
-		spawn_puck(shelf_left_pose(), gazsim_msgs::Color::RED);
-		spawn_puck(shelf_middle_pose(), gazsim_msgs::Color::RED);
-		spawn_puck(shelf_right_pose(), gazsim_msgs::Color::RED);
+		spawn_three_pucks();
 		puck_spawned_time_ = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
 	}
+	init_caps();
 }
 
 void
@@ -165,23 +203,13 @@ CapStation::on_new_puck(ConstNewPuckPtr &msg)
 	physics::Model_V models = world_->GZWRAP_MODELS();
 	for (physics::ModelPtr model : models) {
 		if (model->GetName() == msg->puck_name()) {
-			gazsim_msgs::WorkpieceCommand cmd;
-			cmd.set_command(gazsim_msgs::Command::ADD_CAP);
-			if (name_.find("CS1") != std::string::npos) {
-				cmd.add_color(gazsim_msgs::Color::GREY);
-			} else if (name_.find("CS2") != std::string::npos) {
-				cmd.add_color(gazsim_msgs::Color::BLACK);
-			}
-			cmd.set_puck_name(msg->puck_name());
-			if (pose_in_shelf_left(model->GZWRAP_WORLD_POSE())) {
+			if (puck_in_shelf_left_ != model && pose_in_shelf_left(model->GZWRAP_WORLD_POSE())) {
 				puck_in_shelf_left_ = model;
-				puck_cmd_pub_->Publish(cmd);
-			} else if (pose_in_shelf_middle(model->GZWRAP_WORLD_POSE())) {
+			} else if (puck_in_shelf_middle_ != model
+			           && pose_in_shelf_middle(model->GZWRAP_WORLD_POSE())) {
 				puck_in_shelf_middle_ = model;
-				puck_cmd_pub_->Publish(cmd);
-			} else if (pose_in_shelf_right(model->GZWRAP_WORLD_POSE())) {
+			} else if (puck_in_shelf_right_ != model && pose_in_shelf_right(model->GZWRAP_WORLD_POSE())) {
 				puck_in_shelf_right_ = model;
-				puck_cmd_pub_->Publish(cmd);
 			}
 		}
 	}

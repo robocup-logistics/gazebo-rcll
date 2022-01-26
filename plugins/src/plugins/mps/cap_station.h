@@ -42,6 +42,8 @@ public:
 	void process_command_in() override;
 	void mount_cap();
 	void retrieve_cap();
+	void init_caps();
+	void spawn_three_pucks();
 
 	gzwrap::Pose3d shelf_left_pose();
 	gzwrap::Pose3d shelf_middle_pose();
@@ -58,8 +60,10 @@ public:
 	gazsim_msgs::Color stored_cap_color_;
 
 	transport::SubscriberPtr workpiece_result_subscriber_;
-
-	double puck_spawned_time_;
+	bool                     init_cap_state[3] = {false, false, false};
+	std::string              puck_name[3];
+	int                      updata_time = 0;
+	double                   puck_spawned_time_;
 };
 
 } // namespace gazebo
