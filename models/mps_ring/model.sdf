@@ -219,7 +219,7 @@
     <include>
       <name>light_signals</name>
       <uri>model://light_signals</uri>
-      <pose>-0.08 -0.13 0.92 0 0 0</pose>
+      <pose>-0.08 -0.127 0.925 0 0 0</pose>
     </include>
 
 

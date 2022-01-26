@@ -284,7 +284,7 @@
     <include>
       <name>light_signals</name>
       <uri>model://light_signals</uri>
-      <pose>-0.2905 -0.113 0.915 0 0 0</pose>
+      <pose>-0.286 0.11 0.93 0 0 0</pose>
     </include>
 
 
