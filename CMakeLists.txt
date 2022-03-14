@@ -23,6 +23,8 @@ include(GNUInstallDirs)
 
 include(third_party/third_party.cmake)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
 set(USERDIR
     ".config/rcll/gazebo"
     CACHE
