@@ -18,4 +18,4 @@
 
 find_package(yaml-cpp 0.5 REQUIRED)
 add_library(config SHARED config.cpp yaml.cpp)
-target_link_libraries(config PRIVATE yaml-cpp)
+target_link_libraries(config PRIVATE core yaml-cpp)
