@@ -52,6 +52,10 @@ enum class MachineSide {
 	MIDDLE = 2,
 	OUTPUT = 3,
 };
+
+std::ostream&
+operator<<(std::ostream& os, const MachineSide& m);
+
 /**
    * Plugin to control a simulated MPS
    * @author Frederik Zwilling
