@@ -847,7 +847,7 @@ void
 Thread::yield()
 {
 #ifdef __USE_GNU
-	pthread_yield();
+	sched_yield();
 #else
 	usleep(0);
 #endif
