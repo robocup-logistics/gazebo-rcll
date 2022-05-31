@@ -40,13 +40,13 @@ using namespace gazebo;
 //GZ_REGISTER_MODEL_PLUGIN(Mps)
 
 const std::map<std::string, std::string> Mps::name_id_match = {
-  {"C-CS1I", "tag_01"},  {"C-CS1O", "tag_02"},  {"C-CS2I", "tag_17"},  {"C-CS2O", "tag_18"},
-  {"C-RS1I", "tag_33"},  {"C-RS1O", "tag_34"},  {"C-RS2I", "tag_177"}, {"C-RS2O", "tag_178"},
-  {"C-BSI", "tag_65"},   {"C-BSO", "tag_66"},   {"C-DSI", "tag_81"},   {"C-DSO", "tag_82"},
-  {"M-CS1I", "tag_97"},  {"M-CS1O", "tag_98"},  {"M-CS2I", "tag_113"}, {"M-CS2O", "tag_114"},
-  {"M-RS1I", "tag_129"}, {"M-RS1O", "tag_130"}, {"M-RS2I", "tag_145"}, {"M-RS2O", "tag_146"},
-  {"M-BSI", "tag_161"},  {"M-BSO", "tag_162"},  {"M-DSI", "tag_49"},   {"M-DSO", "tag_50"},
-  {"C-SSO", "tag_194"},  {"C-SSI", "tag_193"},  {"M-SSO", "tag_210"},  {"M-SSI", "tag_209"}};
+  {"C-CS1I", "tag_102"},  {"C-CS1O", "tag_101"},  {"C-CS2I", "tag_104"},  {"C-CS2O", "tag_103"},
+  {"C-RS1I", "tag_112"},  {"C-RS1O", "tag_111"},  {"C-RS2I", "tag_114"}, {"C-RS2O", "tag_113"},
+  {"C-BSI", "tag_122"},   {"C-BSO", "tag_121"},   {"C-DSI", "tag_132"},   {"C-DSO", "tag_131"},
+  {"M-CS1I", "tag_202"},  {"M-CS1O", "tag_201"},  {"M-CS2I", "tag_204"}, {"M-CS2O", "tag_203"},
+  {"M-RS1I", "tag_212"}, {"M-RS1O", "tag_211"}, {"M-RS2I", "tag_214"}, {"M-RS2O", "tag_213"},
+  {"M-BSI", "tag_222"},  {"M-BSO", "tag_221"},  {"M-DSI", "tag_232"},   {"M-DSO", "tag_231"},
+  {"C-SSO", "tag_141"},  {"C-SSI", "tag_142"},  {"M-SSO", "tag_241"},  {"M-SSI", "tag_242"}};
 
 ///Constructor
 Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
