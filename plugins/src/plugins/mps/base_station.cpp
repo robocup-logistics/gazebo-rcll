@@ -30,6 +30,12 @@
 #include <functional>
 #include <thread>
 
+std::ostream&
+gazebo::operator<<(std::ostream& os, const gazebo::BaseColor& b)
+{
+         return os << static_cast<int>(b);
+}
+
 using namespace gazebo;
 
 BaseStation::BaseStation(physics::ModelPtr _parent, sdf::ElementPtr _sdf) : Mps(_parent, _sdf)

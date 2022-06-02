@@ -48,6 +48,12 @@ const std::map<std::string, std::string> Mps::name_id_match = {
   {"M-BSI", "tag_161"},  {"M-BSO", "tag_162"},  {"M-DSI", "tag_49"},   {"M-DSO", "tag_50"},
   {"C-SSO", "tag_194"},  {"C-SSI", "tag_193"},  {"M-SSO", "tag_210"},  {"M-SSI", "tag_209"}};
 
+std::ostream&
+gazebo::operator<<(std::ostream& os, const gazebo::MachineSide& m)
+{
+         return os << static_cast<int>(m);
+}
+
 ///Constructor
 Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
 : model_(_parent), name_(model_->GetName()), sclt_in(this), sclt_base(this), shutdown_(false)

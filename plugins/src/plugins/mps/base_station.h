@@ -29,6 +29,9 @@ namespace gazebo {
 
 enum class BaseColor { RED = 1, SILVER, BLACK };
 
+std::ostream&
+operator<<(std::ostream& os, const BaseColor& b);
+
 class BaseStation : public Mps
 {
 public:
