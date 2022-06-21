@@ -50,7 +50,7 @@ const std::map<std::string, std::string> Mps::name_id_match = {
 
 ///Constructor
 Mps::Mps(physics::ModelPtr _parent, sdf::ElementPtr)
-: model_(_parent), name_(model_->GetName()), sclt_in(this), sclt_base(this), shutdown_(false)
+:  shutdown_(false), model_(_parent), name_(model_->GetName()), sclt_in(this), sclt_base(this)
 {
 	auto sinks = spdlog::default_logger()->sinks();
 	sinks.push_back(
