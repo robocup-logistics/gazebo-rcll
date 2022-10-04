@@ -30,7 +30,7 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION
                                             GREATER_EQUAL 11)
-  list(APPEND GAZEBO_CFLAGS -Wno-range-loop-construct)
+  list(APPEND GAZEBO_CFLAGS -Wno-range-loop-construct -Wno-deprecated-declarations)
 endif()
 
 include_directories(libs)
