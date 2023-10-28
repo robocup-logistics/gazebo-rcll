@@ -25,7 +25,7 @@
     <include>
       <name>gripper</name>
       <uri>model://carologistics-gripper</uri>
-      <pose>0.285 0 0.92 0 0 0</pose>
+      <pose>0.183 0 0.893 0 0 0</pose>
     </include>
     <include>
       <uri>model://infrared_sensor</uri>
@@ -44,6 +44,20 @@
 
     <link name="base_link">
       <pose>0 0 0.01 0 0 0</pose>	
+    </link>
+
+    <link name="gripper_chain_link_1">
+      <gravity>false</gravity>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
+    </link>
+
+    <link name="gripper_chain_link_2">
+      <gravity>false</gravity>
+      <inertial>
+        <mass>0.1</mass>
+      </inertial>
     </link>
 
     <joint name="base_link_joint" type="fixed">
@@ -100,16 +114,49 @@
         </limit>
       </axis>
     </joint>
-    <joint name="gripper_joint" type="revolute">
-      <child>gripper::link</child>
+    <joint name="gripper_joint_x" type="prismatic">
+      <child>gripper_chain_link_1</child>
       <parent>robotino3::body</parent>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <upper>0.115</upper>
+          <lower>0</lower>
+        </limit>
+        <dynamics>
+          <friction>10.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <joint name="gripper_joint_y" type="prismatic">
+      <child>gripper_chain_link_2</child>
+      <parent>gripper_chain_link_1</parent>
+      <pose>0 0 0 0 0 0</pose>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <upper>0.0285</upper>
+          <lower>-0.0285</lower>
+        </limit>
+        <dynamics>
+          <friction>10.0</friction>
+        </dynamics>
+      </axis>
+    </joint>
+    <joint name="gripper_joint_z" type="prismatic">
+      <child>gripper::gripper-hand</child>
+      <parent>gripper_chain_link_2</parent>
       <pose>0 0 0 0 0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
-          <upper>0</upper>
+          <upper>0.057</upper>
           <lower>0</lower>
         </limit>
+        <dynamics>
+          <friction>10.0</friction>
+        </dynamics>
       </axis>
     </joint>
     <joint name="infrared_puck_sensor_joint" type="revolute">

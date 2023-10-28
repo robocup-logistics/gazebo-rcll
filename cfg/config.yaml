@@ -118,7 +118,15 @@ plugins:
     topic-set-conveyor: "~/RobotinoSim/SetConveyor/"
     topic-holds-puck: "~/RobotinoSim/GripperHasPuck/"
     topic-joint: "/GripperJoints/Holding"
-    radius-grab-area: 0.1
+    topic-final: "~/RobotinoSim/GripperFinal/"
+    topic-pose: "~/RobotinoSim/GripperPose/"
+    topic-closed: "~/RobotinoSim/GripperClosed/"
+    radius-grab-area: 0.0055
+    gripper-tolerance: 0.002
+    gripper-velocity: 0.5
+    finger-tolerance: 0.001
+    finger-open-velocity: 1.0
+    finger-close-velocity: 0.5
 
   light-control:
     topic-instruct-machine: "~/LLSFRbSim/InstructMachine/"

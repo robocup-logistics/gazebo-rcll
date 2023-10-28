@@ -34,7 +34,6 @@ GZ_REGISTER_MODEL_PLUGIN(Gripper)
 ///Constructor
 Gripper::Gripper()
 {
-	last_action_rcvd_ = NOTHING;
 }
 ///Destructor
 Gripper::~Gripper()
@@ -69,18 +68,47 @@ Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 	this->set_gripper_sub_ =
 	  this->node_->Subscribe(std::string(TOPIC_SET_GRIPPER), &Gripper::on_set_gripper_msg, this);
 
-	has_puck_pub_ = this->node_->Advertise<msgs::Int>(TOPIC_HOLDS_PUCK);
-	joint_pub_    = this->node_->Advertise<msgs::Joint>(TOPIC_JOINT);
+	//create publisher
+	has_puck_pub_       = this->node_->Advertise<msgs::Int>(TOPIC_HOLDS_PUCK);
+	joint_pub_          = this->node_->Advertise<msgs::Joint>(TOPIC_JOINT);
+	gripper_pose_pub_   = this->node_->Advertise<msgs::Pose>(TOPIC_GRIPPER_POSE);
+	final_pub_          = this->node_->Advertise<msgs::Int>(TOPIC_FINAL);
+	gripper_closed_pub_ = this->node_->Advertise<msgs::Int>(TOPIC_GRIPPER_CLOSED);
 
-	robotino_      = model_->GetParentModel();
-	robotino_link_ = robotino_->GetChildLink("robotino3::body");
+	gripperHandLink_ = getLinkEndingWith(model_, "gripper-hand");
 
-	grabJoint = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint("revolute", model_);
-	grabJoint->SetName("gripper_grab_puck");
-	grabJoint->SetModel(model_);
-	// grabJoint->SetPose(gazebo::math::Vector3(0.0,0.0,0.0));
+	leftFingerJoint_  = getJointEndingWith(model_, "left-finger-hinge");
+	rightFingerJoint_ = getJointEndingWith(model_, "right-finger-hinge");
 
-	action_duration_ = 3.0;
+	if (leftFingerJoint_) {
+		//finger_yaw - 90°rotation = 1.04719 - pi/2 = -0.5236
+		leftFingerJoint_->SetAxis(0, {cos(-0.5236), sin(-0.5236), 0});
+	}
+	if (rightFingerJoint_) {
+		//finger_yaw - 90°rotation = -1.04719 - pi/2 = -2.6180
+		rightFingerJoint_->SetAxis(0, {cos(-2.6180), sin(-2.6180), 0});
+	}
+
+	gripperJointX_ = getJointEndingWith(model_, "gripper_joint_x");
+	gripperJointY_ = getJointEndingWith(model_, "gripper_joint_y");
+	gripperJointZ_ = getJointEndingWith(model_, "gripper_joint_z");
+
+	if (gripperJointY_) {
+		//reverse y-axis
+		gripperJointY_->SetAxis(0, {0, -1, 0});
+	}
+
+	grabJoint_ = model_->GetWorld()->GZWRAP_PHYSICS()->CreateJoint("fixed", model_);
+	grabJoint_->SetName("gripper_grab_puck");
+	grabJoint_->SetModel(model_);
+
+	sendGripperClosed(true);
+	finger_moving_         = 0;
+	gripper_moving_        = false;
+	left_last_yaw_         = 10;
+	left_second_last_yaw_  = 10;
+	right_last_yaw_        = 10;
+	right_second_last_yaw_ = 10;
 }
 
 /** Called by the world update start event
@@ -88,26 +116,97 @@ Gripper::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 void
 Gripper::OnUpdate(const common::UpdateInfo & /*_info*/)
 {
-	if (message_queue_.empty()) {
-		return;
+	//if gripper is opening
+	if (finger_moving_ == 1) {
+		if (leftFingerJoint_->Position(0) >= leftFingerJoint_->UpperLimit(0) - FINGER_TOLERANCE
+		    && rightFingerJoint_->Position(0) >= rightFingerJoint_->UpperLimit(0) - FINGER_TOLERANCE) {
+			std::cout << "Gripper open" << std::endl;
+			sendGripperClosed(false);
+			setFingerMoving(0);
+		}
+
+		if (leftFingerJoint_->Position(0) < leftFingerJoint_->UpperLimit(0) - FINGER_TOLERANCE) {
+			leftFingerJoint_->SetVelocity(0, FINGER_OPEN_VELOCITY);
+		}
+
+		if (rightFingerJoint_->Position(0) < rightFingerJoint_->UpperLimit(0) - FINGER_TOLERANCE) {
+			rightFingerJoint_->SetVelocity(0, FINGER_OPEN_VELOCITY);
+		}
+		//if gripper is closing
+	} else if (finger_moving_ == 2) {
+		//gripper is closed if fingers are at LowerLimit or cannot close
+		//further (e.g. because the puck is blocking one)
+		if ((leftFingerJoint_->Position(0) >= left_second_last_yaw_
+		     || leftFingerJoint_->Position(0) <= rightFingerJoint_->LowerLimit(0) + FINGER_TOLERANCE)
+		    && (rightFingerJoint_->Position(0) >= right_second_last_yaw_
+		        || rightFingerJoint_->Position(0)
+		             <= rightFingerJoint_->LowerLimit(0) + FINGER_TOLERANCE)) {
+			std::cout << "Gripper closed" << std::endl;
+			sendGripperClosed(true);
+			setFingerMoving(0);
+			left_last_yaw_         = 10;
+			left_second_last_yaw_  = 10;
+			right_last_yaw_        = 10;
+			right_second_last_yaw_ = 10;
+			grabWP();
+		} else {
+			left_last_yaw_         = leftFingerJoint_->Position(0);
+			left_second_last_yaw_  = left_last_yaw_;
+			right_last_yaw_        = rightFingerJoint_->Position(0);
+			right_second_last_yaw_ = right_last_yaw_;
+		}
+
+		if (leftFingerJoint_->Position(0) > leftFingerJoint_->LowerLimit(0) + FINGER_TOLERANCE) {
+			leftFingerJoint_->SetVelocity(0, -FINGER_CLOSE_VELOCITY);
+		}
+
+		if (rightFingerJoint_->Position(0) > rightFingerJoint_->LowerLimit(0) + FINGER_TOLERANCE) {
+			rightFingerJoint_->SetVelocity(0, -FINGER_CLOSE_VELOCITY);
+		}
 	}
 
-	//    double time = model_->GetWorld()->GZWRAP_SIM_TIME().Double();
-	//    if(time - last_action_time_ < action_duration_){
-	//        std::cout << "WAIT FOR GRIPPER_ACTION" << std::endl;
-	//        return;
-	//    } else{
-	//      last_action_time_ = time;
-	//      std::cout << "START GRIPPER ACTION" << std::endl;
-	//    }
+	if (gripper_moving_) {
+		if (gripperJointX_->Position(0) <= gripper_target_x_ + GRIPPER_TOLERANCE
+		    && gripperJointX_->Position(0) >= gripper_target_x_ - GRIPPER_TOLERANCE
+		    && gripperJointY_->Position(0) <= gripper_target_y_ + GRIPPER_TOLERANCE
+		    && gripperJointY_->Position(0) >= gripper_target_y_ - GRIPPER_TOLERANCE
+		    && gripperJointZ_->Position(0) <= gripper_target_z_ + GRIPPER_TOLERANCE
+		    && gripperJointZ_->Position(0) >= gripper_target_z_ - GRIPPER_TOLERANCE) {
+			std::cout << "Gripper reached position (" + std::to_string(gripper_target_x_) + ","
+			               + std::to_string(gripper_target_y_) + "," + std::to_string(gripper_target_z_)
+			               + ")"
+			          << std::endl;
+			setGripperMoving(false);
+		}
+		if (gripperJointX_->Position(0) < gripper_target_x_ - GRIPPER_TOLERANCE) {
+			gripperJointX_->SetVelocity(0, GRIPPER_VELOCITY);
+		} else if (gripperJointX_->Position(0) > gripper_target_x_ + GRIPPER_TOLERANCE) {
+			gripperJointX_->SetVelocity(0, -GRIPPER_VELOCITY);
+		}
 
-	int action = message_queue_.front();
-	message_queue_.pop();
+		if (gripperJointY_->Position(0) < gripper_target_y_ - GRIPPER_TOLERANCE) {
+			gripperJointY_->SetVelocity(0, GRIPPER_VELOCITY);
+		} else if (gripperJointY_->Position(0) > gripper_target_y_ + GRIPPER_TOLERANCE) {
+			gripperJointY_->SetVelocity(0, -GRIPPER_VELOCITY);
+		}
 
-	switch (action) {
-	case CLOSE: this->close(); break;
-	case OPEN: this->open(); break;
-	default: last_action_rcvd_ = NOTHING; break;
+		if (gripperJointZ_->Position(0) < gripper_target_z_ - GRIPPER_TOLERANCE) {
+			gripperJointZ_->SetVelocity(0, GRIPPER_VELOCITY);
+		} else if (gripperJointZ_->Position(0) > gripper_target_z_ + GRIPPER_TOLERANCE) {
+			gripperJointZ_->SetVelocity(0, -GRIPPER_VELOCITY);
+		}
+
+		//send position
+		msgs::Pose posMsg;
+		posMsg.set_name(this->name_);
+		posMsg.mutable_position()->set_x(gripperJointX_->Position(0));
+		posMsg.mutable_position()->set_y(gripperJointY_->Position(0));
+		posMsg.mutable_position()->set_z(gripperJointZ_->Position(0));
+		posMsg.mutable_orientation()->set_x(0);
+		posMsg.mutable_orientation()->set_y(0);
+		posMsg.mutable_orientation()->set_z(0);
+		posMsg.mutable_orientation()->set_w(0);
+		gripper_pose_pub_->Publish(posMsg);
 	}
 }
 
@@ -123,13 +222,90 @@ Gripper::Reset()
  * @param msg message
  */
 void
-Gripper::on_set_gripper_msg(ConstIntPtr &msg)
+Gripper::on_set_gripper_msg(ConstGripperCommandPtr &msg)
 {
-	switch (msg->data()) {
-	case 0: message_queue_.push(CLOSE); break;
-	case 1: message_queue_.push(OPEN); break;
-	case 2: message_queue_.push(MOVE); break;
-	default: break;
+	switch (msg->command()) {
+	case 0: close(); break;
+	case 1: open(); break;
+	case 2: move_gripper(msg->x(), msg->y(), msg->z()); break;
+	default: std::cerr << "Unexpected Gripper Command!" << std::endl; break;
+	}
+}
+
+void
+Gripper::close()
+{
+	std::cout << "Closing gripper" << std::endl;
+
+	if (grippedPuck_) {
+		sendHasPuck(true);
+		return;
+	}
+
+	if (!(leftFingerJoint_ && rightFingerJoint_)) {
+		std::cout << "Could not find all joints to close the gripper!" << std::endl;
+	} else {
+		setFingerMoving(2);
+	}
+}
+
+void
+Gripper::open()
+{
+	std::cout << "Opening gripper" << std::endl;
+
+	// start moving the fingers
+	if (!(leftFingerJoint_ && rightFingerJoint_)) {
+		std::cout << "Could not find all joints to open the gripper!" << std::endl;
+	} else {
+		setFingerMoving(1);
+	}
+
+	// remove puck
+	if (!grippedPuck_) {
+		return;
+	}
+
+	gazebo::physics::LinkPtr puckLink = getLinkEndingWith(grippedPuck_, "cylinder");
+	if (!puckLink) {
+		std::cerr << "Link 'cylinder' not found in workpiece model!" << std::endl;
+		return;
+	}
+
+	puckLink->SetCollideMode("all");
+	grabJoint_->Detach();
+	grippedPuck_.reset();
+	sendHasPuck(false);
+}
+
+void
+Gripper::move_gripper(float x, float y, float z)
+{
+	float target_x = std::max((float)gripperJointX_->LowerLimit(0),
+	                          std::min(x, (float)gripperJointX_->UpperLimit(0)));
+	float target_y = std::max((float)gripperJointY_->LowerLimit(0),
+	                          std::min(y, (float)gripperJointY_->UpperLimit(0)));
+	float target_z = std::max((float)gripperJointZ_->LowerLimit(0),
+	                          std::min(z, (float)gripperJointZ_->UpperLimit(0)));
+	if (!(gripperJointX_ && gripperJointY_ && gripperJointZ_)) {
+		std::cout << "Could not find all joints to move the gripper!" << std::endl;
+	} else {
+		if (x != target_x || y != target_y || z != target_z) {
+			std::cout << "Gripper Position (" + std::to_string(x) + "," + std::to_string(y) + ","
+			               + std::to_string(z) + ") cannot be reached!"
+			          << std::endl;
+			std::cout << "Gripper moves to (" + std::to_string(target_x) + "," + std::to_string(target_y)
+			               + "," + std::to_string(target_z) + ") instead!"
+			          << std::endl;
+		} else {
+			std::cout << "Moving gripper to (" + std::to_string(x) + "," + std::to_string(y) + ","
+			               + std::to_string(z) + ")"
+			          << std::endl;
+		}
+		setGripperMoving(true);
+		gripper_target_x_ = target_x;
+		gripper_target_y_ = target_y;
+		gripper_target_z_ = target_z;
 	}
 }
 
@@ -146,8 +322,9 @@ Gripper::getLinkEndingWith(physics::ModelPtr model, std::string ending)
 {
 	std::vector<gazebo::physics::LinkPtr> links = model->GetLinks();
 	for (unsigned int i = 0; i < links.size(); i++) {
-		if (ends_with(links[i]->GetName(), ending))
+		if (ends_with(links[i]->GetName(), ending)) {
 			return links[i];
+		}
 	}
 	return gazebo::physics::LinkPtr();
 }
@@ -157,93 +334,48 @@ Gripper::getJointEndingWith(physics::ModelPtr model, std::string ending)
 {
 	std::vector<gazebo::physics::JointPtr> joints = model->GetJoints();
 	for (unsigned int i = 0; i < joints.size(); i++) {
-		if (ends_with(joints[i]->GetName(), ending))
+		if (ends_with(joints[i]->GetName(), ending)) {
 			return joints[i];
+		}
 	}
 	return gazebo::physics::JointPtr();
 }
 
 void
-Gripper::close()
+Gripper::grabWP()
 {
-	std::cout << "Closing gripper!" << std::endl;
-
-	if (grippedPuck) {
-		sendHasPuck(true);
+	grippedPuck_ = getNearestPuck();
+	if (!grippedPuck_) {
+		printf("No Puck found in gripper.!\n");
 		return;
 	}
 
-	grippedPuck = getNearestPuck();
-	if (!grippedPuck) {
-		printf("No Puck found in gripper.\n");
+	if (!gripperHandLink_) {
+		std::cerr << "Link 'gripper_grab' not found in gripper model!" << std::endl;
 		return;
 	}
 
 	//teleport puck into gripper center
-	setPuckPose();
+	//gzwrap::Pose3d newPose = gripperHandLink_->GZWRAP_WORLD_POSE();
+	//grippedPuck_->SetWorldPose(newPose);
 
-	// link both models through a joint
-	gazebo::physics::LinkPtr gripperLink = getLinkEndingWith(model_, "link");
-
-	if (!gripperLink) {
-		std::cerr << "Link 'gripper_grab' not found in gripper model" << std::endl;
-		return;
-	}
-
-	gazebo::physics::LinkPtr puckLink = getLinkEndingWith(grippedPuck, "cylinder");
+	gazebo::physics::LinkPtr puckLink = getLinkEndingWith(grippedPuck_, "cylinder");
 	if (!puckLink) {
-		std::cerr << "Link 'cylinder' not found in workpiece model" << std::endl;
+		std::cerr << "Link 'cylinder' not found in workpiece model!" << std::endl;
 		return;
 	}
 
-	grabJoint->Load(gripperLink, puckLink, gzwrap::Pose3d(-0.285, 0, 0, 0, 0, 0));
-	grabJoint->Attach(gripperLink, puckLink);
-
-	grabJoint->SetAxis(0, gzwrap::Vector3d::UnitZ);
-#if GAZEBO_MAJOR_VERSION >= 8
-	grabJoint->SetUpperLimit(0, 0);
-	grabJoint->SetLowerLimit(0, 0);
-#else
-	grabJoint->SetHighStop(0, gazebo::math::Angle(0.0f));
-	grabJoint->SetLowStop(0, gazebo::math::Angle(0.0f));
-#endif
+	puckLink->SetCollideMode("none");
+	grabJoint_->Attach(gripperHandLink_, puckLink);
 
 	sendHasPuck(true);
-}
-
-void
-Gripper::open()
-{
-	if (!grippedPuck)
-		return;
-
-	grabJoint->Detach();
-
-	std::cout << "Opening gripper!" << std::endl;
-	grippedPuck.reset();
-
-	sendHasPuck(false);
-}
-
-void
-Gripper::setPuckPose()
-{
-	if (!grippedPuck)
-		return;
-	gzwrap::Pose3d newPose = getGripperLink()->GZWRAP_WORLD_POSE();
-
-	// printf("gripper pos: (%f,%f,%f)", newPose.pos.x, newPose.pos.y, newPose.rot.GetYaw());
-	// newPose.pos.x += 0.28 * cos(newPose.rot.GetYaw());
-	// newPose.pos.y += 0.28 * sin(newPose.rot.GetYaw());
-	// newPose.pos.z += 0.93;
-	grippedPuck->SetWorldPose(newPose);
 }
 
 physics::ModelPtr
 Gripper::getNearestPuck()
 {
 	physics::ModelPtr nearest;
-	gzwrap::Pose3d    gripperPose = getGripperLink()->GZWRAP_WORLD_POSE();
+	gzwrap::Pose3d    gripperPose = getLinkEndingWith(model_, "gripper-hand")->GZWRAP_WORLD_POSE();
 	double            distance    = DBL_MAX;
 	unsigned int      modelCount  = model_->GetWorld()->GZWRAP_MODEL_COUNT();
 	physics::ModelPtr tmp;
@@ -259,7 +391,7 @@ Gripper::getNearestPuck()
 		}
 	}
 	if (nearest == nullptr) {
-		grippedPuck.reset();
+		grippedPuck_.reset();
 		return nullptr;
 	}
 	std::cout << "Nearest puck: " << nearest->GetName() << std::endl;
@@ -267,8 +399,8 @@ Gripper::getNearestPuck()
 	if (distance < RADIUS_GRAB_AREA) {
 		return nearest;
 	} else {
-		grippedPuck.reset();
-		return grippedPuck;
+		grippedPuck_.reset();
+		return grippedPuck_;
 	}
 }
 
@@ -286,11 +418,11 @@ Gripper::sendHasPuck(bool has_puck)
 	//send info to mps
 	msgs::Joint joint_msg;
 	joint_msg.set_name(name_);
-	joint_msg.set_id(grabJoint->GetId());
-	joint_msg.set_parent_id(grabJoint->GetId());
+	joint_msg.set_id(grabJoint_->GetId());
+	joint_msg.set_parent_id(grabJoint_->GetId());
 	if (has_puck) {
-		joint_msg.set_child_id(grippedPuck->GetId());
-		joint_msg.set_child(grippedPuck->GetName());
+		joint_msg.set_child_id(grippedPuck_->GetId());
+		joint_msg.set_child(grippedPuck_->GetName());
 	} else {
 		joint_msg.set_child_id(0);
 		joint_msg.set_child("");
@@ -298,30 +430,48 @@ Gripper::sendHasPuck(bool has_puck)
 	joint_pub_->Publish(joint_msg);
 }
 
-/**
- * Get the link of the gripper, which could be directly included in the model or in a submodel
- * (e.g. when having a model robotino-number-1 which includes a team specific robotino model that contains the gripper)
- */
-gazebo::physics::LinkPtr
-Gripper::getGripperLink()
+void
+Gripper::setGripperMoving(bool moving)
 {
-	// XXX: Switch to 'constexpr linkLen = length("gripper::link")' in c++11
-	static const short int linkLen = strlen("gripper::link");
+	gripper_moving_ = moving;
 
-	// Search for gripper in model
-	physics::LinkPtr res = model_->GetLink("gripper::link");
-	if (res)
-		return res;
-
-	// Search for gripper link in included submodels
-	std::vector<physics::LinkPtr> links = model_->GetLinks();
-	for (std::vector<physics::LinkPtr>::iterator it = links.begin(); it != links.end(); it++) {
-		printf("Checking %s\n", (*it)->GetName().c_str());
-		if ((*it)->GetName().rfind("gripper::link", (*it)->GetName().length() - linkLen)
-		    != std::string::npos)
-			return (*it);
+	// update final
+	msgs::Int msg;
+	if (moving) {
+		msg.set_data(0);
+	} else if (finger_moving_ == 0) {
+		msg.set_data(1);
+	} else {
+		return;
 	}
-	printf("Could not find gripper link of model %s\n", name_.c_str());
+	final_pub_->Publish(msg);
+}
 
-	return res;
+void
+Gripper::setFingerMoving(int moving)
+{
+	finger_moving_ = moving;
+
+	// update final
+	msgs::Int msg;
+	if (moving) {
+		msg.set_data(0);
+	} else if (!gripper_moving_) {
+		msg.set_data(1);
+	} else {
+		return;
+	}
+	final_pub_->Publish(msg);
+}
+
+void
+Gripper::sendGripperClosed(bool closed)
+{
+	msgs::Int msg;
+	if (closed) {
+		msg.set_data(1);
+	} else {
+		msg.set_data(0);
+	}
+	gripper_closed_pub_->Publish(msg);
 }

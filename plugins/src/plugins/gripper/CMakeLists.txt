@@ -17,6 +17,6 @@
 #
 
 add_library(gripper SHARED gripper.cpp)
-target_link_libraries(gripper PUBLIC core configurable gazebo)
+target_link_libraries(gripper PUBLIC core configurable gazsim_msgs gazebo)
 target_include_directories(gripper PUBLIC ${GAZEBO_INCLUDE_DIRS})
 target_compile_options(gripper PUBLIC ${GAZEBO_CFLAGS})
